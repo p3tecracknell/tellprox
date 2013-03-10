@@ -57,29 +57,28 @@ TELLSTICK_CONTROLLER_TELLSTICK = 1
 TELLSTICK_CONTROLLER_TELLSTICK_DUO = 2
 TELLSTICK_CONTROLLER_TELLSTICK_NET = 3
 
-class TellStick(object):
-	def __init__(self, dllpath):
-		lib, libname = self.loadlibrary(dllpath)
-		if lib == None:
-			print "Error: Cannot find library " + libname
-			
+class TellStick(object):			
 	def loadlibrary(self, dllpath):
-		if platform == "darwin" or platform == "win32":
-			libraryname = "TelldusCore"
-		elif platform == "linux2":
-			libraryname = "telldus-core"
-		else:
-			libraryname = "TelldusCore"
-		ret = util.find_library(libraryname)
-		
-		if ret == None:
-			return (None, libraryname)
-	
-		global libtelldus
-		if platform == "win32":
+		if dllpath:
 			libtelldus = ctypes.WinDLL(dllpath)
 		else:
-			libtelldus = cdll.LoadLibrary(ret)
+			if platform == "linux2":
+				libraryname = "telldus-core"
+			else:
+				libraryname = "TelldusCore"
+			ret = util.find_library(libraryname)
+			if ret == None:
+				return (None, libraryname)
+		
+			global libtelldus
+			if platform == "win32":
+				try:
+					libtelldus = ctypes.WinDLL(ret)
+				except WindowsError:
+					return None, libraryname
+			else:
+				libtelldus = cdll.LoadLibrary(ret)
+
 		libtelldus.tdGetName.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p
 		libtelldus.tdGetProtocol.restype = c_char_p
@@ -179,8 +178,6 @@ class TellStick(object):
 			'statevalue': '0',
 			'methods': methods,
 			'type': self.device_type_to_string(libtelldus.tdGetDeviceType(identity)),
-			'client': 1,
-			'clientName': 'TellProx',
 			'online': 1,
 			'editable': 0
 		}
@@ -230,6 +227,5 @@ class TellStick(object):
 	
 	def devices(self, supportedMethods):
 		numDevices = libtelldus.tdGetNumberOfDevices()
-		devices = [self.read_device(libtelldus.tdGetDeviceId(i), supportedMethods)
+		return [self.read_device(libtelldus.tdGetDeviceId(i), supportedMethods)
 				  for i in xrange(0, numDevices)]
-		return { 'device': devices }

@@ -3,26 +3,29 @@
 from bottle import *
 from threading import Lock
 from tellstick import TellStick
+from configobj import ConfigObj
+from validate import Validator
+from admin_app import admin_ap
 import json
-#import oauth2 as oauth
-#import time
+
+# Constants
+CONFIG_PATH = 'config.ini'
+CONFIG_SPEC = 'configspec.ini'
 
 TELLSTICK = None
 INIT_LOCK = Lock()
 
-# TODO move to config
-isEditable = True
+# TODO wrap using virtualenv / py2exe
+# TODO use CherryPy for Web UI
 
 app = Bottle()
-#app.mount('/admin/', admin_ap.user_app)
-# TODO wrap using virtualenv / py2exe
-# TODO use CherryPy
 
-def initialize():
+# Setup Tellstick
+def initialise_tellstick():
 	with INIT_LOCK:
 		global TELLSTICK
-		TELLSTICK = TellStick("C:\\Program Files (x86)\\Telldus\\TelldusCore.dll")
-		return True
+		TELLSTICK = TellStick()
+		TELLSTICK.loadlibrary(config['dll_path'])
 
 @app.route('/test')
 def test():
@@ -55,11 +58,20 @@ def get_string(key):
 def list(outformat='json'):
 	supportedMethods = request.query.get('supportedMethods') or 0
 	devices = TELLSTICK.devices(supportedMethods)
-	return generate_response(devices)
+	devices = [append_client_info(d) for d in devices]
+	
+	return generate_response({ 'device': devices })
+
+def append_client_info(device):
+	global config
+	device['client'] = config['client_id']
+	device['clientName'] = config['client_name']
+	return device
 
 @app.route('/<outformat>/device/add')
 def add(outformat):
-	if (isEditable is False):
+	global config
+	if (config['editable'] is False):
 		return { "error" : "Client is not editable" }
 	
 	# This isn't nice. For the time being assume we have one client with id 1
@@ -106,6 +118,7 @@ def info(outformat):
 		get_int('id'),
 		get_int('supportedMethods') or 0,
 		True)
+	device = append_client_info(device)
 	return generate_response(device)
 	
 @app.route('/<outformat>/device/learn')
@@ -177,7 +190,7 @@ def generate_response(input):
 
 @app.route('/all')
 def index():
-	devices = TELLSTICK.devices()
+	devices = { 'device': TELLSTICK.devices() }
 	json_response = json.dumps(devices)
 	return generate_response(json_response)
 
@@ -198,7 +211,18 @@ def index(id, level):
 	
 	response.content_type = 'application/json'
 	return json_response
-	
-debug(True)
-initialize()
-run(app, host='localhost', port=8084, reloader=True)
+
+config = ConfigObj(CONFIG_PATH, configspec=CONFIG_SPEC)
+validator = Validator()
+result = config.validate(validator, copy=True)
+
+if result is False:
+	print "Config file validation failed"
+	sys.exit(1)
+
+# Write out default values
+config.write()
+
+initialise_tellstick()
+debug(config['debug'])
+run(app, host=config['host'], port=config['port'], reloader=config['debug'])

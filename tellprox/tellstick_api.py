@@ -21,7 +21,7 @@ def initialise_tellstick():
 	with INIT_LOCK:
 		global TELLSTICK
 		TELLSTICK = TellStick()
-		TELLSTICK.loadlibrary(config['dll_path'])
+		TELLSTICK.loadlibrary(config['library_name'])
 
 def get_int(key):
 	num = request.query.get(key) or ''

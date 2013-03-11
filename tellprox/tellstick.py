@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from ctypes import util, cdll, c_char_p
+from ctypes import util
+from ctypes import *
 from sys import platform
 import ctypes
 
@@ -59,7 +60,7 @@ TELLSTICK_CONTROLLER_TELLSTICK_NET = 3
 
 class TellStick(object):
 	def loadlibrary(self, libraryname=None):
-		if libraryname == None:
+		if libraryname == None or libraryname == '':
 			if platform == "darwin" or platform == "win32":
 				libraryname = "TelldusCore"
 			elif platform == "linux2":
@@ -75,7 +76,7 @@ class TellStick(object):
 
 		global libtelldus
 		if platform == "win32":
-			libtelldus = windll.LoadLibrary(ret)
+			libtelldus = ctypes.WinDLL(ret)
 		else:
 			libtelldus = cdll.LoadLibrary(ret)
 		libtelldus.tdGetName.restype = c_char_p

@@ -1,7 +1,7 @@
 tellprox
 ========
 
-A local server to use in place of Tellstick Live
+A local server to use in place of Tellstick Live. Based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
 
 
 Installation

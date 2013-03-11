@@ -12,7 +12,7 @@ if (0):
 else:
 	API_DOMAIN = 'localhost'
 	API_PATH = ''
-	API_PORT = '8084'
+	API_PORT = '8086'
 
 PUBLIC_KEY = ''
 PRIVATE_KEY = ''
@@ -138,11 +138,12 @@ def doRequest(method, params):
 	headers = oauth_request.to_header()
 	headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
+	print API_DOMAIN + ":" + API_PORT + API_PATH + "/json/" + method + "?" + urllib.urlencode(params, True).replace('+', '%20')
+		
 	conn = httplib.HTTPConnection(API_DOMAIN + ":" + API_PORT)
 	conn.request('GET', API_PATH + "/json/" + method + "?" + urllib.urlencode(params, True).replace('+', '%20'), headers=headers)
 
 	response = conn.getresponse()
-	print API_DOMAIN + ":" + API_PORT + API_PATH + "/json/" + method + "?" + urllib.urlencode(params, True).replace('+', '%20')
 	return json.load(response)
 
 def requestToken():

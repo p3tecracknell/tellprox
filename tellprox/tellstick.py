@@ -66,7 +66,9 @@ class TellStick(object):
 				libraryname = "telldus-core"
 			else:
 				libraryname = "TelldusCore"
+			print "Looking for library: " + libraryname
 			ret = util.find_library(libraryname)
+			print "Search: " + ret
 			if ret == None:
 				return (None, libraryname)
 		
@@ -78,6 +80,7 @@ class TellStick(object):
 					return None, libraryname
 			else:
 				libtelldus = cdll.LoadLibrary(ret)
+		print "Loading result: " + str(libtelldus)
 
 		libtelldus.tdGetName.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p

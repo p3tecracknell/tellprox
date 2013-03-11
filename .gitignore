@@ -146,6 +146,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+tdtool.py
 
 # Installer logs
 pip-log.txt

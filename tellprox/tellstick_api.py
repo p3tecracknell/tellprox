@@ -9,9 +9,6 @@ TELLSTICK = None
 config = None
 INIT_LOCK = Lock()
 
-# TODO wrap using virtualenv / py2exe
-# TODO use CherryPy for Web UI
-
 app = Bottle()
 
 def set_config(in_config):
@@ -25,23 +22,6 @@ def initialise_tellstick():
 		global TELLSTICK
 		TELLSTICK = TellStick()
 		TELLSTICK.loadlibrary(config['dll_path'])
-
-@app.route('/test')
-def test():
-	params = {
-		'oauth_version': "1.0",
-		'oauth_nonce': oauth.generate_nonce(),
-		'oauth_timestamp': int(time.time()),
-		'user': 'joestump',
-		'photoid': 555555555555
-	}
-	#token = oauth.Token(key="tok-test-key", secret="tok-test-secret")
-	consumer = oauth.Consumer(key="ZUXEVEGA9USTAZEWRETHAQUBUR69U6EF", secret="4e16fe3ecde3f79c2a47a9a8c754556b")
-	#params['oauth_token'] = token.key
-	params['oauth_consumer_key'] = consumer.key
-	url = "http://api.telldus.com"
-	req = oauth.Request(method="POST", url=url+'/oauth/requestToken', parameters=params)
-	return req
 
 def get_int(key):
 	num = request.query.get(key) or ''

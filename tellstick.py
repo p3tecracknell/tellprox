@@ -175,7 +175,7 @@ class TellStick(object):
 			'id': identity,
 			'name': libtelldus.tdGetName(identity),
 			'state': lastcmd,
-			'statevalue': '0',
+			'statevalue': lastSentValue,
 			'methods': methods,
 			'type': self.device_type_to_string(libtelldus.tdGetDeviceType(identity)),
 			'online': 1,

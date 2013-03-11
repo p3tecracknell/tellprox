@@ -7,8 +7,8 @@ if sys.version_info < (2, 5):
 
 import tellstick_api
 import json
+import bottle
 
-from bottle import *
 from configobj import ConfigObj
 from validate import Validator
 
@@ -16,7 +16,7 @@ from validate import Validator
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
-app = Bottle()
+app = bottle.Bottle()
 
 # TODO wrap using virtualenv / py2exe
 def main():
@@ -34,8 +34,8 @@ def main():
 	tellstick_api.set_config(config)
 	app.mount('/json', tellstick_api.app)
 	
-	debug(config['debug'])
-	run(app,
+	bottle.debug(config['debug'])
+	bottle.run(app,
 		host = config['host'],
 		port = config['port'],
 		reloader = config['debug'])

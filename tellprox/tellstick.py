@@ -57,38 +57,34 @@ TELLSTICK_CONTROLLER_TELLSTICK = 1
 TELLSTICK_CONTROLLER_TELLSTICK_DUO = 2
 TELLSTICK_CONTROLLER_TELLSTICK_NET = 3
 
-class TellStick(object):			
-	def loadlibrary(self, dllpath):
-		if dllpath:
-			libtelldus = ctypes.WinDLL(dllpath)
-		else:
-			if platform == "linux2":
+class TellStick(object):
+	def loadlibrary(self, libraryname=None):
+		if libraryname == None:
+			if platform == "darwin" or platform == "win32":
+				libraryname = "TelldusCore"
+			elif platform == "linux2":
 				libraryname = "telldus-core"
 			else:
 				libraryname = "TelldusCore"
-			print "Looking for library: " + libraryname
 			ret = util.find_library(libraryname)
-			print "Search: " + ret
-			if ret == None:
-				return (None, libraryname)
+		else:
+			ret = libraryname
 		
-			global libtelldus
-			if platform == "win32":
-				try:
-					libtelldus = ctypes.WinDLL(ret)
-				except WindowsError:
-					return None, libraryname
-			else:
-				libtelldus = cdll.LoadLibrary(ret)
-		print "Loading result: " + str(libtelldus)
+		if ret == None:
+			return (None, libraryname)
 
+		global libtelldus
+		if platform == "win32":
+			libtelldus = windll.LoadLibrary(ret)
+		else:
+			libtelldus = cdll.LoadLibrary(ret)
 		libtelldus.tdGetName.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p
 		libtelldus.tdGetProtocol.restype = c_char_p
 		libtelldus.tdGetModel.restype = c_char_p
 		libtelldus.tdGetErrorString.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p
-	
+
 		return ret, libraryname
 
 	def add(self, name, protocol, model):

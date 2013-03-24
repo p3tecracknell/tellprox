@@ -5,14 +5,14 @@ import sys, getopt, httplib, urllib, json, os
 import oauth.oauth as oauth
 from configobj import ConfigObj
 	
-if (0):
+if (1):
 	API_DOMAIN = 'api.telldus.com'
 	API_PATH = ''
 	API_PORT = '80'
 else:
 	API_DOMAIN = 'localhost'
 	API_PATH = ''
-	API_PORT = '8086'
+	API_PORT = '8080'
 
 PUBLIC_KEY = ''
 PRIVATE_KEY = ''

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from ctypes import util
-from ctypes import *
-from sys import platform
+from ctypes import util, c_char_p
+import platform
 import ctypes
 
 # Device methods
@@ -60,25 +59,17 @@ TELLSTICK_CONTROLLER_TELLSTICK_NET = 3
 
 class TellStick(object):
 	def loadlibrary(self, libraryname=None):
-		if libraryname == None or libraryname == '':
-			if platform == "darwin" or platform == "win32":
-				libraryname = "TelldusCore"
-			elif platform == "linux2":
-				libraryname = "telldus-core"
-			else:
-				libraryname = "TelldusCore"
-			ret = util.find_library(libraryname)
-		else:
-			ret = libraryname
-		
-		if ret == None:
-			return (None, libraryname)
-
 		global libtelldus
-		if platform == "win32":
-			libtelldus = ctypes.WinDLL(ret)
+		if platform.system() == 'Windows':
+			from ctypes import windll, WINFUNCTYPE
+			if (libraryname == None or libraryname == ''):
+				libraryname = 'TelldusCore.dll'
+			libtelldus = windll.LoadLibrary(libraryname)
 		else:
-			libtelldus = cdll.LoadLibrary(ret)
+			from ctypes import cdll, CFUNCTYPE
+			if (libraryname == None or libraryname == ''):
+				libraryname = 'libtelldus-core.so.2'
+			libtelldus = cdll.LoadLibrary(libraryname)
 		libtelldus.tdGetName.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p
 		libtelldus.tdGetProtocol.restype = c_char_p
@@ -86,9 +77,7 @@ class TellStick(object):
 		libtelldus.tdGetErrorString.restype = c_char_p
 		libtelldus.tdLastSentValue.restype = c_char_p
 
-		return ret, libraryname
-
-	def add(self, name, protocol, model):
+	def add_device(self, name, protocol, model):
 		newId = libtelldus.tdAddDevice()
 		if (newId < 0):
 			return { "error" : "Unable to add device" }
@@ -106,7 +95,7 @@ class TellStick(object):
 		
 		return self.determine_response(TELLSTICK_SUCCESS)
 
-	def remove(self, id):
+	def remove_device(self, id):
 		response = libtelldus.tdRemoveDevice(id)
 		
 		modified_response = TELLSTICK_SUCCESS
@@ -228,4 +217,7 @@ class TellStick(object):
 	def devices(self, supportedMethods):
 		numDevices = libtelldus.tdGetNumberOfDevices()
 		return [self.read_device(libtelldus.tdGetDeviceId(i), supportedMethods)
-				  for i in xrange(0, numDevices)]
+				  for i in range(0, numDevices)]
+
+	def add_group(self, name, devices):
+		return "not implemented yet"

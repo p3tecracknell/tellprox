@@ -16,13 +16,15 @@ from validate import Validator
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
+config = None
 app = bottle.Bottle()
 
 # TODO wrap using virtualenv / py2exe
 def main():
-	config = ConfigObj(CONFIG_PATH, configspec=CONFIG_SPEC)
+	global config
+	config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 	validator = Validator()
-	result = config.validate(validator, copy=True)
+	result = config.validate(validator, copy = True)
 
 	if result is False:
 		print "Config file validation failed"
@@ -32,8 +34,8 @@ def main():
 	config.write()
 
 	tellstick_api.set_config(config)
-	app.mount('/json', tellstick_api.app)
-	
+	app.merge(tellstick_api.app)
+
 	bottle.debug(config['debug'])
 	bottle.run(app,
 		host = config['host'],
@@ -41,16 +43,23 @@ def main():
 		reloader = config['debug'])
 
 @app.route('/')
-def server_static():
-	return static_file('index.html', root='.')
-	
-@app.route('/example.html')
-def server_static():
-	return static_file('example.html', root='.')
+def home_page():
+	return bottle.static_file('index.html', root='./static')
 
+@app.route('/ui')
+def home_page():
+	return bottle.static_file('ui.html', root='./static')
+	
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
-	return static_file(filepath, root='./static')
+	return bottle.static_file(filepath, root='./static')
+
+@app.route('/api/config', method='ANY')
+def get_config():
+	global config
+	rows = [ {'name': key, 'value': value, 'editor': 'text'}
+		for key, value in config.iteritems() ]
+	return json.dumps({"total":len(config),"rows": rows })
 
 if __name__ == "__main__":
     main()

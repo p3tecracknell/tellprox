@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>TellProx</title>
+    <link type="text/css" href="static/css/metro/easyui.css" rel="Stylesheet" />
+	<link type="text/css" href="static/css/metro/propertygrid.css" rel="Stylesheet" />
+    <script type="text/javascript" src="static/js/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="static/js/jquery.easyui.min.js"></script>
+    <style>
+    input, label {
+      font-family: Trebuchet MS, Verdana;
+      font-size: 12px;
+      border: 0;
+    }
+
+    </style>
+  </head>
+  <body>
+	<table id="pg" class="easyui-propertygrid" style="width:300px"  
+            data-options="showGroup:false,showHeader:false,scrollbarSize:0"></table>  
+    <script>
+	$(document).ready(function(){
+		$('#pg').propertygrid({
+			url: 'api/config'
+		});
+	});
+	
+	function showGroup(){  
+		$('#pg').propertygrid({  
+			showGroup:true  
+		});  
+	}  
+	function hideGroup(){  
+		$('#pg').propertygrid({  
+			showGroup:false  
+		});  
+	}  
+	function showHeader(){  
+		$('#pg').propertygrid({  
+			showHeader:true  
+		});  
+	}  
+	function hideHeader(){  
+		$('#pg').propertygrid({  
+			showHeader:false  
+		});  
+	}  
+	function getChanges(){  
+		var s = '';  
+		var rows = $('#pg').propertygrid('getChanges');  
+		for(var i=0; i<rows.length; i++){  
+			s += rows[i].name + ':' + rows[i].value + ',';  
+		}  
+		alert(s)  
+	}
+    </script>
+  </body>
+</html>

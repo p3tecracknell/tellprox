@@ -46,6 +46,10 @@ def main():
 def home_page():
 	return bottle.static_file('index.html', root='./static')
 
+@app.route('/config')
+def home_page():
+	return bottle.static_file('config.html', root='./static')
+
 @app.route('/ui')
 def home_page():
 	return bottle.static_file('ui.html', root='./static')

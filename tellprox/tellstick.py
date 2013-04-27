@@ -167,8 +167,7 @@ class TellStick(object):
 			'statevalue': lastSentValue,
 			'methods': methods,
 			'type': self.device_type_to_string(libtelldus.tdGetDeviceType(identity)),
-			'online': 1,
-			'editable': 0
+			'online': 1
 		}
 		
 		if (getExtras is True):

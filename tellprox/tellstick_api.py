@@ -35,7 +35,16 @@ def route_all(out_format, ftype, func):
 	
 	elif (ftype == 'device'):
 		resp = device_func(func)
+
+	elif (ftype == 'clients'):
+		resp = { 'client': [get_client_info()] }
 	
+	elif (ftype == 'client'):
+		clientid = get_int('clientid') or 1
+		if (clientid != config['client_id']):
+			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
+		resp = get_client_info()
+		
 	elif (ftype == 'group'):
 		resp = 'not implemented yet'
 		
@@ -43,7 +52,7 @@ def route_all(out_format, ftype, func):
 		resp = 'not implemented yet'
 
 	elif (ftype == 'sensors'):
-		resp = 'not implemented yet'
+		resp = { 'sensor': [] }
 	
 	elif (ftype == 'sensor'):
 		resp = 'not implemented yet'
@@ -61,7 +70,7 @@ def device_func(func):
 
 		clientid = get_int('clientid') or 1
 		if (clientid != config['client_id']):
-			return { "error" : "Client \"" + str(clientid) + "\" not found" }
+			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
 
 		return TELLSTICK.add_device(
 			get_string('name'),
@@ -147,9 +156,22 @@ def format_response(input, out_format):
 # defined by the user
 def append_client_info(device):
 	global config
-	device['client'] = config['client_id']
-	device['clientName'] = config['client_name']
+	device['client'] = config['client_id'] or 1
+	device['clientName'] = config['client_name'] or ''
+	device['editable'] = 1 if config['editable'] else 0
 	return device
+
+def get_client_info():
+	global config
+	return {
+		'id': config['client_id'] or 1,
+		'uuid':'00000000-0000-0000-0000-000000000000',
+		'name':config['client_name'] or '',
+		'online': '1',
+		'editable': 1 if config['editable'] else 0,
+		'version':'0.1',
+		'type':'TellProx'
+	}
 
 # Helper Functions
 def get_int(key):

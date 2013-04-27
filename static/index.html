@@ -1,59 +1,183 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>TellProx</title>
-    <link type="text/css" href="static/css/metro/easyui.css" rel="Stylesheet" />
-	<link type="text/css" href="static/css/metro/propertygrid.css" rel="Stylesheet" />
-    <script type="text/javascript" src="static/js/jquery-1.8.0.min.js"></script>
-    <script type="text/javascript" src="static/js/jquery.easyui.min.js"></script>
-    <style>
-    input, label {
-      font-family: Trebuchet MS, Verdana;
-      font-size: 12px;
-      border: 0;
-    }
+    <title>Template &middot; Bootstrap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
+    <!-- Le styles -->
+    <link href="static/css/bootstrap.css" rel="stylesheet">
+	<link href="static/css/flat-ui.css" rel="stylesheet">
+    <style type="text/css">
+		.palette {
+			text-transform: none;
+		}
+		.span4 {
+			margin-bottom: 15px;
+		}
     </style>
+    <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
   </head>
+
   <body>
-	<table id="pg" class="easyui-propertygrid" style="width:300px"  
-            data-options="showGroup:false,showHeader:false,scrollbarSize:0"></table>  
+    <div class="container">
+	  <h3>TellProx</h3>
+	  
+	  <div class="navbar navbar-inverse">
+		<div class="navbar-inner">
+		  <ul class="nav">
+			<li class="active"><a href="/">Devices</a></li>
+			<li><a href="/config">Config</a></li>
+		  </ul>
+		</div>
+	  </div>
+
+	  <div id="rows">
+		  <!-- Example row of columns>
+		  <div class="row-fluid">
+			<div class="span4">
+			  <div class="palette palette-info">
+				  <h2>Hallway Main Light</h2>
+			  </div>
+			  <div class="palette palette-info-dark">
+				  <div id="slider1" class="ui-slider"></div>
+			  </div>
+			</div>
+			<div class="span4">
+			  <div class="palette palette-info">
+				  <h2>Lounge Main Light</h2>
+			  </div>
+			  <div class="palette palette-info-dark">
+				  <div id="slider2" class="ui-slider"></div>
+			  </div>
+			</div>
+			<div class="span4">
+			  <div class="palette palette-info">
+				  <h2>Bedroom Speakers</h2>
+			  </div>
+			  <div class="palette palette-info-dark">
+				  <div class="toggle">
+					<label class="toggle-radio" for="toggleOption2">ON</label>
+					<input type="radio" name="toggleOptions" id="toggleOption1" value="option1" checked="checked">
+					<label class="toggle-radio" for="toggleOption1">OFF</label>
+					<input type="radio" name="toggleOptions" id="toggleOption2" value="option2">
+				  </div>
+			  </div>
+			</div>
+		  </div>
+		</div-->
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="static/js/jquery-1.8.0.min.js"></script>
+	<script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
+	<script src="static/js/custom_radio.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
     <script>
-	$(document).ready(function(){
-		$('#pg').propertygrid({
-			url: 'api/config'
-		});
-	});
 	
-	function showGroup(){  
-		$('#pg').propertygrid({  
-			showGroup:true  
-		});  
-	}  
-	function hideGroup(){  
-		$('#pg').propertygrid({  
-			showGroup:false  
-		});  
-	}  
-	function showHeader(){  
-		$('#pg').propertygrid({  
-			showHeader:true  
-		});  
-	}  
-	function hideHeader(){  
-		$('#pg').propertygrid({  
-			showHeader:false  
-		});  
-	}  
-	function getChanges(){  
-		var s = '';  
-		var rows = $('#pg').propertygrid('getChanges');  
-		for(var i=0; i<rows.length; i++){  
-			s += rows[i].name + ':' + rows[i].value + ',';  
-		}  
-		alert(s)  
-	}
-    </script>
+	var URLBase = 'json/';
+	var ON_OFF = 3;
+	var DIM = 16;
+
+	$(document).ready(function() {		
+		$.ajax({
+			url: URLBase + 'devices/list',
+			dataType: "jsonp",
+			crossDomain: true,
+			success: function(data) {
+				loadItems(data);
+			}
+      	});
+		
+		function div()   { return $(document.createElement('div'));   }
+		function h2()    { return $(document.createElement('h2'));    }
+		function label() { return $(document.createElement('label')); }
+		function radio() { return $(document.createElement('input')).attr({type: 'radio' }); }
+		
+		function createItemCell(name) {
+			// Create elements
+			var item = {
+				cell: div().addClass('span4'),
+				header: div().addClass('palette palette-info').
+					append(h2().text(name)),
+				body: div().addClass('palette palette-info-dark')
+			};
+
+			item.header.appendTo(item.cell);
+			item.body.appendTo(item.cell);
+			
+			return item;
+		}
+		
+		function createSlider(parent, startValue) {
+			var slider = div().addClass('ui-slider');
+			parent.append(slider);
+			slider.slider({
+				min: 0,
+				max: 255,
+				value: startValue,
+				orientation: "horizontal",
+				range: "min"
+			});
+		}
+		
+		function createToggle(parent, id, state) {
+			var t1Name = 'toggleOption1-' + id;
+			var t2Name = 'toggleOption2-' + id;
+			
+			var toggle = div().addClass('toggle')
+				.append(label().text("ON").attr({'class': 'toggle-radio','for': t2Name}))
+				.append(radio().attr({
+					id: t1Name,
+					name: 'toggleOptions',
+					value: 'option1-' + id,
+					checked: 'checked'
+				}))
+				.append(label().text("OFF").attr({'class': 'toggle-radio','for': t1Name}))
+				.append(radio().attr({
+					id: t2Name,
+					name: 'toggleOptions',
+					value: 'option2-' + id
+				}))
+			
+			parent.append(toggle);
+			toggleHandler(toggle);
+		}
+		
+		function loadItems(data) {
+			var devices = data['device']
+			var itemCount = 0;
+			var rowContainer = $('#rows');
+			var currentRow;
+			
+			// Loop through all items
+			$.each(devices, function(i, v) {
+				if (itemCount % 3 == 0) {
+					// Add row
+					currentRow = div().addClass('row-fluid');
+					currentRow.appendTo(rowContainer);
+				}
+				
+				// See if it supports dimming
+				var dimmable = ((v.methods & DIM) == DIM);
+				
+				var item = createItemCell(v.name);
+				currentRow.append(item.cell);
+				
+				if (dimmable)
+					createSlider(item.body, v.statevalue)
+				else
+					createToggle(item.body, v.id, v.statevalue)
+				
+				itemCount++;
+			});
+		}
+	});
+	</script>
+
   </body>
 </html>

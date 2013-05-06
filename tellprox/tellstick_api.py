@@ -90,15 +90,18 @@ class TellstickAPI(object):
 		return TELLSTICK_SUCCESS
 
 	def device_command(self, device, func, value = ''):
-		if   (func == 'bell'):    return device.bell()
-		elif (func == 'dim'):     return device.dim(value)
-		elif (func == 'down'):    return device.down()
-		elif (func == 'learn'):   return device.learn()
-		elif (func == 'remove'):  return device.remove()
-		elif (func == 'stop'):    return device.stop()
-		elif (func == 'turnon'):  return device.turn_on()
-		elif (func == 'turnoff'): return device.turn_off()
-		elif (func == 'up'):      return device.up()
+		# TODO replace with try/catch
+		try:
+			if   (func == 'bell'):    device.bell()
+			elif (func == 'dim'):     device.dim(value)
+			elif (func == 'down'):    device.down()
+			elif (func == 'learn'):   device.learn()
+			elif (func == 'remove'):  device.remove()
+			elif (func == 'stop'):    device.stop()
+			elif (func == 'turnon'):  device.turn_on()
+			elif (func == 'turnoff'): device.turn_off()
+			elif (func == 'up'):      device.up()
+		return TELLSTICK_SUCCESS
 	
 	def device_set_parameter(self, device, attr):
 		if (attr == 'parameter'):
@@ -112,13 +115,13 @@ class TellstickAPI(object):
 		else: return TELLSTICK_ERROR_NOT_FOUND
 				
 	def route_clients(self):
-		return { 'client': [get_client_info()] }
+		return { 'client': [self.get_client_info()] }
 
 	def route_client(self):
-		clientid = get_client_id()
+		clientid = self.get_client_id()
 		if (clientid != config['client_id']):
 			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
-		return get_client_info()
+		return self.get_client_info()
 
 	def route_sensors(self):
 		includeIgnored = bh.get_int('includeIgnored')

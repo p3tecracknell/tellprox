@@ -3,16 +3,17 @@
 
 import sys, getopt, httplib, urllib, json, os
 import oauth.oauth as oauth
+import datetime
 from configobj import ConfigObj
 	
-if (1):
+if (0):
 	API_DOMAIN = 'api.telldus.com'
 	API_PATH = ''
 	API_PORT = '80'
 else:
 	API_DOMAIN = 'localhost'
 	API_PATH = ''
-	API_PORT = '8080'
+	API_PORT = '8084'
 
 PUBLIC_KEY = ''
 PRIVATE_KEY = ''
@@ -74,7 +75,27 @@ def printUsage():
 	print("             be an integer of the device-id")
 	print("             Device-id and name is outputed with the --list option")
 	print("")
+	print("       --list-sensors (-s short option)")
+	print("             Lists currently configured sensors")
+	print("")
+	print("       --sensor-data sensor (-d short option)")
+	print("             Get sensor data with sensor id number")
+	print("")
 	print("Report bugs to <info.tech@telldus.se>")
+
+def listSensors():
+        response = doRequest('sensors/list', {'includeIgnored': 1});
+        print("Number of sensors: %i" % len(response['sensor']));
+        print response
+        for sensor in response['sensor']:
+                lastupdate = datetime.datetime.fromtimestamp(int(sensor['lastUpdated']));
+                print "%s\t%s\t%s" % (sensor['id'], sensor['name'], lastupdate)
+def getSensorData(sensorId):
+        response = doRequest('sensor/info', {'id': sensorId });
+        lastupdate = datetime.datetime.fromtimestamp(int(response['lastUpdated']));
+        sensor_name = response['name'];
+        for data in response['data']:
+                print "%s\t%s\t%s\t%s" % (sensor_name, data['name'], data['value'], lastupdate)
 
 def listDevices():
 	response = doRequest('devices/list', {'supportedMethods': SUPPORTED_METHODS})
@@ -208,7 +229,7 @@ def main(argv):
 		authenticate()
 		return
 	try:
-		opts, args = getopt.getopt(argv, "ln:f:d:b:v:h", ["list", "on=", "off=", "dim=", "bell=", "dimlevel=", "up=", "down=", "help"])
+		opts, args = getopt.getopt(argv, "lsd:n:f:d:b:v:h", ["list", "list-sensors", "sensor-data=", "on=", "off=", "dim=", "bell=", "dimlevel=", "up=", "down=", "help"])
 	except getopt.GetoptError:
 		printUsage()
 		sys.exit(2)
@@ -221,6 +242,12 @@ def main(argv):
 
 		elif opt in ("-l", "--list"):
 			listDevices()
+
+		elif opt in ("-s", "--list-sensors"):
+			listSensors()
+		
+		elif opt in ("-d", "--sensor-data"):
+			getSensorData(arg)
 
 		elif opt in ("-n", "--on"):
 			doMethod(arg, TELLSTICK_TURNON)

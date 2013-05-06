@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from ctypes import util, c_char_p
+from ctypes import util, c_char_p, c_int, create_string_buffer, sizeof, byref
 import platform
 import ctypes
 
@@ -217,6 +217,27 @@ class TellStick(object):
 		numDevices = libtelldus.tdGetNumberOfDevices()
 		return [self.read_device(libtelldus.tdGetDeviceId(i), supportedMethods)
 				  for i in range(0, numDevices)]
+	
+	def sensors(self, includeIgnored):
+		sensors = []
+		while True:
+			protocol = create_string_buffer(20)
+			model = create_string_buffer(20)
+			id = c_int()
+			datatypes = c_int()
+
+			libtelldus.tdSensor(protocol, sizeof(protocol),
+				model, sizeof(model), byref(id), byref(datatypes))
+			
+			if libtelldus.tdGetErrorString():
+				break
+
+			sensor = { 'protocol': protocol.value, 'model': model.value,
+				'id': id.value, 'datatypes': datatypes.value, 'lastUpdated': 0 }
+			
+			sensors.push(sensor)
+		
+		return [sensors]
 
 	def add_group(self, name, devices):
 		return "not implemented yet"

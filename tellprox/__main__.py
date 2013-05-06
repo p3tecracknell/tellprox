@@ -21,7 +21,6 @@ app = bottle.Bottle()
 
 # TODO wrap using virtualenv / py2exe
 def main():
-	global config
 	config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 	validator = Validator()
 	result = config.validate(validator, copy = True)
@@ -32,9 +31,8 @@ def main():
 
 	# Write out default values
 	config.write()
-
-	tellstick_api.set_config(config)
-	app.merge(tellstick_api.app)
+	
+	tellstick_api.TellstickAPI(app, config)
 
 	bottle.debug(config['debug'])
 	bottle.run(app,
@@ -60,7 +58,6 @@ def server_static(filepath='index.html'):
 
 @app.route('/api/config', method='ANY')
 def get_config():
-	global config
 	rows = [ {'name': key, 'value': value, 'editor': 'text'}
 		for key, value in config.iteritems() ]
 	return json.dumps({"total":len(config),"rows": rows })

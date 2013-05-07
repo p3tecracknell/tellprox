@@ -91,16 +91,16 @@ class TellstickAPI(object):
 
 	def device_command(self, device, func, value = ''):
 		# TODO replace with try/catch
-		try:
-			if   (func == 'bell'):    device.bell()
-			elif (func == 'dim'):     device.dim(value)
-			elif (func == 'down'):    device.down()
-			elif (func == 'learn'):   device.learn()
-			elif (func == 'remove'):  device.remove()
-			elif (func == 'stop'):    device.stop()
-			elif (func == 'turnon'):  device.turn_on()
-			elif (func == 'turnoff'): device.turn_off()
-			elif (func == 'up'):      device.up()
+		if   (func == 'bell'):    device.bell()
+		elif (func == 'dim'):     device.dim(value)
+		elif (func == 'down'):    device.down()
+		elif (func == 'learn'):   device.learn()
+		elif (func == 'remove'):  device.remove()
+		elif (func == 'stop'):    device.stop()
+		elif (func == 'turnon'):  device.turn_on()
+		elif (func == 'turnoff'): device.turn_off()
+		elif (func == 'up'):      device.up()
+		
 		return TELLSTICK_SUCCESS
 	
 	def device_set_parameter(self, device, attr):

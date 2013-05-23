@@ -5,7 +5,7 @@ import telldus.telldus as td
 
 class MSensor(object):
     def __init__(self, protocol, model, id, datatypes):
-        super(Sensor, self).__init__()
+        super(MSensor, self).__init__()
         self.protocol = protocol
         self.model = model
         self.id = id
@@ -31,7 +31,7 @@ class MSensorValue(object):
     __slots__ = ["value", "timestamp"]
 
     def __init__(self, value, timestamp):
-        super(SensorValue, self).__init__()
+        super(MSensorValue, self).__init__()
         self.value = value
         self.timestamp = timestamp
 
@@ -172,7 +172,10 @@ class TellstickAPI(object):
 			if (func == 'info'):
 				return self.map_sensor_to_json(sensor, True)
 			elif (func == 'setIgnore'):
-				return "not implemented"
+				if (bh.get_int('ignore') == 1):
+					self.add_sensor_to_ignore(id)
+				else:
+					self.remove_sensor_from_ignore(id)
 			elif (func == 'setName'):
 				return "not implemented"
 				
@@ -181,6 +184,12 @@ class TellstickAPI(object):
 			resp = "Sensor " + "\"" + str(id) + "\" not found!"
 		
 		return self.map_response(resp)
+	
+	def add_sensor_to_ignore(self, id):
+		config['ignored_sensors'].append(id)
+		
+	def remove_sensor_from_ignore(self, id):
+		print "todo"
 	
 	# Add client id and name to a device using config
 	# defined by the user

@@ -160,7 +160,7 @@ class TellstickAPI(object):
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
 				for k, sensor in self.sensors.iteritems()
-				if includeIgnored or self.is_ignored_sensor(sensor.id)
+				#if includeIgnored or self.is_ignored_sensor(sensor.id)
 		]}
 		
 	def is_ignored_sensor(self, id):

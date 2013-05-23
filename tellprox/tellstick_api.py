@@ -39,8 +39,6 @@ class TellstickAPI(object):
 	""" Mimick Telldus Live """
 	config = None
 	core = td.TelldusCore()
-	devices = []
-	sensors = []
 
 	def __init__(self, app, config):
 		self.config = config
@@ -60,6 +58,7 @@ class TellstickAPI(object):
 		""" Read in all sensors using telldus-py library and convert into
 			id keyed dictionary """
 		self.sensors = { sensor.id: sensor for sensor in self.core.sensors()}
+		self.sensors['9998'] = MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
 		self.sensors['9999'] = MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
 
 	def route_all(self, out_format, ftype, func):
@@ -157,26 +156,32 @@ class TellstickAPI(object):
 		return self.get_client_info()
 
 	def route_sensors(self):
-		includeIgnored = bh.get_int('includeIgnored')
+		includeIgnored = True if bh.get_int('includeIgnored') == 1 else 0
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
 				for k, sensor in self.sensors.iteritems()
+				if includeIgnored or self.is_ignored_sensor(sensor.id)
 		]}
+		
+	def is_ignored_sensor(self, id):
+		return str(id) in self.config['ignored_sensors']
 	
 	def route_sensor(self, func):
 		# The ID should be an integer, but we store them in the dictionary as
 		# strings, so treat as such
 		id = str(bh.get_int('id'))
+		resp = TELLSTICK_SUCCESS
 		if (self.sensors.has_key(id)):
 			sensor = self.sensors[id]
 			if (func == 'info'):
 				return self.map_sensor_to_json(sensor, True)
-			elif (func == 'setIgnore'):
+			elif (func == 'setignore'):
 				if (bh.get_int('ignore') == 1):
-					self.add_sensor_to_ignore(id)
+					self.config['ignored_sensors'].append(id)
 				else:
-					self.remove_sensor_from_ignore(id)
-			elif (func == 'setName'):
+					self.config['ignored_sensors'].remove(id)
+				self.save_sensor_ignore_list()
+			elif (func == 'setname'):
 				return "not implemented"
 				
 			if resp is None: bh.raise404()
@@ -185,11 +190,9 @@ class TellstickAPI(object):
 		
 		return self.map_response(resp)
 	
-	def add_sensor_to_ignore(self, id):
-		config['ignored_sensors'].append(id)
-		
-	def remove_sensor_from_ignore(self, id):
-		print "todo"
+	def save_sensor_ignore_list(self):
+		self.config['ignored_sensors'] = list(set(self.config['ignored_sensors']))
+		self.config.write()
 	
 	# Add client id and name to a device using config
 	# defined by the user
@@ -232,12 +235,12 @@ class TellstickAPI(object):
 				svalue = sensor.value(type['key'])
 				lastUpdated = svalue.timestamp
 				sensor_data.append({'name': type['name'], 'value': svalue.value})
-				
+		
 		json = {
 			'id': sensor.id,
 			'name': "TODO",
 			'lastUpdated': lastUpdated,
-			'ignored': 0,
+			'ignored': 1 if self.is_ignored_sensor(sensor.id) else 0,
 			'online': 1
 		}
 		

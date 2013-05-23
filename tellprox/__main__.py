@@ -33,7 +33,7 @@ def main():
 	config.write()
 	
 	tellstick_api.TellstickAPI(app, config)
-
+	
 	bottle.debug(config['debug'])
 	bottle.run(app,
 		host = config['host'],
@@ -63,4 +63,4 @@ def get_config():
 	return json.dumps({"total":len(config),"rows": rows })
 
 if __name__ == "__main__":
-    main()
+	main()

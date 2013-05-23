@@ -3,6 +3,38 @@ from telldus.constants import *
 import bottle_helpers as bh
 import telldus.telldus as td
 
+class MSensor(object):
+    def __init__(self, protocol, model, id, datatypes):
+        super(Sensor, self).__init__()
+        self.protocol = protocol
+        self.model = model
+        self.id = id
+        self.datatypes = datatypes
+        #self.lib = Library()
+
+    def value(self, datatype):
+        return MSensorValue('val', 'timestamp')
+
+    def has_temperature(self):
+        return self.datatypes & TELLSTICK_TEMPERATURE != 0
+
+    def has_humidity(self):
+        return self.datatypes & TELLSTICK_HUMIDITY != 0
+
+    def temperature(self):
+        return self.value(TELLSTICK_TEMPERATURE)
+
+    def humidity(self):
+        return self.value(TELLSTICK_HUMIDITY)
+
+class MSensorValue(object):
+    __slots__ = ["value", "timestamp"]
+
+    def __init__(self, value, timestamp):
+        super(SensorValue, self).__init__()
+        self.value = value
+        self.timestamp = timestamp
+
 class TellstickAPI(object):
 	""" Mimick Telldus Live """
 	config = None
@@ -22,12 +54,13 @@ class TellstickAPI(object):
 	def load_devices(self):
 		""" Read in all devices using telldus-py library and convert into
 			id keyed dictionary """
-		self.devices = { device.id: device for device in self.core.devices()}
+		self.devices = { device.id: device for device in self.core.devices() }
 	
 	def load_sensors(self):
 		""" Read in all sensors using telldus-py library and convert into
 			id keyed dictionary """
 		self.sensors = { sensor.id: sensor for sensor in self.core.sensors()}
+		self.sensors['9999'] = MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
 
 	def route_all(self, out_format, ftype, func):
 		""" Root level routing for all tellstick functionality """
@@ -131,11 +164,13 @@ class TellstickAPI(object):
 		]}
 	
 	def route_sensor(self, func):
-		id = bh.get_int('id')			
+		# The ID should be an integer, but we store them in the dictionary as
+		# strings, so treat as such
+		id = str(bh.get_int('id'))
 		if (self.sensors.has_key(id)):
 			sensor = self.sensors[id]
 			if (func == 'info'):
-				return self.map_sensor_to_json(sensor)
+				return self.map_sensor_to_json(sensor, True)
 			elif (func == 'setIgnore'):
 				return "not implemented"
 			elif (func == 'setName'):
@@ -150,10 +185,12 @@ class TellstickAPI(object):
 	# Add client id and name to a device using config
 	# defined by the user
 	def append_client_info(self, device):
-		device['client'] = self.config['client_id'] or 1
-		device['clientName'] = self.config['client_name'] or ''
-		device['editable'] = 1 if self.config['editable'] else 0
-		return device
+		extra = {
+			'client': self.config['client_id'] or 1,
+			'clientName': self.config['client_name'] or '',
+			'editable': 1 if self.config['editable'] else 0
+		}
+		return dict(device.items() + extra.items())
 
 	def device_type_to_string(self, type):
 		if (type == TELLSTICK_TYPE_DEVICE):
@@ -175,14 +212,34 @@ class TellstickAPI(object):
 		}
 		return self.append_client_info(json)
 	
-	def map_sensor_to_json(self, sensor):
+	def map_sensor_to_json(self, sensor, extra=False):
+		lastUpdated = -1		
+		sensor_data = []
+		for type in [
+			{'name': 'temp',     'key': TELLSTICK_TEMPERATURE },
+			{'name': 'humidity', 'key': TELLSTICK_HUMIDITY }
+		]:
+			if sensor.datatypes & type['key'] != 0:
+				svalue = sensor.value(type['key'])
+				lastUpdated = svalue.timestamp
+				sensor_data.append({'name': type['name'], 'value': svalue.value})
+				
 		json = {
 			'id': sensor.id,
 			'name': "TODO",
-			'lastUpdated': "TODO",
+			'lastUpdated': lastUpdated,
 			'ignored': 0,
-			'online': 1,
+			'online': 1
 		}
+		
+		if extra:
+			extra_json = {
+				'data': sensor_data,
+				'protocol': sensor.protocol,
+				'sensorId': 'TODO',
+				'timezoneoffset': 'TODO'
+			}
+			json = dict(json.items() + extra_json.items())
 		
 		return self.append_client_info(json)
 

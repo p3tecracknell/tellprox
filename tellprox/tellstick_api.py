@@ -257,11 +257,11 @@ class TellstickAPI(object):
 
 	def get_client_info(self):
 		return {
-			'id': config['client_id'] or 1,
+			'id': self.config['client_id'] or 1,
 			'uuid':'00000000-0000-0000-0000-000000000000',
-			'name':config['client_name'] or '',
+			'name':self.config['client_name'] or '',
 			'online': '1',
-			'editable': 1 if config['editable'] else 0,
+			'editable': 1 if self.config['editable'] else 0,
 			'version':'0.2',
 			'type':'TellProx'
 		}

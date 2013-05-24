@@ -39,6 +39,7 @@ class TellstickAPI(object):
 	""" Mimick Telldus Live """
 	config = None
 	core = td.TelldusCore()
+	sensors = {}
 
 	def __init__(self, app, config):
 		self.config = config
@@ -57,11 +58,41 @@ class TellstickAPI(object):
 	def load_sensors(self):
 		""" Read in all sensors using telldus-py library and convert into
 			id keyed dictionary """
-		self.sensors = { sensor.id: sensor for sensor in self.core.sensors() }
+		sensors = self.core.sensors()
 		if (self.config['debug']):
-			self.sensors['9998'] = MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
-			self.sensors['9999'] = MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
+			sensors.append(MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
+			sensors.append(MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
+		
+		cfg = self.config['sensors']
+		
+		for rawsensor in sensors:
+			# We use string keys for ID as it may not always be an int
+			id = str(rawsensor.id)
+			
+			# Create a default section for the sensor if it doesn't exist
+			if not id in cfg.keys():
+				cfg[id] = {
+					'ignore' : 0,
+					'name'   : ''
+				}
 
+			self.sensors[id] = {
+				'raw'    : rawsensor,
+				'ignore' : cfg[id]['ignore'],
+				'name'   : cfg[id]['name']
+			}
+
+	def save_config(self):
+		for id, sensor in self.sensors.iteritems():
+			print id
+			print sensor
+			self.config['sensors'][id] = {
+				'name'   : sensor['name'],
+				'ignore' : sensor['ignore']
+			}
+		
+		self.config.write()
+	
 	def route_all(self, out_format, ftype, func):
 		""" Root level routing for all tellstick functionality """
 		ftype = ftype.strip().lower()
@@ -157,15 +188,13 @@ class TellstickAPI(object):
 		return self.get_client_info()
 
 	def route_sensors(self):
-		includeIgnored = True if bh.get_int('includeIgnored') == 1 else 0
+		includeIgnored = True if bh.get_int('includeignored') == 1 else False
+		print includeIgnored
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
-				for k, sensor in self.sensors.iteritems()
-				if includeIgnored or not self.is_ignored_sensor(sensor.id)
+				for id, sensor in self.sensors.iteritems()
+				if includeIgnored or int(sensor['ignore']) == 0
 		]}
-		
-	def is_ignored_sensor(self, id):
-		return str(id) in self.config['ignored_sensors']
 	
 	def route_sensor(self, func):
 		# The ID should be an integer, but we store them in the dictionary as
@@ -177,11 +206,9 @@ class TellstickAPI(object):
 			if (func == 'info'):
 				return self.map_sensor_to_json(sensor, True)
 			elif (func == 'setignore'):
-				if (bh.get_int('ignore') == 1):
-					self.config['ignored_sensors'].append(id)
-				else:
-					self.config['ignored_sensors'].remove(id)
-				self.save_sensor_ignore_list()
+				sensor['ignore'] = 1 if bh.get_int('ignore') == 1 else 0
+				self.save_config()
+				#self.save_sensor_ignore_list()
 			elif (func == 'setname'):
 				return "not implemented"
 				
@@ -191,9 +218,10 @@ class TellstickAPI(object):
 		
 		return self.map_response(resp)
 	
-	def save_sensor_ignore_list(self):
-		self.config['ignored_sensors'] = list(set(self.config['ignored_sensors']))
-		self.config.write()
+	#def save_sensor_ignore_list(self):
+		# redo to save sensor objects to config instead of list
+		#self.config['ignored_sensors'] = list(set(self.config['ignored_sensors']))
+		#self.config.write()
 	
 	# Add client id and name to a device using config
 	# defined by the user
@@ -225,30 +253,36 @@ class TellstickAPI(object):
 		}
 		return self.append_client_info(json)
 	
-	def map_sensor_to_json(self, sensor, extra=False):
-		lastUpdated = -1		
+	def map_sensor_to_json(self, sensor, extra = False):
+		# Set default value in case we get back nothing
+		lastUpdated = -1
+		
+		# Slightly more readable
+		rawsensor = sensor['raw']
+		
+		# Populate sensor data using calls to core library
 		sensor_data = []
 		for type in [
 			{'name': 'temp',     'key': TELLSTICK_TEMPERATURE },
 			{'name': 'humidity', 'key': TELLSTICK_HUMIDITY }
 		]:
-			if sensor.datatypes & type['key'] != 0:
-				svalue = sensor.value(type['key'])
+			if rawsensor.datatypes & type['key'] != 0:
+				svalue = rawsensor.value(type['key'])
 				lastUpdated = svalue.timestamp
 				sensor_data.append({'name': type['name'], 'value': svalue.value})
 		
 		json = {
-			'id': sensor.id,
+			'id': rawsensor.id,
 			'name': None,
 			'lastUpdated': lastUpdated,
-			'ignored': 1 if self.is_ignored_sensor(sensor.id) else 0,
+			'ignored': int(sensor['ignore']),
 			'online': 1
 		}
 		
 		if extra:
 			extra_json = {
 				'data': sensor_data,
-				'protocol': sensor.protocol,
+				'protocol': rawsensor.protocol,
 				'sensorId': 'TODO',
 				'timezoneoffset': 'TODO'
 			}

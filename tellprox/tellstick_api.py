@@ -13,7 +13,7 @@ class MSensor(object):
         #self.lib = Library()
 
     def value(self, datatype):
-        return MSensorValue('val', 'timestamp')
+        return MSensorValue('val', 1369347055)
 
     def has_temperature(self):
         return self.datatypes & TELLSTICK_TEMPERATURE != 0
@@ -57,9 +57,10 @@ class TellstickAPI(object):
 	def load_sensors(self):
 		""" Read in all sensors using telldus-py library and convert into
 			id keyed dictionary """
-		self.sensors = { sensor.id: sensor for sensor in self.core.sensors()}
-		self.sensors['9998'] = MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
-		self.sensors['9999'] = MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
+		self.sensors = { sensor.id: sensor for sensor in self.core.sensors() }
+		if (self.config['debug']):
+			self.sensors['9998'] = MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
+			self.sensors['9999'] = MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY)
 
 	def route_all(self, out_format, ftype, func):
 		""" Root level routing for all tellstick functionality """
@@ -160,7 +161,7 @@ class TellstickAPI(object):
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
 				for k, sensor in self.sensors.iteritems()
-				#if includeIgnored or self.is_ignored_sensor(sensor.id)
+				if includeIgnored or not self.is_ignored_sensor(sensor.id)
 		]}
 		
 	def is_ignored_sensor(self, id):
@@ -238,7 +239,7 @@ class TellstickAPI(object):
 		
 		json = {
 			'id': sensor.id,
-			'name': "TODO",
+			'name': None,
 			'lastUpdated': lastUpdated,
 			'ignored': 1 if self.is_ignored_sensor(sensor.id) else 0,
 			'online': 1

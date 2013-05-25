@@ -5,9 +5,7 @@ if sys.version_info < (2, 5):
     print "Sorry, requires Python 2.5, 2.6 or 2.7."
     sys.exit(1)
 
-import tellstick_api
-import json
-import bottle
+import tellstick_api, json, bottle
 
 from configobj import ConfigObj
 from validate import Validator
@@ -28,9 +26,6 @@ def main():
 	if result is False:
 		print "Config file validation failed"
 		sys.exit(1)
-
-	# Write out default values
-	config.write()
 	
 	tellstick_api.TellstickAPI(app, config)
 	
@@ -39,6 +34,9 @@ def main():
 		host = config['host'],
 		port = config['port'],
 		reloader = config['debug'])
+	
+	# Write out default values
+	config.write()
 
 @app.route('/')
 def home_page():

@@ -1,40 +1,39 @@
 from bottle import *
 from telldus.constants import *
+from msensor import *
 import bottle_helpers as bh
 import telldus.telldus as td
 
-class MSensor(object):
-    def __init__(self, protocol, model, id, datatypes):
-        super(MSensor, self).__init__()
-        self.protocol = protocol
-        self.model = model
-        self.id = id
-        self.datatypes = datatypes
-        #self.lib = Library()
-
-    def value(self, datatype):
-        return MSensorValue('val', 1369347055)
-
-    def has_temperature(self):
-        return self.datatypes & TELLSTICK_TEMPERATURE != 0
-
-    def has_humidity(self):
-        return self.datatypes & TELLSTICK_HUMIDITY != 0
-
-    def temperature(self):
-        return self.value(TELLSTICK_TEMPERATURE)
-
-    def humidity(self):
-        return self.value(TELLSTICK_HUMIDITY)
-
-class MSensorValue(object):
-    __slots__ = ["value", "timestamp"]
-
-    def __init__(self, value, timestamp):
-        super(MSensorValue, self).__init__()
-        self.value = value
-        self.timestamp = timestamp
-
+class TASensor(object):
+	def __init__(self, config, rawsensor):
+		super(TASensor, self).__init__()
+		super(TASensor, self).__setattr__('id', str(rawsensor.id))
+		super(TASensor, self).__setattr__('raw', rawsensor)
+		
+		# Create a config entry with default values if one doesn't exist
+		sensor_config = config['sensors']
+		if not self.id in sensor_config.keys():
+			sensor_config[self.id] = {
+				'ignore' : 0,
+				'name'   : None
+			}
+			
+		super(TASensor, self).__setattr__('config', config)
+		super(TASensor, self).__setattr__('snscfg', sensor_config[self.id])
+		super(TASensor, self).__setattr__('ignore', sensor_config[self.id]['ignore'])
+		super(TASensor, self).__setattr__('name',   sensor_config[self.id]['name'])
+	
+	def __setattr__(self, name, value):
+		if name == 'name':
+			self.snscfg['name'] = value
+			self.config.write()
+		elif name == 'ignore':
+			self.snscfg['ignore'] = int(value)
+			self.config.write()
+		else:
+			raise AttributeError(name)
+		super(TASensor, self).__setattr__(name, value)
+	
 class TellstickAPI(object):
 	""" Mimick Telldus Live """
 	config = None
@@ -60,38 +59,13 @@ class TellstickAPI(object):
 			id keyed dictionary """
 		sensors = self.core.sensors()
 		if (self.config['debug']):
-			sensors.append(MSensor('prot', 'model', 9998, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
-			sensors.append(MSensor('prot', 'model', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
+			sensors.append(MSensor('prot1', 'model1', 9998, TELLSTICK_TEMPERATURE))
+			sensors.append(MSensor('prot2', 'model2', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
 		
-		cfg = self.config['sensors']
-		
-		for rawsensor in sensors:
-			# We use string keys for ID as it may not always be an int
-			id = str(rawsensor.id)
-			
-			# Create a default section for the sensor if it doesn't exist
-			if not id in cfg.keys():
-				cfg[id] = {
-					'ignore' : 0,
-					'name'   : ''
-				}
-
-			self.sensors[id] = {
-				'raw'    : rawsensor,
-				'ignore' : cfg[id]['ignore'],
-				'name'   : cfg[id]['name']
-			}
-
-	def save_config(self):
-		for id, sensor in self.sensors.iteritems():
-			print id
-			print sensor
-			self.config['sensors'][id] = {
-				'name'   : sensor['name'],
-				'ignore' : sensor['ignore']
-			}
-		
-		self.config.write()
+		self.sensors = {
+			str(rawsensor.id) : TASensor(self.config, rawsensor)
+				for rawsensor in sensors
+		}
 	
 	def route_all(self, out_format, ftype, func):
 		""" Root level routing for all tellstick functionality """
@@ -189,11 +163,10 @@ class TellstickAPI(object):
 
 	def route_sensors(self):
 		includeIgnored = True if bh.get_int('includeignored') == 1 else False
-		print includeIgnored
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
 				for id, sensor in self.sensors.iteritems()
-				if includeIgnored or int(sensor['ignore']) == 0
+				if includeIgnored or int(sensor.ignore) == 0
 		]}
 	
 	def route_sensor(self, func):
@@ -206,22 +179,15 @@ class TellstickAPI(object):
 			if (func == 'info'):
 				return self.map_sensor_to_json(sensor, True)
 			elif (func == 'setignore'):
-				sensor['ignore'] = 1 if bh.get_int('ignore') == 1 else 0
-				self.save_config()
-				#self.save_sensor_ignore_list()
+				sensor.ignore = 1 if bh.get_int('ignore') == 1 else 0
 			elif (func == 'setname'):
-				return "not implemented"
+				sensor.name = bh.get_string('name')
 				
 			if resp is None: bh.raise404()
 		else:
 			resp = "Sensor " + "\"" + str(id) + "\" not found!"
 		
 		return self.map_response(resp)
-	
-	#def save_sensor_ignore_list(self):
-		# redo to save sensor objects to config instead of list
-		#self.config['ignored_sensors'] = list(set(self.config['ignored_sensors']))
-		#self.config.write()
 	
 	# Add client id and name to a device using config
 	# defined by the user
@@ -257,32 +223,29 @@ class TellstickAPI(object):
 		# Set default value in case we get back nothing
 		lastUpdated = -1
 		
-		# Slightly more readable
-		rawsensor = sensor['raw']
-		
 		# Populate sensor data using calls to core library
 		sensor_data = []
 		for type in [
 			{'name': 'temp',     'key': TELLSTICK_TEMPERATURE },
 			{'name': 'humidity', 'key': TELLSTICK_HUMIDITY }
 		]:
-			if rawsensor.datatypes & type['key'] != 0:
-				svalue = rawsensor.value(type['key'])
+			if sensor.raw.datatypes & type['key'] != 0:
+				svalue = sensor.raw.value(type['key'])
 				lastUpdated = svalue.timestamp
 				sensor_data.append({'name': type['name'], 'value': svalue.value})
 		
 		json = {
-			'id': rawsensor.id,
-			'name': None,
+			'id'         : sensor.raw.id,
+			'name'       : sensor.name,
 			'lastUpdated': lastUpdated,
-			'ignored': int(sensor['ignore']),
-			'online': 1
+			'ignored'    : int(sensor.ignore),
+			'online'     : 1
 		}
 		
 		if extra:
 			extra_json = {
 				'data': sensor_data,
-				'protocol': rawsensor.protocol,
+				'protocol': sensor.raw.protocol,
 				'sensorId': 'TODO',
 				'timezoneoffset': 'TODO'
 			}
@@ -297,7 +260,7 @@ class TellstickAPI(object):
 			'name':self.config['client_name'] or '',
 			'online': '1',
 			'editable': 1 if self.config['editable'] else 0,
-			'version':'0.2',
+			'version':'0.21',
 			'type':'TellProx'
 		}
 

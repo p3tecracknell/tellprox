@@ -7,6 +7,7 @@ if sys.version_info < (2, 5):
 
 import tellstick_api, json, bottle
 
+from bottle import template
 from configobj import ConfigObj
 from validate import Validator
 
@@ -40,25 +41,26 @@ def main():
 
 @app.route('/')
 def home_page():
-	return bottle.static_file('index.html', root='./static')
+	#return template('devices', content='Hello World!')
+	return bottle.static_file('index.html', root='./')
 
 @app.route('/config')
 def home_page():
 	return bottle.static_file('config.html', root='./static')
-
-@app.route('/ui')
+	
+@app.route('/api')
 def home_page():
-	return bottle.static_file('ui.html', root='./static')
+	return bottle.static_file('api.html', root='./static')
 	
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
 	return bottle.static_file(filepath, root='./static')
 
-@app.route('/api/config', method='ANY')
-def get_config():
-	rows = [ {'name': key, 'value': value, 'editor': 'text'}
-		for key, value in config.iteritems() ]
-	return json.dumps({"total":len(config),"rows": rows })
+#@app.route('/api/config', method='ANY')
+#def get_config():
+#	rows = [ {'name': key, 'value': value, 'editor': 'text'}
+#		for key, value in config.iteritems() ]
+#	return json.dumps({"total":len(config),"rows": rows })
 
 if __name__ == "__main__":
 	main()

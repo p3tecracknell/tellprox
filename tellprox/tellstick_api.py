@@ -96,7 +96,7 @@ class TellstickAPI(object):
 		else:
 			""" With the only function that does not require ID out of the way, 
 				determine the device we want to interact with """
-			id = bh.get_int('id')			
+			id = bh.get_int('id')
 			if (self.devices.has_key(id)):
 				device = self.devices[id]
 				if (func == 'info'):
@@ -208,6 +208,7 @@ class TellstickAPI(object):
 			return 'scene'
 
 	def map_device_to_json(self, device, methods_supported):
+		print device.parameters()
 		json = {
 			'id': device.id,
 			'name': device.name,

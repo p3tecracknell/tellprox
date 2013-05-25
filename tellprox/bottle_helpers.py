@@ -6,14 +6,14 @@ def raise404():
 	raise HTTPError(404, "Not found: " + repr(request.path))
 
 def get_int(key):
-	num = request.query.get(key) or ''
+	num = get_string(key) or ''
 	try:
 		return int(num)
 	except ValueError:
 		return num
 
 def get_string(key):
-	return request.query.get(key)
+	return request.query.get(key) or request.forms.get(key)
 
 def format_response(input, out_format, pretty_print = False):
 	if (out_format.lower() == 'xml'):

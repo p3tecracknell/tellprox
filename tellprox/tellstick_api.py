@@ -247,8 +247,8 @@ class TellstickAPI(object):
 			extra_json = {
 				'data': sensor_data,
 				'protocol': sensor.raw.protocol,
-				'sensorId': 'TODO',
-				'timezoneoffset': 'TODO'
+				'sensorId': sensor.raw.id,
+				'timezoneoffset': 7200
 			}
 			json = dict(json.items() + extra_json.items())
 		

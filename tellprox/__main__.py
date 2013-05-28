@@ -5,8 +5,11 @@ if sys.version_info < (2, 5):
     print "Sorry, requires Python 2.5, 2.6 or 2.7."
     sys.exit(1)
 
-import tellstick_api, json, bottle
+import json, bottle
 
+from api import API
+from tellstick import TellstickAPI
+from config import ConfigAPI
 from bottle import template, redirect
 from configobj import ConfigObj
 from validate import Validator
@@ -15,8 +18,23 @@ from validate import Validator
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
+def fix_environ_middleware(app):
+	def fixed_app(environ, start_response):
+		print start_response
+		if environ.has_key('HTTP_X_FORWARDED_SERVER'):
+			if environ.has_key('REQUEST_URI') and environ['REQUEST_URI'] == '/devices':
+				b = environ['REQUEST_URI']
+				print environ
+				if environ.has_key('HTTP_X_FORWARDED_SERVER'):
+					print "hey"
+		#environ['wsgi.url_scheme'] = 'https'
+		#environ['HTTP_X_FORWARDED_HOST'] = 'example.com'
+		return app(environ, start_response)
+	return fixed_app
+  
 config = None
 app = bottle.Bottle()
+#app.wsgi = fix_environ_middleware(app.wsgi)
 
 def main():
 	config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
@@ -27,7 +45,9 @@ def main():
 		print "Config file validation failed"
 		sys.exit(1)
 	
-	tellstick_api.TellstickAPI(app, config)
+	api = API(app, config)
+	TellstickAPI(api, config)
+	ConfigAPI(api, config)
 	
 	bottle.run(app,
 		host = config['host'],

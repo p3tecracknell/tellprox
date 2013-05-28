@@ -31,21 +31,25 @@
 		<div class="span4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h4>Debug</h4></dt>
-				<dd>
-					<input type="checkbox" checked="" data-toggle="switch" />
+				<dd class="switch">
+					<input type="checkbox" checked="" />
 				</dd>
 			</dl>
 		</div>
 		<div class="span4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h4>Editable</h4></dt>
-				<dd></dd>
+				<dd class="switch">
+					<input type="checkbox" checked="" />
+				</dd>
 			</dl>
 		</div>
 		<div class="span4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h4>Pretty Print</h4></dt>
-				<dd></dd>
+				<dd class="switch">
+					<input type="checkbox" checked="" />
+				</dd>
 			</dl>
 		</div>
 	</div>
@@ -59,6 +63,5 @@
 <script src="static/js/helpers.js"></script>
 <script>
 	$('[rel=tooltip]').tooltip({placement: 'bottom'})
-	$("[data-toggle='switch']").wrap('<div class="switch" />');
 </script>
 %rebase layout title='Config', name='config'

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="static/css/bootstrap.css" rel="stylesheet">
+	<link href="static/css/bootstrap-switch.css" rel="stylesheet">
 	<link href="static/css/flat-ui-prev.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="static/css/site.css" rel="stylesheet">

@@ -1,243 +1,268 @@
-#!/usr/bin/env python
-
-from ctypes import util, c_char_p, c_int, create_string_buffer, sizeof, byref
-import platform
-import ctypes
-
-# Device methods
-TELLSTICK_TURNON = 1
-TELLSTICK_TURNOFF = 2
-TELLSTICK_BELL = 4
-TELLSTICK_TOGGLE = 8
-TELLSTICK_DIM = 16
-TELLSTICK_LEARN = 32
-TELLSTICK_EXECUTE = 64
-TELLSTICK_UP = 128
-TELLSTICK_DOWN = 256
-TELLSTICK_STOP = 512
-
-# Sensor value types
-TELLSTICK_TEMPERATURE = 1
-TELLSTICK_HUMIDITY = 2
-
-# Error codes
-TELLSTICK_SUCCESS = 0
-TELLSTICK_ERROR_BROKEN_PIPE = -9
-TELLSTICK_ERROR_COMMUNICATING_SERVICE = -10
-TELLSTICK_ERROR_COMMUNICATION = -5
-TELLSTICK_ERROR_CONNECTING_SERVICE = -6
-TELLSTICK_ERROR_DEVICE_NOT_FOUND = -3
-TELLSTICK_ERROR_METHOD_NOT_SUPPORTED = -4
-TELLSTICK_ERROR_NOT_FOUND = -1
-TELLSTICK_ERROR_PERMISSION_DENIED = -2
-TELLSTICK_ERROR_SYNTAX = -8
-TELLSTICK_ERROR_UNKNOWN = -99
-TELLSTICK_ERROR_UNKNOWN_RESPONSE = -7
-
-# Device typedef
-TELLSTICK_TYPE_DEVICE = 1
-TELLSTICK_TYPE_GROUP = 2
-TELLSTICK_TYPE_SCENE = 3
-
-# Device changes
-TELLSTICK_DEVICE_ADDED = 1
-TELLSTICK_DEVICE_CHANGED = 2
-TELLSTICK_DEVICE_REMOVED = 3
-TELLSTICK_DEVICE_STATE_CHANGED = 4
-
-# Change types
-TELLSTICK_CHANGE_NAME = 1
-TELLSTICK_CHANGE_PROTOCOL = 2
-TELLSTICK_CHANGE_MODEL = 3
-TELLSTICK_CHANGE_METHOD = 4
-TELLSTICK_CHANGE_AVAILABLE = 5
-TELLSTICK_CHANGE_FIRMWARE = 6
-
-TELLSTICK_CONTROLLER_TELLSTICK = 1
-TELLSTICK_CONTROLLER_TELLSTICK_DUO = 2
-TELLSTICK_CONTROLLER_TELLSTICK_NET = 3
-
-class TellStick(object):
-	def loadlibrary(self, libraryname=None):
-		global libtelldus
-		if platform.system() == 'Windows':
-			from ctypes import windll, WINFUNCTYPE
-			if (libraryname == None or libraryname == ''):
-				libraryname = 'TelldusCore.dll'
-			libtelldus = windll.LoadLibrary(libraryname)
-		else:
-			from ctypes import cdll, CFUNCTYPE
-			if (libraryname == None or libraryname == ''):
-				libraryname = 'libtelldus-core.so.2'
-			libtelldus = cdll.LoadLibrary(libraryname)
-		libtelldus.tdGetName.restype = c_char_p
-		libtelldus.tdLastSentValue.restype = c_char_p
-		libtelldus.tdGetProtocol.restype = c_char_p
-		libtelldus.tdGetModel.restype = c_char_p
-		libtelldus.tdGetErrorString.restype = c_char_p
-		libtelldus.tdLastSentValue.restype = c_char_p
-
-	def add_device(self, name, protocol, model):
-		newId = libtelldus.tdAddDevice()
-		if (newId < 0):
-			return { "error" : "Unable to add device" }
-		resp = libtelldus.tdSetName(newId, name)
-		if (resp is False):
-			return { "error" : "Unable to set name" }
-		
-		resp = libtelldus.tdSetProtocol(newId, protocol)
-		if (resp is False):
-			return { "error" : "Unable to set protocol" }
-			
-		resp = libtelldus.tdSetModel(newId, model)
-		if (resp is False):
-			return { "error" : "Unable to set model" }
-		
-		return self.determine_response(TELLSTICK_SUCCESS)
-
-	def remove_device(self, id):
-		response = libtelldus.tdRemoveDevice(id)
-		
-		modified_response = TELLSTICK_SUCCESS
-		if (response == 0):
-			modified_response = TELLSTICK_ERROR_DEVICE_NOT_FOUND
-		
-		return self.determine_response(modified_response, id)
-
-	def bell(self, id):
-		return self.command(id, TELLSTICK_BELL)
-
-	def learn(self, id):
-		return self.command(id, TELLSTICK_LEARN)
-
-	def execute(self, id):
-		return self.command(id, TELLSTICK_EXECUTE)
-
-	def up(self, id):
-		return self.command(id, TELLSTICK_UP)
-
-	def down(self, id):
-		return self.command(id, TELLSTICK_DOWN)
+from bottle import *
+from telldus.constants import *
+from msensor import *
+from tasensor import *
+import bottle_helpers as bh
+import telldus.telldus as td
 	
-	def stop(self, id):
-		return self.command(id, TELLSTICK_STOP)
+class TellstickAPI(object):
+	""" Mimick Telldus Live """
+	config = None
+	core = td.TelldusCore()
+	sensors = {}
 
-	def command(self, id, method, value=''):
-		if (method == TELLSTICK_TURNON):
-			response = libtelldus.tdTurnOn(id)
-		elif (method == TELLSTICK_TURNOFF):
-			response = libtelldus.tdTurnOff(id)
-		elif (method == TELLSTICK_BELL):
-			response = libtelldus.tdBell(id)
-		elif (method == TELLSTICK_DIM):
-			response = libtelldus.tdDim(id, value)
-		elif (method == TELLSTICK_LEARN):
-			response = libtelldus.tdLearn(id)
-		elif (method == TELLSTICK_EXECUTE):
-			response = libtelldus.tdExecute(id)
-		elif (method == TELLSTICK_UP):
-			response = libtelldus.tdUp(id)
-		elif (method == TELLSTICK_DOWN):
-			response = libtelldus.tdDown(id)
-		elif (method == TELLSTICK_STOP):
-			response = libtelldus.tdStop(id)
-		else:
-			response = TELLSTICK_ERROR_METHOD_NOT_SUPPORTED
+	def __init__(self, api, config):
+		self.config = config
 		
-		return self.determine_response(response, id, method)
+		self.load_devices()
+		self.load_sensors()
+		
+		api.add_route('devices', self.route_devices)
+		api.add_route('device', self.route_device)
+		api.add_route('clients', self.route_clients)
+		api.add_route('client', self.route_client)
+		api.add_route('sensors', self.route_sensors)
+		api.add_route('sensor', self.route_sensor)
+		#api.add_route('group', 'not implemented yet'
+		#api.add_route('scheduler', 'not implemented yet'
 
-	def device_type_to_string(self, id):
-		if (id == TELLSTICK_TYPE_DEVICE):
-			typeText = 'device'
-		elif (id == TELLSTICK_TYPE_GROUP):
-			typeText = 'group'
+	
+	def load_devices(self):
+		""" Read in all devices using telldus-py library and convert into
+			id keyed dictionary """
+		self.devices = { device.id: device for device in self.core.devices() }
+	
+	def load_sensors(self):
+		""" Read in all sensors using telldus-py library and convert into
+			id keyed dictionary """
+		
+		sensors = self.core.sensors()
+		if (self.config['debug']):
+			sensors.append(MSensor('prot1', 'model1', 9998, TELLSTICK_TEMPERATURE))
+			sensors.append(MSensor('prot2', 'model2', 9999, TELLSTICK_TEMPERATURE + TELLSTICK_HUMIDITY))
+		
+		self.sensors = {
+			str(rawsensor.id) : TASensor(self.config, rawsensor)
+				for rawsensor in sensors
+		}
+
+	def route_devices(self, func):
+		if not func == 'list': bh.raise404()
+		
+		supportedMethods = self.get_supported_methods()
+		return { 'device': [
+			self.map_device_to_json(device, supportedMethods)
+				for k, device in self.devices.iteritems()
+		]}
+
+	def route_device(self, func):
+		if (func == 'add'): resp = self.add_device()
 		else:
-			typeText = 'scene'
-		return typeText
+			""" With the only function that does not require ID out of the way, 
+				determine the device we want to interact with """
+			id = bh.get_int('id')
+			if (self.devices.has_key(id)):
+				device = self.devices[id]
+				if (func == 'info'):
+					return self.map_device_to_json(device, self.get_supported_methods())
+				elif (func[:3] == 'set'): resp = self.device_set_parameter(device, func[3:])
+				elif (func == 'command'):
+					resp = self.device_command(device, bh.get_int('method'), bh.get_int('value'))
+				else: resp = self.device_command(device, func, bh.get_int('level'))
+				if resp is None: bh.raise404()
+			else:
+				resp = "Device " + "\"" + str(id) + "\" not found!"
+		
+		return self.map_response(resp)
 
-	def read_device(self, identity, supportedMethods, getExtras = False):
-		methods = libtelldus.tdMethods(identity, supportedMethods)
-		lastcmd = libtelldus.tdLastSentCommand(identity, methods)
-		lastSentValue = libtelldus.tdLastSentValue(identity)
+	def add_device(self):
+		if (self.config['editable'] is False):
+			return "Client is not editable"
 
-		info = {
-			'id': identity,
-			'name': libtelldus.tdGetName(identity),
-			'state': lastcmd,
-			'statevalue': lastSentValue,
-			'methods': methods,
-			'type': self.device_type_to_string(libtelldus.tdGetDeviceType(identity)),
-			'online': 1
+		clientid = self.get_client_id()
+		if (clientid != self.config['client_id']):
+			return "Client \"" + str(clientid) + "\" not found!"
+
+		# TODO try/catch handling
+		self.core.add_device(
+			bh.get_string('name'),
+			bh.get_string('protocol'),
+			bh.get_string('model'))
+		
+		return TELLSTICK_SUCCESS
+
+	def device_command(self, device, func, value = ''):
+		# TODO replace with try/catch
+		if   (func == 'bell'):    device.bell()
+		elif (func == 'dim'):     device.dim(value)
+		elif (func == 'down'):    device.down()
+		elif (func == 'learn'):   device.learn()
+		elif (func == 'remove'):  device.remove()
+		elif (func == 'stop'):    device.stop()
+		elif (func == 'turnon'):  device.turn_on()
+		elif (func == 'turnoff'): device.turn_off()
+		elif (func == 'up'):      device.up()
+		
+		return TELLSTICK_SUCCESS
+	
+	def device_set_parameter(self, device, attr):
+		if (attr == 'parameter'):
+			resp = device.set_parameter(bh.get_string('parameter'), bh.get_string('value'))
+		elif attr in ['name', 'model', 'protocol']:
+			value = bh.get_string(attr)
+			if value is None: return "Attribute \"" + attr + "\" not found"
+			resp = device.__setattr__(attr, value)
+		else: bh.raise404()
+		if resp: return TELLSTICK_SUCCESS
+		else: return TELLSTICK_ERROR_NOT_FOUND
+				
+	def route_clients(self, func):
+		if not func == 'list': bh.raise404()
+		return { 'client': [self.get_client_info()] }
+
+	def route_client(self, func):
+		if not func == 'list': bh.raise404()	
+		
+		clientid = self.get_client_id()
+		if (clientid != config['client_id']):
+			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
+		return self.get_client_info()
+
+	def route_sensors(self, func):
+		if not func == 'list': bh.raise404()
+		
+		includeIgnored = True if bh.get_int('includeignored') == 1 else False
+		return { 'sensor': [
+			self.map_sensor_to_json(sensor)
+				for id, sensor in self.sensors.iteritems()
+				if includeIgnored or int(sensor.ignore) == 0
+		]}
+	
+	def route_sensor(self, func):
+		# The ID should be an integer, but we store them in the dictionary as
+		# strings, so treat as such
+		id = str(bh.get_int('id'))
+		resp = TELLSTICK_SUCCESS
+		if (self.sensors.has_key(id)):
+			sensor = self.sensors[id]
+			if (func == 'info'):
+				return self.map_sensor_to_json(sensor, True)
+			elif (func == 'setignore'):
+				sensor.ignore = 1 if bh.get_int('ignore') == 1 else 0
+			elif (func == 'setname'):
+				sensor.name = bh.get_string('name')
+				
+			if resp is None: bh.raise404()
+		else:
+			resp = "Sensor " + "\"" + str(id) + "\" not found!"
+		
+		return self.map_response(resp)
+	
+	# Add client id and name to a device using config
+	# defined by the user
+	def append_client_info(self, device):
+		extra = {
+			'client': self.config['client_id'] or 1,
+			'clientName': self.config['client_name'] or '',
+			'editable': 1 if self.config['editable'] else 0
+		}
+		return dict(device.items() + extra.items())
+
+	def device_type_to_string(self, type):
+		if (type == TELLSTICK_TYPE_DEVICE):
+			return 'device'
+		elif (type == TELLSTICK_TYPE_GROUP):
+			return 'group'
+		else:
+			return 'scene'
+
+	def map_device_to_json(self, device, methods_supported):
+		json = {
+			'id': device.id,
+			'name': device.name,
+			'state': device.last_sent_command(methods_supported),
+			'statevalue': device.last_sent_value(),
+			'methods': device.methods(methods_supported),
+			'type': self.device_type_to_string(device.type),
+			'online': 1,
+		}
+		return self.append_client_info(json)
+	
+	def map_sensor_to_json(self, sensor, extra = False):
+		# Set default value in case we get back nothing
+		lastUpdated = -1
+		
+		# Populate sensor data using calls to core library
+		sensor_data = []
+		for type in [
+			{'name': 'temp',     'key': TELLSTICK_TEMPERATURE },
+			{'name': 'humidity', 'key': TELLSTICK_HUMIDITY }
+		]:
+			if sensor.raw.datatypes & type['key'] != 0:
+				svalue = sensor.raw.value(type['key'])
+				lastUpdated = svalue.timestamp
+				sensor_data.append({'name': type['name'], 'value': svalue.value})
+		
+		json = {
+			'id'         : sensor.raw.id,
+			'name'       : sensor.name,
+			'lastUpdated': lastUpdated,
+			'ignored'    : int(sensor.ignore),
+			'online'     : 1
 		}
 		
-		if (getExtras is True):
-			info['protocol'] = libtelldus.tdGetProtocol(identity)
-			info['model'] = libtelldus.tdGetModel(identity)
-			info['parameter'] = []
+		if extra:
+			extra_json = {
+				'data': sensor_data,
+				'protocol': sensor.raw.protocol,
+				'sensorId': sensor.raw.id,
+				'timezoneoffset': 7200
+			}
+			json = dict(json.items() + extra_json.items())
 		
-		return info
-	
-	def on(self, id):
-		return self.command(id, TELLSTICK_TURNON)
-		
-	def off(self, id):
-		return self.command(id, TELLSTICK_TURNOFF)
+		return self.append_client_info(json)
 
-	def dim(self, id, dimlevel):
-		return self.command(id, TELLSTICK_DIM, dimlevel)
+	def get_client_info(self):
+		return {
+			'id': self.config['client_id'] or 1,
+			'uuid':'00000000-0000-0000-0000-000000000000',
+			'name':self.config['client_name'] or '',
+			'online': '1',
+			'editable': 1 if self.config['editable'] else 0,
+			'version':'0.21',
+			'type':'TellProx'
+		}
 
-	def determine_response(self, cmdresp, id = '', method = ''):
+	def map_response(self, cmdresp, id = '', method = ''):
 		if (cmdresp == TELLSTICK_SUCCESS):
-			return { "status":"success" }
-		else:
+			return { "status" : "success" }
+		elif isinstance(cmdresp, int):
 			id = str(id)
-			method = str(method)
 			if (cmdresp == TELLSTICK_ERROR_DEVICE_NOT_FOUND):
-				return { "error" : "Device " + "\"" + id + "\" not found!" }
+				msg = "Device " + "\"" + id + "\" not found!"
 			elif (cmdresp == TELLSTICK_ERROR_BROKEN_PIPE):
-				return { "error" : "Broken pipe" }
+				msg = "Broken pipe"
 			elif (cmdresp == TELLSTICK_ERROR_COMMUNICATING_SERVICE):
-				return { "error" : "Communicating service" }
+				msg = "Communicating service"
 			elif (cmdresp == TELLSTICK_ERROR_COMMUNICATION):
-				return { "error" : "Communication" }
+				msg = "Communication"
 			elif (cmdresp == TELLSTICK_ERROR_CONNECTING_SERVICE):
-				return { "error" : "Cannot connect to service" }
+				msg = "Cannot connect to service"
 			elif (cmdresp == TELLSTICK_ERROR_METHOD_NOT_SUPPORTED):
-				return { "error" : "Device \"" + id + "\" does not support method \"" + method + "\""}
+				msg = "Device \"" + id + "\" does not support method \"" + str(method) + "\""
 			elif (cmdresp == TELLSTICK_ERROR_NOT_FOUND):
-				return { "error" : "Not found" }
+				msg = "Not found"
 			elif (cmdresp == TELLSTICK_ERROR_PERMISSION_DENIED):
-				return { "error" : "Permission denied" }
+				msg = "Permission denied"
 			elif (cmdresp == TELLSTICK_ERROR_SYNTAX):
-				return { "error" : "Syntax error" }
-			else:
-				return { "error" : "Unknown response" }
-	
-	def devices(self, supportedMethods):
-		numDevices = libtelldus.tdGetNumberOfDevices()
-		return [self.read_device(libtelldus.tdGetDeviceId(i), supportedMethods)
-				  for i in range(0, numDevices)]
-	
-	def sensors(self, includeIgnored):
-		sensors = []
-		while True:
-			protocol = create_string_buffer(20)
-			model = create_string_buffer(20)
-			id = c_int()
-			datatypes = c_int()
+				msg = "Syntax error"
+			else: msg = "Unknown response"
+		else: msg = str(cmdresp)
+		return { "error" : msg }
 
-			libtelldus.tdSensor(protocol, sizeof(protocol),
-				model, sizeof(model), byref(id), byref(datatypes))
-			
-			if libtelldus.tdGetErrorString():
-				break
+	""" Helper Functions """
+	def get_supported_methods(self):
+		return bh.get_int('supportedMethods') or 0
 
-			sensor = { 'protocol': protocol.value, 'model': model.value,
-				'id': id.value, 'datatypes': datatypes.value, 'lastUpdated': 0 }
-			
-			sensors.push(sensor)
-		
-		return [sensors]
-
-	def add_group(self, name, devices):
-		return "not implemented yet"
+	def get_client_id(self):
+		return bh.get_int('clientid') or 1

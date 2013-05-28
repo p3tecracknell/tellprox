@@ -208,7 +208,6 @@ class TellstickAPI(object):
 			return 'scene'
 
 	def map_device_to_json(self, device, methods_supported):
-		print device.parameters()
 		json = {
 			'id': device.id,
 			'name': device.name,

@@ -7,7 +7,7 @@ if sys.version_info < (2, 5):
 
 import tellstick_api, json, bottle
 
-from bottle import template
+from bottle import template, redirect
 from configobj import ConfigObj
 from validate import Validator
 
@@ -18,7 +18,6 @@ CONFIG_SPEC = 'configspec.ini'
 config = None
 app = bottle.Bottle()
 
-# TODO wrap using virtualenv / py2exe
 def main():
 	config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 	validator = Validator()
@@ -30,28 +29,32 @@ def main():
 	
 	tellstick_api.TellstickAPI(app, config)
 	
-	bottle.debug(config['debug'])
 	bottle.run(app,
 		host = config['host'],
 		port = config['port'],
-		reloader = config['debug'])
+		debug = config['debug'],
+		reloader = config['debug'],
+		server = 'cherrypy')
 	
 	# Write out default values
 	config.write()
 
 @app.route('/')
 def home_page():
-	#return template('devices', content='Hello World!')
-	return bottle.static_file('index.html', root='./')
+    redirect('devices')
+	
+@app.route('/devices')
+def devices():
+	return template('devices')
+
+@app.route('/api')
+def devices():
+	return template('api')
 
 @app.route('/config')
 def home_page():
-	return bottle.static_file('config.html', root='./static')
-	
-@app.route('/api')
-def home_page():
-	return bottle.static_file('api.html', root='./static')
-	
+	return template('config')
+
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
 	return bottle.static_file(filepath, root='./static')

@@ -14,9 +14,11 @@ All settings are contained within config.ini
 
 cd ~
 
-sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configobj
+sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configobj git
 
 git clone --recursive git://github.com/p3tecracknell/tellprox.git
+
+cd tellprox
 
 cd telldus-py
 

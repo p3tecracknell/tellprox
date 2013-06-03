@@ -13,11 +13,9 @@ Ensure Python is installed and setup (tested on Python 2.7 only).
 All settings are contained within config.ini
 
 cd~
+
 sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configobj
-git clone git://github.com/p3tecracknell/telldus-py.git
-cd telldus-py
-sudo python setup.py install
-cd ..
-git clone git clone git://github.com/p3tecracknell/tellprox.git
-cd tellprox
+
+git clone --recursive git://github.com/p3tecracknell/tellprox.git
+
 sudo python -m tellprox

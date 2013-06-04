@@ -18,9 +18,7 @@ sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configob
 
 git clone --recursive git://github.com/p3tecracknell/tellprox.git
 
-cd tellprox
-
-cd telldus-py
+cd tellprox/telldus-py/
 
 sudo python setup.py install
 

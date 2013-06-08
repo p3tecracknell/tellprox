@@ -7,10 +7,21 @@ A local server to use in place of Tellstick Live. Based on remotestick-server (h
 Installation
 ============
 
-Make sure TelldusCenter is installed (TelldusCore.dll is needed)
+Make sure TelldusCenter is installed (TelldusCore.dll is needed for Windows)
 
-Install Python (tested on Python 2.7 only)
+Ensure Python is installed and setup (tested on Python 2.7 only).
+All settings are contained within config.ini
 
-Modify config.ini
+cd ~
 
-Run: python -m tellprox
+sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configobj git
+
+git clone --recursive git://github.com/p3tecracknell/tellprox.git
+
+cd tellprox/telldus-py/
+
+sudo python setup.py install
+
+cd ..
+
+sudo python -m tellprox

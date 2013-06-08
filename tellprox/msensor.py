@@ -7,7 +7,7 @@ class MSensor(object):
         self.datatypes = datatypes
 
     def value(self, datatype):
-        return MSensorValue('val', 1369347055)
+        return MSensorValue(5, 1369347055)
 
     def has_temperature(self):
         return self.datatypes & TELLSTICK_TEMPERATURE != 0

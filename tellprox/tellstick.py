@@ -50,17 +50,26 @@ class TellstickAPI(object):
 		if not func == 'list': bh.raise404()
 		
 		supportedMethods = self.get_supported_methods()
+		self.load_devices()
 		return { 'device': [
 			self.map_device_to_json(device, supportedMethods)
 				for k, device in self.devices.iteritems()
 		]}
 
 	def route_device(self, func):
-		if (func == 'add'): resp = self.add_device()
+		id = ''
+		if (func == 'add'):
+			resp = self.add_device()
+			print resp
+			if type(resp) is td.Device:
+				id = resp.id
+				print id
+				resp = TELLSTICK_SUCCESS
 		else:
 			""" With the only function that does not require ID out of the way, 
 				determine the device we want to interact with """
 			id = bh.get_int('id')
+			self.load_devices()
 			if (self.devices.has_key(id)):
 				device = self.devices[id]
 				if (func == 'info'):
@@ -73,7 +82,7 @@ class TellstickAPI(object):
 			else:
 				resp = "Device " + "\"" + str(id) + "\" not found!"
 		
-		return self.map_response(resp)
+		return self.map_response(resp, id)
 
 	def add_device(self):
 		if (self.config['editable'] is False):
@@ -83,13 +92,13 @@ class TellstickAPI(object):
 		if (clientid != self.config['client_id']):
 			return "Client \"" + str(clientid) + "\" not found!"
 
-		# TODO try/catch handling
-		self.core.add_device(
-			bh.get_string('name'),
-			bh.get_string('protocol'),
-			bh.get_string('model'))
-		
-		return TELLSTICK_SUCCESS
+		try:
+			return self.core.add_device(
+				bh.get_string('name'),
+				bh.get_string('protocol'),
+				bh.get_string('model'))
+		except Exception as e:
+			return e
 
 	def device_command(self, device, func, value = ''):
 		# TODO replace with try/catch
@@ -102,8 +111,12 @@ class TellstickAPI(object):
 		elif (func == 'turnon'):  device.turn_on()
 		elif (func == 'turnoff'): device.turn_off()
 		elif (func == 'up'):      device.up()
+		elif (func == 'toggle'): self.toggle_device(device)
 		
 		return TELLSTICK_SUCCESS
+	
+	def toggle_device(self, device):
+		a = 1
 	
 	def device_set_parameter(self, device, attr):
 		if (attr == 'parameter'):
@@ -121,16 +134,15 @@ class TellstickAPI(object):
 		return { 'client': [self.get_client_info()] }
 
 	def route_client(self, func):
-		if not func == 'list': bh.raise404()	
-		
 		clientid = self.get_client_id()
-		if (clientid != config['client_id']):
+		if (clientid != self.config['client_id']):
 			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
 		return self.get_client_info()
 
 	def route_sensors(self, func):
 		if not func == 'list': bh.raise404()
 		
+		self.load_sensors()
 		includeIgnored = True if bh.get_int('includeignored') == 1 else False
 		return { 'sensor': [
 			self.map_sensor_to_json(sensor)
@@ -142,6 +154,8 @@ class TellstickAPI(object):
 		# The ID should be an integer, but we store them in the dictionary as
 		# strings, so treat as such
 		id = str(bh.get_int('id'))
+		
+		self.load_sensors()
 		resp = TELLSTICK_SUCCESS
 		if (self.sensors.has_key(id)):
 			sensor = self.sensors[id]
@@ -235,7 +249,10 @@ class TellstickAPI(object):
 
 	def map_response(self, cmdresp, id = '', method = ''):
 		if (cmdresp == TELLSTICK_SUCCESS):
-			return { "status" : "success" }
+			resp = { "status" : "success" }
+			if not id == '':
+				resp['id'] = id
+			return resp
 		elif isinstance(cmdresp, int):
 			id = str(id)
 			if (cmdresp == TELLSTICK_ERROR_DEVICE_NOT_FOUND):

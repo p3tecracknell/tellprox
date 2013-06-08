@@ -57,14 +57,13 @@ class TellstickAPI(object):
 		]}
 
 	def route_device(self, func):
-		id = ''
 		if (func == 'add'):
+			id = ''
 			resp = self.add_device()
-			print resp
 			if type(resp) is td.Device:
 				id = resp.id
-				print id
 				resp = TELLSTICK_SUCCESS
+			return self.map_response(resp, id)
 		else:
 			""" With the only function that does not require ID out of the way, 
 				determine the device we want to interact with """
@@ -82,7 +81,7 @@ class TellstickAPI(object):
 			else:
 				resp = "Device " + "\"" + str(id) + "\" not found!"
 		
-		return self.map_response(resp, id)
+		return self.map_response(resp)
 
 	def add_device(self):
 		if (self.config['editable'] is False):
@@ -101,22 +100,26 @@ class TellstickAPI(object):
 			return e
 
 	def device_command(self, device, func, value = ''):
-		# TODO replace with try/catch
-		if   (func == 'bell'):    device.bell()
-		elif (func == 'dim'):     device.dim(value)
-		elif (func == 'down'):    device.down()
-		elif (func == 'learn'):   device.learn()
-		elif (func == 'remove'):  device.remove()
-		elif (func == 'stop'):    device.stop()
-		elif (func == 'turnon'):  device.turn_on()
-		elif (func == 'turnoff'): device.turn_off()
-		elif (func == 'up'):      device.up()
-		elif (func == 'toggle'): self.toggle_device(device)
-		
+		try:
+			if   (func == 'bell'):    device.bell()
+			elif (func == 'dim'):     device.dim(value)
+			elif (func == 'down'):    device.down()
+			elif (func == 'learn'):   device.learn()
+			elif (func == 'remove'):  device.remove()
+			elif (func == 'stop'):    device.stop()
+			elif (func == 'turnon'):  device.turn_on()
+			elif (func == 'turnoff'): device.turn_off()
+			elif (func == 'up'):      device.up()
+			elif (func == 'toggle'): self.toggle_device(device)
+		except Exception as e:
+			return e
 		return TELLSTICK_SUCCESS
 	
 	def toggle_device(self, device):
-		a = 1
+		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == 1:
+			device.turn_off()
+		else:
+			device.turn_on()
 	
 	def device_set_parameter(self, device, attr):
 		if (attr == 'parameter'):

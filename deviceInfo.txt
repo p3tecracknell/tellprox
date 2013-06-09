@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<device>
+	<id>
+		261094
+	</id>
+	<name>
+		Lounge main light
+	</name>
+	<state>
+		0
+	</state>
+	<statevalue>
+		0
+	</statevalue>
+	<methods>
+		0
+	</methods>
+	<type>
+		device
+	</type>
+	<protocol />
+	<model />
+	<online>
+		1
+	</online>
+	<editable>
+		0
+	</editable>
+</device>
+
+{
+	"id":"261094",
+	"name":"Lounge main light",
+	"state":"0",
+	"statevalue":"0",
+	"methods":"0",
+	"type":"device",
+	"protocol":null,
+	"model":null,
+	"online":"1",
+	"editable":0,
+	"parameter":[]
+}

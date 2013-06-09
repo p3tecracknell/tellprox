@@ -7,7 +7,7 @@
 
     <link href="static/css/bootstrap.css" rel="stylesheet">
 	<link href="static/css/bootstrap-switch.css" rel="stylesheet">
-	<link href="static/css/flat-ui-prev.css" rel="stylesheet">
+	<link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="static/css/site.css" rel="stylesheet">
   </head>

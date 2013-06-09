@@ -25,6 +25,12 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 		converted = prettify(root)
 		response.content_type = 'application/xml'
 	else:
+		# Crude. Need to loop through properly and rip out keys starting with @
+		for child in input.values():
+			if isinstance(child, list):
+				for index in range(len(child)):
+					if isinstance(child[index], dict):
+						child[index] = hide_attribute(child[index])
 		converted = json.dumps(input, indent = 4 if pretty_print else None)
 		callback_function = request.query.get('callback')
 		if callback_function:
@@ -32,6 +38,14 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 		
 		response.content_type = 'application/json'
 	return converted
+
+		
+""" TODO move to helpers """
+def set_attribute(dictionary):
+	return dict(("@" + k, v) for k, v in dictionary.items())
+
+def hide_attribute(dictionary):
+	return dict((k[1:] if k.startswith('@') else k, v) for k, v in dictionary.items())
 
 def prettify(elem):
 	"""Return a pretty-printed XML string for the Element.
@@ -53,12 +67,12 @@ def _convert_dict_to_xml_recurse(parent, dictitem, listnames):
 					parent.append(elem)
 					_convert_dict_to_xml_recurse(elem, listchild, listnames)
 			else:
-				#if tag.startswith('@'):
-				parent.attrib[str(tag)] = str(child)
-				#else: 
-				#	elem = ET.Element(tag)
-				#	parent.append(elem)
-				#	_convert_dict_to_xml_recurse(elem, child, listnames)
+				if tag.startswith('@'):
+					parent.attrib[str(tag[1:])] = str(child)
+				else: 
+					elem = ET.Element(tag)
+					parent.append(elem)
+					_convert_dict_to_xml_recurse(elem, child, listnames)
 	elif not dictitem is None:
 		parent.text = unicode(dictitem)
 	

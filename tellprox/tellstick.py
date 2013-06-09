@@ -52,7 +52,7 @@ class TellstickAPI(object):
 		supportedMethods = self.get_supported_methods()
 		self.load_devices()
 		return { 'device': [
-			self.map_device_to_json(device, supportedMethods)
+			self.device_to_dict(device, supportedMethods, False)
 				for k, device in self.devices.iteritems()
 		]}
 
@@ -72,7 +72,7 @@ class TellstickAPI(object):
 			if (self.devices.has_key(id)):
 				device = self.devices[id]
 				if (func == 'info'):
-					return self.map_device_to_json(device, self.get_supported_methods())
+					return self.device_to_dict(device, self.get_supported_methods(), True)
 				elif (func[:3] == 'set'): resp = self.device_set_parameter(device, func[3:])
 				elif (func == 'command'):
 					resp = self.device_command(device, bh.get_int('method'), bh.get_int('value'))
@@ -87,7 +87,7 @@ class TellstickAPI(object):
 		if (self.config['editable'] is False):
 			return "Client is not editable"
 
-		clientid = self.get_client_id()
+		clientid = bh.get_int('id')
 		if (clientid != self.config['client_id']):
 			return "Client \"" + str(clientid) + "\" not found!"
 
@@ -137,7 +137,9 @@ class TellstickAPI(object):
 		return { 'client': [self.get_client_info()] }
 
 	def route_client(self, func):
-		clientid = self.get_client_id()
+		if not func == 'info': bh.raise404()
+		clientid = clientid = bh.get_int('id')
+		
 		if (clientid != self.config['client_id']):
 			return { "error" : "Client \"" + str(clientid) + "\" not found!" }
 		return self.get_client_info()
@@ -148,7 +150,7 @@ class TellstickAPI(object):
 		self.load_sensors()
 		includeIgnored = True if bh.get_int('includeignored') == 1 else False
 		return { 'sensor': [
-			self.map_sensor_to_json(sensor)
+			self.sensor_to_dict(sensor, False)
 				for id, sensor in self.sensors.iteritems()
 				if includeIgnored or int(sensor.ignore) == 0
 		]}
@@ -163,7 +165,7 @@ class TellstickAPI(object):
 		if (self.sensors.has_key(id)):
 			sensor = self.sensors[id]
 			if (func == 'info'):
-				return self.map_sensor_to_json(sensor, True)
+				return self.sensor_to_dict(sensor, True)
 			elif (func == 'setignore'):
 				sensor.ignore = 1 if bh.get_int('ignore') == 1 else 0
 			elif (func == 'setname'):
@@ -175,15 +177,14 @@ class TellstickAPI(object):
 		
 		return self.map_response(resp)
 	
-	# Add client id and name to a device using config
-	# defined by the user
-	def append_client_info(self, device):
-		extra = {
-			'client': self.config['client_id'] or 1,
-			'clientName': self.config['client_name'] or '',
-			'editable': 1 if self.config['editable'] else 0
-		}
-		return dict(device.items() + extra.items())
+	def editable(self):
+		return 1 if self.config['editable'] else 0
+	
+	def client(self):
+		return self.config['client_id'] or 1
+	
+	def clientName(self):
+		return self.config['client_name'] or ''
 
 	def device_type_to_string(self, type):
 		if (type == TELLSTICK_TYPE_DEVICE):
@@ -193,19 +194,32 @@ class TellstickAPI(object):
 		else:
 			return 'scene'
 
-	def map_device_to_json(self, device, methods_supported):
+	""" Converts a device into a dictionary ready for outputting to json/xml
+		info is used to indicate whether it is used to output for info as per spec
+	"""
+	def device_to_dict(self, device, methods_supported, info):
 		json = {
-			'id': device.id,
-			'name': device.name,
-			'state': device.last_sent_command(methods_supported),
+			'id':         device.id,
+			'name':       device.name,
+			'state':      device.last_sent_command(methods_supported),
 			'statevalue': device.last_sent_value(),
-			'methods': device.methods(methods_supported),
-			'type': self.device_type_to_string(device.type),
-			'online': 1,
+			'methods':    device.methods(methods_supported),
+			'type':       self.device_type_to_string(device.type),
+			'online':     1,
+			'editable':   self.editable()
 		}
-		return self.append_client_info(json)
+		
+		if info:
+			json['protocol'] = None # TODO
+			json['model']    = None  # TODO
+		else:
+			json['client'] = self.client()
+			json['clientName'] = self.clientName()
+			json = bh.set_attribute(json)
+			
+		return json
 	
-	def map_sensor_to_json(self, sensor, extra = False):
+	def sensor_to_dict(self, sensor, info):
 		# Set default value in case we get back nothing
 		lastUpdated = -1
 		
@@ -225,10 +239,12 @@ class TellstickAPI(object):
 			'name'       : sensor.name,
 			'lastUpdated': lastUpdated,
 			'ignored'    : int(sensor.ignore),
-			'online'     : 1
+			'online'     : 1,
+			'editable'   : self.editable(),
+			'client'     : self.client()
 		}
 		
-		if extra:
+		if info:
 			extra_json = {
 				'data': sensor_data,
 				'protocol': sensor.raw.protocol,
@@ -236,8 +252,9 @@ class TellstickAPI(object):
 				'timezoneoffset': 7200
 			}
 			json = dict(json.items() + extra_json.items())
-		
-		return self.append_client_info(json)
+		else:
+			json['clientName'] = self.clientName(json)
+		return json
 
 	def get_client_info(self):
 		return {
@@ -283,6 +300,3 @@ class TellstickAPI(object):
 	""" Helper Functions """
 	def get_supported_methods(self):
 		return bh.get_int('supportedMethods') or 0
-
-	def get_client_id(self):
-		return bh.get_int('clientid') or 1

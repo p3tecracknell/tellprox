@@ -1,0 +1,36 @@
+sensors/list
+
+{"sensor":
+[
+{
+	"id":"887826",
+	"name":null,
+	"lastUpdated":1367377341,
+	"ignored":0,
+	"client":"2923",
+	"clientName":"TellStick Net",
+	"online":0,
+	"editable":1
+},
+{"id":"894811","name":null,"lastUpdated":1367373113,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"886726","name":null,"lastUpdated":1367364183,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"12114","name":"Bathroom","lastUpdated":1366750279,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"9684","name":"Bedroom","lastUpdated":1367377574,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"12113","name":"Car","lastUpdated":1354259383,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"12080","name":"Lovisa's room","lastUpdated":1367377553,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"4488","name":"Outdoors","lastUpdated":1367377137,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1},
+{"id":"9685","name":"Sunroom","lastUpdated":1367377075,"ignored":0,"client":"2923","clientName":"TellStick Net","online":0,"editable":1}
+]
+}
+
+sensor/info?id=4488
+{"id":"4488",
+"clientName":"TellStick Net",
+"name":"Outdoors",
+"lastUpdated":1367377137,
+"ignored":0,
+"editable":1,
+"data":[{"name":"temp","value":"0.6"},{"name":"humidity","value":"57"}],
+"protocol":"fineoffset",
+"sensorId":"239",
+"timezoneoffset":7200}

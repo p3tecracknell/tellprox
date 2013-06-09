@@ -14,5 +14,5 @@ class API(object):
 		if ftype in self.callbacks:
 			func = func.strip().lower()
 			resp = self.callbacks[ftype](func)
-			return bh.format_response(resp, out_format, self.config['pretty_print'])
+			return bh.format_response(resp, out_format, ftype, self.config['pretty_print'])
 		bh.raise404()

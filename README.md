@@ -3,6 +3,8 @@ tellprox
 
 A local server to use in place of Tellstick Live. Based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
 
+Raspberry Pi telldus-core install instructions:
+http://elinux.org/R-Pi_Tellstick_core
 
 Installation
 ============

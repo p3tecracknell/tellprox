@@ -16,18 +16,17 @@
 				<br/>
 				
 				<div id="response">			  
-					<label class="radio">
-						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios1" value="json" data-toggle="radio">
+					<label class="radio checked">
+						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios1" value="json" data-toggle="radio" checked>
 						JSON
-						</label>
-						<label class="radio checked">
-						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios2" value="xml" data-toggle="radio" checked="">
+					</label>
+					<label class="radio">
+						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios2" value="xml" data-toggle="radio">
 						XML
 					</label>
 					<br/>
-					<a href="#" class="btn btn-large btn-primary" onclick="submitApi()">Send</a>
-					<a href="#" class="btn btn-large btn-primary" onclick="submitGet()">Get</a>
-					<input type="submit" name="g" value="Submit" id="g" />
+					<input type="submit" class="btn btn-large btn-primary" name="post" value="Post" id="post" />
+					<input type="submit" class="btn btn-large btn-primary" name="get" value="Get" id="get" />
 				</div>
 				</form>
 				
@@ -112,12 +111,12 @@
 		}
 	});
 	
-	$.fn.appendSpan = function(i, item) {
-		this.append(div().addClass('span'+i).append(item))
-		return this
-	}
+	$("form input[type=submit]").click(function() {
+		$("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
+		$(this).attr("clicked", "true");
+	});
 	
-	$('form').submit(function() {
+	$('form').submit(function(a) {
 		var inputData = {}
 		$.each($(this).serializeArray(), function(i, elem) {
 			if (elem.name != 'outputFormat')
@@ -126,69 +125,25 @@
 				outputFormat = elem.value
 		})
 		
-		if (selectedMethod) {
-			$.post(outputFormat + '/' + selectedMethod, inputData, function(data) {
+		var url = outputFormat + '/' + selectedMethod;
+		var buttonPressed = $("input[type=submit][clicked=true]").val();
+		if (buttonPressed == 'Post') {
+			$.post(url, inputData, function(data) {
 				if (outputFormat == 'json') {
 					data = JSON.stringify(data, null, '\t')
 				}
 				output.text(data)
 				output.show()
 			});
+		} else {
+			if (!getWindow)
+				getWindow = window.open(url, '_blank');
+			else
+				getWindow.location = url;
+			getWindow.focus();
 		}
-	  return false;
+	    return false;
 	});
-	
-	function showPage(methodTitle) {
-		if (selectedMethod != methodTitle) {
-			if (methodTitle in apiMap) {
-				var method = apiMap[methodTitle]
-				description.text(method.description)
-				
-				if ('inputs' in method) {
-					var inputArray = method.inputs
-					for (var i in inputArray) {
-						var input = inputArray[i];
-						appendInputText(inputs, input.title, input.description);
-					}
-				}
-				
-				output.text('')
-				$('#apiSpecifics').show()
-				selectedMethod = methodTitle;
-			}
-		}
-	}
-	
-	function appendInputText(parent, title, description) {
-		parent.append(
-			div().addClass('palette palette-peter-river')
-				.append(
-					input().attr({name: title, placeholder: title, 'class': 'span6'})
-				)
-				.append(
-					span().text(description)
-				)
-		)
-	}
-	
-	function collectInputs() {
-		var inputSelection = $('#inputs').find('input')
-		var output = {}
-		for (var i = 0; i < inputSelection.length; i++) {
-			input = inputSelection[i];
-			output[input.id] = input.value
-		}
-		return output
-	}
-	
-	function submitApi() {
-		if (selectedMethod) {
-			$.post('json/' + selectedMethod, collectInputs(), function(data) {
-				output.text(JSON.stringify(data, null, '\t'))
-				output.show()
-			});
-		}
-	}
 	
 	function submitGet() {
 		var url = 'json/' + selectedMethod;
@@ -199,7 +154,61 @@
 		getWindow.focus();
 	}
 	
+	function showPage(methodTitle) {
+		if (selectedMethod != methodTitle) {
+			if (methodTitle in apiMap) {
+				var method = apiMap[methodTitle]
+				description.text(method.description)
+				
+				// Clear out, ready to start again
+				inputs.empty();
+				if ('inputs' in method) {
+					var inputArray = method.inputs
+					for (var i in inputArray) {
+						var input = inputArray[i];
+						inputs.append(createInputField(input.title, input.description));
+					}
+				}
+				
+				output.text('')
+				$('#apiSpecifics').show()
+				selectedMethod = methodTitle;
+			}
+		}
+	}
+	
+	function createInputField(title, description) {
+		return div().addClass('palette palette-peter-river')
+			.append(input().attr({name: title, placeholder: title, 'class': 'span6'}))
+			.append(span().text(description))
+	}
+	
+	/*function collectInputs() {
+		var inputSelection = $('#inputs').find('input')
+		var output = {}
+		for (var i = 0; i < inputSelection.length; i++) {
+			input = inputSelection[i];
+			output[input.id] = input.value
+		}
+		return output
+	}
+	
+	//$.fn.appendSpan = function(i, item) {
+	//	this.append(div().addClass('span'+i).append(item))
+	//	return this
+	//}
+	
+	
+	function submitApi() {
+		if (selectedMethod) {
+			$.post('json/' + selectedMethod, collectInputs(), function(data) {
+				output.text(JSON.stringify(data, null, '\t'))
+				output.show()
+			});
+		}
+	}
+	
 	$('[rel=tooltip]').tooltip({placement: 'bottom'})
-	$("[data-toggle='switch']").wrap('<div class="switch" />');
+	$("[data-toggle='switch']").wrap('<div class="switch" />');*/
 </script>
 %rebase layout title='API', name='api'

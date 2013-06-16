@@ -14,3 +14,6 @@ function label() { return $(document.createElement('label')); }
 function a()     { return $(document.createElement('a'));     }
 function radio() { return $(document.createElement('input')).attr({type: 'radio' }); }
 function input() { return $(document.createElement('input')).attr({type: 'text' }); }
+function checkbx(checked) {
+	return $(document.createElement('input')).attr({type: 'checkbox' }).prop('checked', checked);
+}

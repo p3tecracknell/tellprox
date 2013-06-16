@@ -1,8 +1,7 @@
 <div id="rows">
 	<div class="row-fluid">
-		<div class="span3" id="apiList">
-		</div>
-		<div class="span9">
+		<div class="span2" id="apiList"></div>
+		<div class="span7">
 			<div id="description">
 			Welcome to the API Explorer. Here you can test live calls to the API-server.
 			</div>
@@ -34,6 +33,10 @@
 				
 				<code id="output" style="white-space: pre; display: none"></code>
 			</div>
+		</div>
+		<div class="span3" id="itemList">
+		<h4>Clients</h4>
+		399371 - newname
 		</div>
 	</div>
 
@@ -69,7 +72,19 @@
 						{ title: 'code',
 						  description: '(optional) Not used. Included for backwards compatibility with TellStick Net only', type: 'text' },
 						{ title: 'extras',
-						  description: '	(optional) A comma-delimited list of extra information to fetch for each returned client. Currently supported fields are: coordinate, suntime, timezone and tzoffset', type: 'text' }
+						  description: '(optional) A comma-delimited list of extra information to fetch for each returned client. Currently supported fields are: coordinate, suntime, timezone and tzoffset', type: 'text' }
+					]
+				}
+			]
+		},
+		{
+			title : 'Device',
+			items : [
+				{
+					title: 'device/toggle',
+					description: 'Toggles a device on or off',
+					inputs: [
+						{ title: 'id', description: 'The device id to toggle', type: 'text' }
 					]
 				}
 			]

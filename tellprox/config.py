@@ -4,7 +4,7 @@ class ConfigAPI(object):
 	def __init__(self, api, config):
 		self.config = config
 		self.api = api
-		api.add_route('config', self.route)
+		#api.add_route('config', self.route, 'Config')
 	
 	def is_section(self, val):
 		if not isinstance(val, str):

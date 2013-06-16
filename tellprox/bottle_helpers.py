@@ -26,11 +26,13 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 		response.content_type = 'application/xml'
 	else:
 		# Crude. Need to loop through properly and rip out keys starting with @
-		for child in input.values():
-			if isinstance(child, list):
-				for index in range(len(child)):
-					if isinstance(child[index], dict):
-						child[index] = hide_attribute(child[index])
+		if isinstance(input, dict):
+			for child in input.values():
+				if isinstance(child, list):
+					for index in range(len(child)):
+						if isinstance(child[index], dict):
+							child[index] = hide_attribute(child[index])
+
 		converted = json.dumps(input, indent = 4 if pretty_print else None)
 		callback_function = request.query.get('callback')
 		if callback_function:

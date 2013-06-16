@@ -4,6 +4,7 @@
 <script src="static/js/jquery-1.8.3.min.js"></script>
 <script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
 <script src="static/js/bootstrap.min.js"></script>
+<script src="static/js/bootstrap-switch.js"></script>
 <script src="static/js/helpers.js"></script>
 <script>
 	// URLs
@@ -17,6 +18,7 @@
 	var SLIDER_ID_PREFIX = 'slider-';
 	var TOGGLE1_PREFIX = 'toggleOption1-';
 	var TOGGLE2_PREFIX = 'toggleOption2-';
+	var TOGGLE_PREFIX = 'toggleOption-';
 	var ON_OFF = 3;
 	var DIM = 16;
 
@@ -66,41 +68,19 @@
 	}
 	
 	function createToggle(parent, id, state) {
-		var t1Name = TOGGLE1_PREFIX + id;
-		var t2Name = TOGGLE2_PREFIX + id;
 		var isOn = state == "1"
 		
-		var turnOn = function(item) {
-			var itemId = item.attr('id').substr(TOGGLE1_PREFIX.length)
-			$.post(DEVICE_ON_URL, {id: itemId});
-		}
-		
-		var turnOff = function(item) {
-			var itemId = item.attr('id').substr(TOGGLE2_PREFIX.length)
-			$.post(DEVICE_OFF_URL, {id: itemId});
-		}
-		
-		var toggle = div().addClass('toggle' + (!isOn ? ' toggle-off' : ''))
-			.append(label().text("ON").attr({'class': 'toggle-radio','for': t2Name}))
-			.append(radio()
-				.attr({
-					id: t1Name,
-					name: 'toggleOptions',
-					checked: isOn
-				})
-				.click(function() { turnOn($(this)); toggle.toggleClass("toggle-off"); })
-			)
-			.append(label().text("OFF").attr({'class': 'toggle-radio','for': t1Name}))
-			.append(radio()
-				.attr({
-					id: t2Name,
-					name: 'toggleOptions',
-					checked: !isOn
-				})
-				.click(function() { turnOff($(this)); toggle.toggleClass("toggle-off"); })
-			)
+		var toggle = div().addClass('switch').attr({id: TOGGLE_PREFIX + id})
+			.append(checkbx(isOn));
 		
 		parent.append(toggle);
+		
+		toggle['bootstrapSwitch']();
+		toggle.on('switch-change', function (e, data) {
+			var url = (data.value) ? DEVICE_ON_URL : DEVICE_OFF_URL;
+			var itemId = e.target.id.substr(TOGGLE_PREFIX.length);
+			$.post(url, {id: itemId});
+		});
 	}
 	
 	function loadItems(data) {
@@ -126,8 +106,8 @@
 			
 			if (dimmable)
 				createSlider(item.body, v.id, v.statevalue)
-			else
-				createToggle(item.body, v.id, v.state)
+			//else
+			createToggle(item.body, v.id, v.state)
 			
 			itemCount++;
 		});

@@ -17,26 +17,12 @@ from validate import Validator
 # Constants
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
-
-def fix_environ_middleware(app):
-	def fixed_app(environ, start_response):
-		print start_response
-		if environ.has_key('HTTP_X_FORWARDED_SERVER'):
-			if environ.has_key('REQUEST_URI') and environ['REQUEST_URI'] == '/devices':
-				b = environ['REQUEST_URI']
-				print environ
-				if environ.has_key('HTTP_X_FORWARDED_SERVER'):
-					print "hey"
-		#environ['wsgi.url_scheme'] = 'https'
-		#environ['HTTP_X_FORWARDED_HOST'] = 'example.com'
-		return app(environ, start_response)
-	return fixed_app
   
 config = None
 app = bottle.Bottle()
-#app.wsgi = fix_environ_middleware(app.wsgi)
 
 def main():
+	global config
 	config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 	validator = Validator()
 	result = config.validate(validator, copy = True)
@@ -58,10 +44,11 @@ def main():
 	
 	# Write out default values
 	config.write()
-
+	
 @app.route('/')
 def home_page():
-    redirect('devices')
+	webroot = config['webroot'] + '/' or ''
+	redirect(webroot + 'devices')
 	
 @app.route('/devices')
 def devices():

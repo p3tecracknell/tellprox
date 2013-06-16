@@ -253,7 +253,7 @@ class TellstickAPI(object):
 			}
 			json = dict(json.items() + extra_json.items())
 		else:
-			json['clientName'] = self.clientName(json)
+			json['clientName'] = self.clientName()
 		return json
 
 	def get_client_info(self):

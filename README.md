@@ -3,8 +3,7 @@ tellprox
 
 A local server to use in place of Tellstick Live. Based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
 
-Raspberry Pi telldus-core install instructions:
-http://elinux.org/R-Pi_Tellstick_core
+All settings are contained within config.ini
 
 Requirements
 ============
@@ -14,10 +13,19 @@ http://www.telldus.se/products/nativesoftware
 There are instructions online for installing telldus-core on Mac/Linux. For example, to install on Raspbian:
 http://elinux.org/R-Pi_Tellstick_core
 
-Installation
-============
+Windows Installation
+====================
 
-All settings are contained within config.ini
+Install Python for Windows.
+
+Download the source and unzip.
+
+Run the following in the root of that folder:
+
+python -m tellprox
+
+Linux Installation
+==================
 
 cd ~
 

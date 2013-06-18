@@ -24,6 +24,8 @@ Run the following in the root of that folder:
 
 python -m tellprox
 
+Use pip install [module] for any missing modules
+
 Linux Installation
 ==================
 

@@ -6,12 +6,17 @@ A local server to use in place of Tellstick Live. Based on remotestick-server (h
 Raspberry Pi telldus-core install instructions:
 http://elinux.org/R-Pi_Tellstick_core
 
+Requirements
+============
+You will need telldus-core. On Windows it comes with TelldusCenter:
+http://www.telldus.se/products/nativesoftware
+
+There are instructions online for installing telldus-core on Mac/Linux. For example, to install on Raspbian:
+http://elinux.org/R-Pi_Tellstick_core
+
 Installation
 ============
 
-Make sure TelldusCenter is installed (TelldusCore.dll is needed for Windows)
-
-Ensure Python is installed and setup (tested on Python 2.7 only).
 All settings are contained within config.ini
 
 cd ~

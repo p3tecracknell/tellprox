@@ -78,6 +78,19 @@
 			]
 		},
 		{
+			title : 'Devices',
+			items : [
+				{
+					title: 'devices/list',
+					description: 'Returns a list of all devices associated with the current user.',
+					inputs: [
+						{ title: 'supportedMethods', description: 'The methods supported by the calling application', type: 'text' },
+						{ title: 'extras', description: '(optional) A comma-delimited list of extra information to fetch for each returned device. Currently supported fields are: coordinate, timezone and tzoffset.', type: 'text' }
+					]
+				}
+			]
+		},
+		{
 			title : 'Device',
 			items : [
 				{
@@ -132,13 +145,13 @@
 	});
 	
 	$('form').submit(function(a) {
-		var inputData = {}
+		var inputData = {};
 		$.each($(this).serializeArray(), function(i, elem) {
 			if (elem.name != 'outputFormat')
 				inputData[elem.name] = elem.value
 			else
 				outputFormat = elem.value
-		})
+		});
 		
 		var url = outputFormat + '/' + selectedMethod;
 		var buttonPressed = $("input[type=submit][clicked=true]").val();
@@ -151,10 +164,8 @@
 				output.show()
 			});
 		} else {
-			if (!getWindow)
-				getWindow = window.open(url, '_blank');
-			else
-				getWindow.location = url;
+			url += '?' + $.param(inputData);
+			getWindow = window.open(url, '_blank');
 			getWindow.focus();
 		}
 	    return false;

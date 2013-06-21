@@ -13,14 +13,30 @@ http://www.telldus.se/products/nativesoftware
 There are instructions online for installing telldus-core on Mac/Linux. For example, to install on Raspbian:
 http://elinux.org/R-Pi_Tellstick_core
 
+Windows Dependancies
+====================
+Python for Windows (source needed)
+
+pip
+http://www.pip-installer.org/en/latest/installing.html
+
+Use pip to install python module dependancies:
+
+pip install cherrypy
+
+pip install configobj
+
+
 Windows Installation
 ====================
 
-Install Python for Windows.
-
 Download the source and unzip.
 
-Run the following in the root of that folder:
+In a command prompt, change to the telldus-py folder and run:
+
+python setup.py install
+
+Change to the  root of the project and run:
 
 python -m tellprox
 

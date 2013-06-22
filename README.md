@@ -21,7 +21,7 @@ Python for Windows (source needed)
 
 http://www.pip-installer.org/en/latest/installing.html
 
-Use pip to install python module dependancies:
+Use pip to install python module dependencies:
 
 pip install cherrypy configobj bottle
 

@@ -19,7 +19,6 @@ CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
   
 config = None
-print bottle.TEMPLATE_PATH
 bottle.TEMPLATE_PATH.insert(0,'./tellprox/views')
 app = bottle.Bottle()
 

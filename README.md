@@ -17,15 +17,11 @@ Windows Dependancies
 ====================
 Python for Windows (source needed)
 
-pip
 http://www.pip-installer.org/en/latest/installing.html
 
 Use pip to install python module dependancies:
 
-pip install cherrypy
-
-pip install configobj
-
+pip install cherrypy configobj bottle
 
 Windows Installation
 ====================

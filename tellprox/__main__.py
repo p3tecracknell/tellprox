@@ -19,6 +19,8 @@ CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
   
 config = None
+print bottle.TEMPLATE_PATH
+bottle.TEMPLATE_PATH.insert(0,'./tellprox/views')
 app = bottle.Bottle()
 
 def main():
@@ -64,7 +66,7 @@ def home_page():
 
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
-	return bottle.static_file(filepath, root='./static')
+	return bottle.static_file(filepath, root='./tellprox/static')
 
 #@app.route('/api/config', method='ANY')
 #def get_config():

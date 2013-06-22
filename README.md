@@ -3,7 +3,9 @@ tellprox
 
 A local server to use in place of Tellstick Live. Based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
 
-All settings are contained within config.ini
+All settings are contained within config.ini which will be created after the first time the process is stopped.
+
+Note that the setup.py is not ready yet.
 
 Requirements
 ============
@@ -36,7 +38,6 @@ Change to the  root of the project and run:
 
 python -m tellprox
 
-Use pip install [module] for any missing modules
 
 Linux Installation
 ==================

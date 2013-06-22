@@ -263,7 +263,7 @@ class TellstickAPI(object):
 			'name':self.config['client_name'] or '',
 			'online': '1',
 			'editable': 1 if self.config['editable'] else 0,
-			'version':'0.21',
+			'version':'0.22',
 			'type':'TellProx'
 		}
 

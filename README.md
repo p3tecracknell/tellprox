@@ -19,11 +19,8 @@ Windows Dependancies
 ====================
 Python for Windows (source needed)
 
-http://www.pip-installer.org/en/latest/installing.html
-
-Use pip to install python module dependencies:
-
-pip install cherrypy configobj bottle
+Install CherryPy
+http://download.cherrypy.org/cherrypy/3.2.2/CherryPy-3.2.2.win32.exe
 
 Windows Installation
 ====================
@@ -44,7 +41,7 @@ Linux Installation
 
 cd ~
 
-sudo apt-get install python-cherrypy3 python-bottle python-oauth python-configobj git
+sudo apt-get install python-cherrypy3 git
 
 git clone --recursive git://github.com/p3tecracknell/tellprox.git
 

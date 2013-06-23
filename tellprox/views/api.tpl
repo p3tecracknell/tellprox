@@ -106,18 +106,21 @@
 			title: 'Config',
 			items : [
 				{
+					title: 'config/set',
+					inputs: [
+						{ title: 'item', type: 'text' },
+						{ title: 'value', type: 'text' }
+					]
+				},
+				{
 					title: 'config/get',
 					inputs: [
 						{ title: 'item', type: 'text' }
 					]
 				},
 				{
-					title: 'config/set',
-					inputs: [
-						{ title: 'item', type: 'text' },
-						{ title: 'value', type: 'text' }
-					]
-				}
+					title: 'config/getall'
+				},
 			]
 		}
 	]

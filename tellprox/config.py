@@ -1,20 +1,15 @@
 import bottle_helpers as bh
+from werkzeug.security import generate_password_hash
 
 class ConfigAPI(object):
 	def __init__(self, api, config):
 		self.config = config
 		self.api = api
 		api.add_route('config', self.route)
-	
-	def is_section(self, val):
-		if not isinstance(val, str):
-			print self.config[val].depth
-		return False#not isinstance(val, (str, unicode, list, tuple))
 		
 	def route(self, func):
 		if (func == 'getall'):
-			return [{k:v} for k, v in self.config.iteritems()
-				if not self.is_section(k)]
+			return {k:v for k, v in self.config.iteritems()}
 				
 		elif (func == 'get'):
 			item = bh.get_string('item')

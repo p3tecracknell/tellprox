@@ -9,6 +9,7 @@
 	<link href="static/css/bootstrap-switch.css" rel="stylesheet">
 	<link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="static/css/jquery.toast.min.css" rel="stylesheet">
 	<link href="static/css/site.css" rel="stylesheet">
 	<script>
 	function authData(data) {

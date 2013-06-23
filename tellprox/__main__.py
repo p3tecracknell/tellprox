@@ -13,6 +13,7 @@ from config import ConfigAPI
 from bottle import template, redirect
 from configobj import ConfigObj
 from validate import Validator
+#from werkzeug.security import check_password_hash TODO implement
 
 # Constants
 CONFIG_PATH = 'config.ini'
@@ -42,10 +43,24 @@ def main():
 		debug = config['debug'],
 		reloader = config['debug'],
 		server = 'cherrypy')
-	
+
 	# Write out default values
 	config.write()
-	
+
+def render_template(view):
+	# TODO password authentication here
+	#if not self.config['apikey']:
+	#		return True
+	#	key = bh.get_string('key')
+	#	if not key:
+	#		return False
+	#		
+	#	return check_password_hash(self.config['apikey'], key)
+	vars = {
+		'apikey' : config['apikey'] or ''
+	}
+	return template(view, vars);
+
 @app.route('/')
 def home_page():
 	webroot = config['webroot'] + '/' or ''
@@ -53,15 +68,15 @@ def home_page():
 	
 @app.route('/devices')
 def devices():
-	return template('devices')
+	return render_template('devices')
 
 @app.route('/api')
 def devices():
-	return template('api')
+	return render_template('api')
 
 @app.route('/config')
 def home_page():
-	return template('config')
+	return render_template('config')
 
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):

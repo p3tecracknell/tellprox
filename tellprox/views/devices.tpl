@@ -23,10 +23,9 @@
 	var DIM = 16;
 
 	$(document).ready(function() {
-
 		$.ajax({
 			url: DEVICES_URL,
-			data: { 'supportedMethods': 19 },
+			data: authData({ 'supportedMethods': 19}),
 			dataType: "jsonp",
 			crossDomain: true,
 			success: function(data) {
@@ -62,7 +61,7 @@
 			range: "min",
 			change: function(event, ui) {
 				sliderId = $(this).attr('id').substr(SLIDER_ID_PREFIX.length)
-				$.post(DEVICE_DIM_URL, {id: sliderId, level: ui.value})
+				$.post(DEVICE_DIM_URL, authData({id: sliderId, level: ui.value}))
 			}
 		});
 	}
@@ -79,41 +78,46 @@
 		toggle.on('switch-change', function (e, data) {
 			var url = (data.value) ? DEVICE_ON_URL : DEVICE_OFF_URL;
 			var itemId = e.target.id.substr(TOGGLE_PREFIX.length);
-			$.post(url, {id: itemId});
+			$.post(url, authData({id: itemId}));
 		});
 	}
 	
 	function loadItems(data) {
-		var devices = data['device']
-		var itemCount = 0;
 		var rowContainer = $('#rows');
 		rowContainer.hide();
-		devices.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
 		
-		// Loop through all items
-		$.each(devices, function(i, v) {
-			if (itemCount % 3 == 0) {
-				// Add row
-				currentRow = div().addClass('row-fluid');
-				currentRow.appendTo(rowContainer);
-			}
+		if ('device' in data) {
+			var devices = data['device']
+			var itemCount = 0;
+			devices.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
 			
-			// See if it supports dimming
-			var dimmable = ((v.methods & DIM) == DIM);
-			
-			var item = createItemCell(v.name);
-			currentRow.append(item.cell);
-			
-			if (dimmable)
-				createSlider(item.body, v.id, v.statevalue)
-			//else
-			createToggle(item.body, v.id, v.state)
-			
-			itemCount++;
-		});
-		
+			// Loop through all items
+			$.each(devices, function(i, v) {
+				if (itemCount % 3 == 0) {
+					// Add row
+					currentRow = div().addClass('row-fluid');
+					currentRow.appendTo(rowContainer);
+				}
+				
+				// See if it supports dimming
+				var dimmable = ((v.methods & DIM) == DIM);
+				
+				var item = createItemCell(v.name);
+				currentRow.append(item.cell);
+				
+				if (dimmable)
+					createSlider(item.body, v.id, v.statevalue)
+				//else
+				createToggle(item.body, v.id, v.state)
+				
+				itemCount++;
+			});
+		} else {
+			rowContainer.text('Error: ' + data['error'] || 'Unknown error');
+		}
+
 		$('#loading').hide()
 		rowContainer.show();
 	}
 </script>
-%rebase layout title='Devices', name='devices'
+%rebase layout title='Devices', name='devices', **locals()

@@ -10,9 +10,17 @@
 	<link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="static/css/site.css" rel="stylesheet">
+	<script>
+	function authData(data) {
+		if (!data) data = {};
+		data['key'] = '{{apikey}}';
+		return data;
+	}
+	</script>
   </head>
 
   <body>
+
     <div class="container">
 	  <div class="navbar navbar-inverse">
 		<div class="navbar-inner">

@@ -41,6 +41,8 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 		response.content_type = 'application/json'
 	return converted
 
+def success_response():
+	return { 'status': 'success' } 
 		
 """ TODO move to helpers """
 def set_attribute(dictionary):

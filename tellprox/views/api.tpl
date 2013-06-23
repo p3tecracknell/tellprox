@@ -101,6 +101,24 @@
 					]
 				}
 			]
+		},
+		{
+			title: 'Config',
+			items : [
+				{
+					title: 'config/get',
+					inputs: [
+						{ title: 'item', type: 'text' }
+					]
+				},
+				{
+					title: 'config/set',
+					inputs: [
+						{ title: 'item', type: 'text' },
+						{ title: 'value', type: 'text' }
+					]
+				}
+			]
 		}
 	]
 	
@@ -120,7 +138,7 @@
 			var items = header.items
 			for (var j in items) {
 				var method = items[j]
-				var methodTitle = method.title
+				var methodTitle = method.title;//.substring(header.title.length + 1)
 				apiList.append(a()
 					.text(methodTitle)
 					.attr({href: '#' + methodTitle})
@@ -128,8 +146,9 @@
 					.click(function(e) {
 						showPage(e.target.text)
 					}))
+				.append(br());
 					
-				apiMap[methodTitle] = method
+				apiMap[methodTitle] = method;
 			}
 		}
 		
@@ -145,7 +164,7 @@
 	});
 	
 	$('form').submit(function(a) {
-		var inputData = {};
+		var inputData = authData();
 		$.each($(this).serializeArray(), function(i, elem) {
 			if (elem.name != 'outputFormat')
 				inputData[elem.name] = elem.value
@@ -171,15 +190,6 @@
 	    return false;
 	});
 	
-	function submitGet() {
-		var url = 'json/' + selectedMethod;
-		if (!getWindow)
-			getWindow = window.open(url, '_blank');
-		else
-			getWindow.location = url;
-		getWindow.focus();
-	}
-	
 	function showPage(methodTitle) {
 		if (selectedMethod != methodTitle) {
 			if (methodTitle in apiMap) {
@@ -192,7 +202,14 @@
 					var inputArray = method.inputs
 					for (var i in inputArray) {
 						var input = inputArray[i];
-						inputs.append(createInputField(input.title, input.description));
+						switch (input.type) {
+							case 'text':
+								inputs.append(createInputField(input.title, input.description));
+								break;
+							default:
+								console.log('todo')
+								break;
+						}
 					}
 				}
 				
@@ -208,33 +225,5 @@
 			.append(input().attr({name: title, placeholder: title, 'class': 'span6'}))
 			.append(span().text(description))
 	}
-	
-	/*function collectInputs() {
-		var inputSelection = $('#inputs').find('input')
-		var output = {}
-		for (var i = 0; i < inputSelection.length; i++) {
-			input = inputSelection[i];
-			output[input.id] = input.value
-		}
-		return output
-	}
-	
-	//$.fn.appendSpan = function(i, item) {
-	//	this.append(div().addClass('span'+i).append(item))
-	//	return this
-	//}
-	
-	
-	function submitApi() {
-		if (selectedMethod) {
-			$.post('json/' + selectedMethod, collectInputs(), function(data) {
-				output.text(JSON.stringify(data, null, '\t'))
-				output.show()
-			});
-		}
-	}
-	
-	$('[rel=tooltip]').tooltip({placement: 'bottom'})
-	$("[data-toggle='switch']").wrap('<div class="switch" />');*/
 </script>
-%rebase layout title='API', name='api'
+%rebase layout title='API', name='api', **locals()

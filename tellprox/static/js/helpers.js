@@ -7,6 +7,7 @@ var sort_by = function(field, reverse, primer) {
    }
 }
 
+function br()    { return $(document.createElement('br'));   }
 function div()   { return $(document.createElement('div'));   }
 function span()  { return $(document.createElement('span'));   }
 function h(i)    { return $(document.createElement('h'+i));   }

@@ -1,3 +1,3 @@
-[submodule "telldus-py"]
-	path = telldus-py
-	url = https://github.com/erijo/telldus-py.git
+[submodule "tellcore-py"]
+	path = tellcore-py
+	url = https://github.com/erijo/tellcore-py.git

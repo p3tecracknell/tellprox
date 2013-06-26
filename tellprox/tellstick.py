@@ -1,9 +1,9 @@
 from bottle import *
-from telldus.constants import *
+from tellcore.constants import *
 from msensor import *
 from tasensor import *
 import bottle_helpers as bh
-import telldus.telldus as td
+import tellcore.telldus as td
 	
 class TellstickAPI(object):
 	""" Mimick Telldus Live """
@@ -28,12 +28,12 @@ class TellstickAPI(object):
 
 	
 	def load_devices(self):
-		""" Read in all devices using telldus-py library and convert into
+		""" Read in all devices using tellcore-py library and convert into
 			id keyed dictionary """
 		self.devices = { device.id: device for device in self.core.devices() }
 	
 	def load_sensors(self):
-		""" Read in all sensors using telldus-py library and convert into
+		""" Read in all sensors using tellcore-py library and convert into
 			id keyed dictionary """
 		
 		sensors = self.core.sensors()

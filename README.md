@@ -27,7 +27,7 @@ http://download.cherrypy.org/cherrypy/3.2.2/CherryPy-3.2.2.win32.exe
 
 Download (this) Tellprox source and unzip.
 
-In a command prompt, change to the telldus-py folder and run:
+In a command prompt, change to the tellcore-py folder and run:
 
 python setup.py install
 
@@ -45,10 +45,22 @@ sudo apt-get install python-cherrypy3 git
 
 git clone --recursive git://github.com/p3tecracknell/tellprox.git
 
-cd tellprox/telldus-py/
+Then alternative 1 or 2 below.
+
+Alternative 1
+-------------
+
+cd tellprox/tellcore-py/
 
 sudo python setup.py install
 
 cd ..
 
-sudo python -m tellprox
+python -m tellprox
+
+Alternative 2
+-------------
+
+cd tellprox
+
+PYTHONPATH=tellcore-py python -m tellprox

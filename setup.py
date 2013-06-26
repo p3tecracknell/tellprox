@@ -10,7 +10,7 @@ setup(
     packages=['tellprox'],
     package_data={'tellprox': ['static/css/*.css']},
 	install_requires=['cherrypy','configobj','bottle'],
-	dependency_links = ['https://github.com/erijo/telldus-py.git#egg=telldus-py'],
+	dependency_links = ['https://github.com/erijo/tellcore-py.git#egg=tellcore-py'],
     url='https://github.com/p3tecracknell/tellprox',
     license='LICENSE.txt',
     description='Python API to replicate Telldus Live',

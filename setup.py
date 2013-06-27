@@ -4,13 +4,12 @@ import py2exe
 
 setup(
     name='tellprox',
-    version='0.22',
+    version='0.23',
     author='Pete Cracknell',
     author_email='p3tecracknell@gmail.com',
     packages=['tellprox'],
     package_data={'tellprox': ['static/css/*.css']},
-	install_requires=['cherrypy','configobj','bottle'],
-	dependency_links = ['https://github.com/erijo/tellcore-py.git#egg=tellcore-py'],
+    install_requires=['cherrypy','tellcore-py'],
     url='https://github.com/p3tecracknell/tellprox',
     license='LICENSE.txt',
     description='Python API to replicate Telldus Live',

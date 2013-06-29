@@ -19,7 +19,7 @@ http://elinux.org/R-Pi_Tellstick_core
 Windows Installation
 ====================
 
-Python for Windows (source needed)
+Python for Windows (http://www.activestate.com)
 
 Click on 'Download Zip' and extract. Open a command prompt and type the following to install
 

@@ -21,17 +21,11 @@ Windows Installation
 
 Python for Windows (source needed)
 
-Install CherryPy
-
-http://download.cherrypy.org/cherrypy/3.2.2/CherryPy-3.2.2.win32.exe
-
-Download (this) Tellprox source and unzip.
-
-In a command prompt, change to the tellcore-py folder and run:
+Click on 'Download Zip' and extract. Open a command prompt and type the following to install
 
 python setup.py install
 
-Change to the  root of the project and run:
+To run, type:
 
 python -m tellprox
 

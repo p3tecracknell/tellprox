@@ -22,18 +22,18 @@ Make sure python is installed (windows: http://www.activestate.com)
 
 Download the source:
 
-  Windows users, click on 'Download Zip' and extract.
+--Windows users, click on 'Download Zip' and extract.
 
-  Linux users should install git and setuptools:
+--Linux users should install git and setuptools:
 
-  sudo apt-get install python-setuptools git
+--$sudo apt-get install python-setuptools git
 
-  git clone git://github.com/p3tecracknell/tellprox.git
+--$git clone git://github.com/p3tecracknell/tellprox.git
 
 Then open a command prompt in the source and type:
 
-python setup.py install
+$python setup.py install
 
 Finally, run with:
 
-python -m tellprox
+$python -m tellprox

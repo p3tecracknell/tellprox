@@ -15,33 +15,25 @@ http://www.telldus.se/products/nativesoftware
 There are instructions online for installing telldus-core on Mac/Linux. For example, to install on Raspbian:
 http://elinux.org/R-Pi_Tellstick_core
 
-Windows Installation
-====================
+Installation
+============
 
-Python for Windows (http://www.activestate.com)
+Make sure python is installed (windows: http://www.activestate.com)
 
-Click on 'Download Zip' and extract. Open a command prompt, change to the extracted folder and type the following
+Download the source:
+
+  Windows users, click on 'Download Zip' and extract.
+
+  Linux users should install git and setuptools:
+
+  sudo apt-get install python-setuptools git
+
+  git clone git://github.com/p3tecracknell/tellprox.git
+
+Then open a command prompt in the source and type:
 
 python setup.py install
 
-Run with:
-
-python -m tellprox
-
-
-Linux Installation
-==================
-
-cd ~
-
-sudo apt-get install git
-
-git clone git://github.com/p3tecracknell/tellprox.git
-
-cd tellprox
-
-sudo python setup.py install
-
-Run with:
+Finally, run with:
 
 python -m tellprox

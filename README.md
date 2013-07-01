@@ -34,7 +34,7 @@ Linux Installation
 
 cd ~
 
-sudo apt-get install python-cherrypy3 python-setuptools git
+sudo apt-get install git
 
 git clone git://github.com/p3tecracknell/tellprox.git
 

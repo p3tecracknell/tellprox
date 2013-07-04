@@ -2,9 +2,10 @@ import bottle_helpers as bh
 from werkzeug.security import generate_password_hash
 
 class ConfigAPI(object):
-	def __init__(self, api, config):
-		self.config = config
+	def __init__(self, api, config, validator):
 		self.api = api
+		self.config = config
+		self.validator = validator
 		api.add_route('config', self.route)
 		
 	def route(self, func):
@@ -27,7 +28,9 @@ class ConfigAPI(object):
 			value = bh.get_string('value')
 			if item == 'password' and not value == '':
 				value = generate_password_hash(value)
+	
 			self.config[item] = value
+			result = self.config.validate(self.validator)
 			return bh.success_response()
 			
 		bh.raise404()

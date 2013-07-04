@@ -35,7 +35,7 @@ def main():
 	
 	api = API(app, config)
 	TellstickAPI(api, config)
-	ConfigAPI(api, config)
+	ConfigAPI(api, config, validator)
 	
 	bottle.run(app,
 		host = config['host'],
@@ -81,12 +81,6 @@ def home_page():
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
 	return bottle.static_file(filepath, root='./tellprox/static')
-
-#@app.route('/api/config', method='ANY')
-#def get_config():
-#	rows = [ {'name': key, 'value': value, 'editor': 'text'}
-#		for key, value in config.iteritems() ]
-#	return json.dumps({"total":len(config),"rows": rows })
 
 if __name__ == "__main__":
 	main()

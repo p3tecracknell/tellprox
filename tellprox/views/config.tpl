@@ -23,21 +23,21 @@
 	<h2>Client</h2>
 	<div class="row-fluid">
 		<div class="span4">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The name of this client when the Web Service publishes information">
 				<dt><h4>Client name</h4></dt>
 				<dd><input type="text" class="span4" name="client_name"></dd>
 			</dl>
 		</div>
 		<div class="span2">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The ID of this client when the Web Service publishes information">
 				<dt><h4>Client ID</h4></dt>
 				<dd><input type="text" class="span2" name="client_id"></dd>
 			</dl>
 		</div>
 		<div class="span2">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Debug mode enables bottle's debug mode as well as reloads the server on code change">
 				<dt><h4>Debug</h4></dt>
-				<dd class="switch" id="test">
+				<dd class="switch">
 					<input type="checkbox" checked="" name="debug" />
 				</dd>
 			</dl>
@@ -94,7 +94,6 @@
 	var SET_URL = 'json/config/set';
 	
 	$(document).ready(function() {
-		
 		$.post(GETALL_URL, authData(), function(configData) {
 			$('#rows dl').each(function(i, field) {
 				var root = $(field);
@@ -104,21 +103,43 @@
 				
 				var name = input.attr('name');
 				if (name in configData) {
-					if (name != 'password')
-						input.val(configData[name]);
+					var val = configData[name];
+					
+					switch(input.attr('type')) {
+					case 'checkbox':
+						root.bootstrapSwitch('setState', val, true);
+						break;
+					case 'text':
+						if (name != 'password')
+							input.val(val);
+						break;
+					}
 				}
+				
+				input.change(function() {
+					var item = input.attr('name');
+					var inputData = authData({ 'item': item, 'value': getValue(input) });
+					$.post(SET_URL, inputData, function(data) {
+						if ('status' in data && data['status'] == 'success') {
+							type = 'success';
+							message = '<i>' + input.attr('label') + '</i> set successfully';;
+						} else {
+							type = 'danger';
+							message = data['error'] || 'fail';
+						}
+						createToast(type, message);
+					});
+				});
 			});
 		});
 	});
 	
 	function createToast(type, message){
-		var options = {
+		$.toast(message, {
 			duration: 2500,
 			sticky: false,
 			type: type
-		};
-		
-		$.toast(message, options);
+		});
 	}
 	
 	function getValue(input) {
@@ -127,24 +148,6 @@
 		else
 			return input.val();
 	}
-	
-	$('input').each(function(i, input) {
-		var input = $(this);
-		input.change(function() {
-			var item = input.attr('name');
-			var inputData = authData({ 'item': item, 'value': getValue(input) });
-			$.post(SET_URL, inputData, function(data) {
-				if ('status' in data && data['status'] == 'success') {
-					type = 'success';
-					message = '<i>' + input.attr('label') + '</i> set successfully';;
-				} else {
-					type = 'danger';
-					message = data['error'] || 'fail';
-				}
-				createToast(type, message);
-			});
-		});
-	});
 	$('[rel=tooltip]').tooltip({placement: 'bottom'})
 </script>
 %rebase layout title='Config', name='config', **locals()

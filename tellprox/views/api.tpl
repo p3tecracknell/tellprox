@@ -31,7 +31,11 @@
 				
 				<br/>
 				
-				<code id="output" style="white-space: pre; display: none"></code>
+				
+				<div class="palette palette-peter-river" style="overflow: auto; overflow-y: hidden;">
+					<code id="output" style="display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0">Output
+					</code>
+				</div>
 			</div>
 		</div>
 		<div class="span3" id="itemList">
@@ -97,7 +101,121 @@
 					title: 'device/toggle',
 					description: 'Toggles a device on or off',
 					inputs: [
-						{ title: 'id', description: 'The device id to toggle', type: 'text' }
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/add',
+					description: 'Adds a device',
+					inputs: [
+						{  }
+					]
+				},
+				{
+					title: 'device/info',
+					description: 'Retrieve information about a given device',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/command',
+					description: 'Requests a command on a given device',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' },
+						{ title: 'method', description: '', type: 'text' },
+						{ title: 'value', description: '', type: 'text' }
+					]
+				},
+				{
+					title: 'device/bell',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/dim',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/down',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/learn',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/remove',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/stop',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/turnon',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/turnoff',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/up',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/setParameter',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/setName',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/setModel',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				},
+				{
+					title: 'device/setProtocol',
+					description: '',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
 					]
 				}
 			]
@@ -181,9 +299,10 @@
 			$.post(url, inputData, function(data) {
 				if (outputFormat == 'json') {
 					data = JSON.stringify(data, null, '\t')
+				} else {
+					data = (new window.XMLSerializer()).serializeToString(data);
 				}
 				output.text(data)
-				output.show()
 			});
 		} else {
 			url += '?' + $.param(inputData);
@@ -197,7 +316,7 @@
 		if (selectedMethod != methodTitle) {
 			if (methodTitle in apiMap) {
 				var method = apiMap[methodTitle]
-				description.text(method.description)
+				description.text(method.description || '[Description needed]')
 				
 				// Clear out, ready to start again
 				inputs.empty();

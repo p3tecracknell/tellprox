@@ -20,7 +20,7 @@ CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
   
 config = None
-bottle.TEMPLATE_PATH.insert(0,'./tellprox/views')
+bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
 app = bottle.Bottle()
 
 def main():

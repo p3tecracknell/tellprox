@@ -18,12 +18,12 @@ class TellstickAPI(object):
 		self.load_sensors()
 		
 		api.add_route('devices', self.route_devices)
-		api.add_route('device', self.route_device)
+		api.add_route('device',  self.route_device)
 		api.add_route('clients', self.route_clients)
-		api.add_route('client', self.route_client)
+		api.add_route('client',  self.route_client)
 		api.add_route('sensors', self.route_sensors)
-		api.add_route('sensor', self.route_sensor)
-		#api.add_route('group', 'not implemented yet'
+		api.add_route('sensor',  self.route_sensor)
+		api.add_route('group',   self.route_group)
 		#api.add_route('scheduler', 'not implemented yet'
 
 	
@@ -174,6 +174,23 @@ class TellstickAPI(object):
 			if resp is None: bh.raise404()
 		else:
 			resp = "Sensor " + "\"" + str(id) + "\" not found!"
+		
+		return self.map_response(resp)
+	
+	def route_group(self, func):
+		if (func == 'add'):
+			return self.map_response("Not implemented")
+		else:
+			""" With the only function that does not require ID out of the way, 
+				determine the device we want to interact with """
+			id = bh.get_int('id')
+			self.load_devices()
+			if (self.devices.has_key(id)):
+				device = self.devices[id]
+				resp = self.device_command(device, func, bh.get_int('level'))
+				if resp is None: bh.raise404()
+			else:
+				resp = "Device " + "\"" + str(id) + "\" not found!"
 		
 		return self.map_response(resp)
 	

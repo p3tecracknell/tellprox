@@ -221,6 +221,17 @@
 			]
 		},
 		{
+			title: 'Group',
+			items : [
+				{
+					title: 'group/remove',
+					inputs: [
+						{ title: 'id', description: 'The device id', type: 'text' }
+					]
+				}
+			]
+		},
+		{
 			title: 'Config',
 			items : [
 				{

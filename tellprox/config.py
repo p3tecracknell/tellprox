@@ -6,31 +6,38 @@ class ConfigAPI(object):
 		self.api = api
 		self.config = config
 		self.validator = validator
-		api.add_route('config', self.route)
+		api.add_route('config', {
+			'getall': {
+				'fn': self.getall
+			},
+			'get': {
+				'fn': self.get
+			},
+			'set': {
+				'fn': self.set
+			}
+		})
 		
-	def route(self, func):
-		if (func == 'getall'):
-			return {k:v for k, v in self.config.iteritems()}
-				
-		elif (func == 'get'):
-			item = bh.get_string('item')
-			if not item:
-				return { 'error' : 'Item not set' }
-			if item in self.config:
-				return self.config[item]
-		
-		elif (func == 'set'):
-			item = bh.get_string('item')
-			if not item:
-				return { 'error' : 'Item not set' }
-			if not item in self.config:
-				return { 'error' : 'Item not found' }
-			value = bh.get_string('value')
-			if item == 'password' and not value == '':
-				value = generate_password_hash(value)
+	def getall(self, func):
+		return { k:v for k, v in self.config.iteritems() }
 	
-			self.config[item] = value
-			result = self.config.validate(self.validator)
-			return bh.success_response()
-			
-		bh.raise404()
+	def get(self, func):
+		item = bh.get_string('item')
+		if not item:
+			return { 'error' : 'Item not set' }
+		if item in self.config:
+			return self.config[item]
+	
+	def set(self, func):
+		item = bh.get_string('item')
+		if not item:
+			return { 'error' : 'Item not set' }
+		if not item in self.config:
+			return { 'error' : 'Item not found' }
+		value = bh.get_string('value')
+		if item == 'password' and not value == '':
+			value = generate_password_hash(value)
+
+		self.config[item] = value
+		result = self.config.validate(self.validator)
+		return bh.success_response()

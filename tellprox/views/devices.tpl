@@ -60,7 +60,9 @@
 			orientation: "horizontal",
 			range: "min",
 			change: function(event, ui) {
-				sliderId = $(this).attr('id').substr(SLIDER_ID_PREFIX.length)
+				var target = $(event.target);
+				sliderId = target.attr('id').substr(SLIDER_ID_PREFIX.length)
+				target.siblings('.switch').bootstrapSwitch('setState', true, true);
 				$.post(DEVICE_DIM_URL, authData({id: sliderId, level: ui.value}))
 			}
 		});

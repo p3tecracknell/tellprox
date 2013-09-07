@@ -52,35 +52,10 @@
 <script src="static/js/flatui-radio.js"></script>
 <script src="static/js/helpers.js"></script>
 <script>
+	var API_URL = 'json/api/list';
+
 	data =
 	[
-		{
-			title : 'Clients',
-			items : [
-				{
-					title: 'clients/list',
-					description: 'Returns a list of all clients associated with the current user.'
-				}
-			]
-		},
-		{
-			title : 'Client',
-			items : [
-				{
-					title: 'client/info',
-					description: 'Returns information about a specific client.',
-					inputs: [
-						{ title: 'id', description: 'The id of the client', type: 'text' },
-						{ title: 'uuid',
-						  description: '(optional) An optional uuid for a client. By specifying the uuid, info about a non registered client can be fetched', type: 'text' },
-						{ title: 'code',
-						  description: '(optional) Not used. Included for backwards compatibility with TellStick Net only', type: 'text' },
-						{ title: 'extras',
-						  description: '(optional) A comma-delimited list of extra information to fetch for each returned client. Currently supported fields are: coordinate, suntime, timezone and tzoffset', type: 'text' }
-					]
-				}
-			]
-		},
 		{
 			title : 'Devices',
 			items : [
@@ -90,132 +65,6 @@
 					inputs: [
 						{ title: 'supportedMethods', description: 'The methods supported by the calling application', type: 'text' },
 						{ title: 'extras', description: '(optional) A comma-delimited list of extra information to fetch for each returned device. Currently supported fields are: coordinate, timezone and tzoffset.', type: 'text' }
-					]
-				}
-			]
-		},
-		{
-			title : 'Device',
-			items : [
-				{
-					title: 'device/toggle',
-					description: 'Toggles a device on or off',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/add',
-					description: 'Adds a device',
-					inputs: [
-						{  }
-					]
-				},
-				{
-					title: 'device/info',
-					description: 'Retrieve information about a given device',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/command',
-					description: 'Requests a command on a given device',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' },
-						{ title: 'method', description: '', type: 'text' },
-						{ title: 'value', description: '', type: 'text' }
-					]
-				},
-				{
-					title: 'device/bell',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/dim',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/down',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/learn',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/remove',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/stop',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/turnon',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/turnoff',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/up',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/setParameter',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/setName',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/setModel',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				},
-				{
-					title: 'device/setProtocol',
-					description: '',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
 					]
 				}
 			]
@@ -262,37 +111,32 @@
 	var inputs = $('#inputs');
 	var output = $('#output');
 	var getWindow;
-		
+	
+	$(window).bind('hashchange', showPage);
 	$(document).ready(function() {
-		for(var i in data) {
-			var header = data[i];
-			apiList.append(h(4).text(header.title))
-			var items = header.items
-			for (var j in items) {
-				var method = items[j]
-				var methodTitle = method.title;//.substring(header.title.length + 1)
-				apiList.append(a()
-					.text(methodTitle)
-					.attr({href: '#' + methodTitle})
-					.addClass('method')
-					.click(function(e) {
-						showPage(e.target.text)
-					}))
-				.append(br());
-					
-				apiMap[methodTitle] = method;
+		$.post(API_URL, authData(), function(groups) {
+			apiMap = groups;
+			
+			for(var header in groups) {
+				apiList.append(h(4).text(header))
+				for (var methodName in groups[header]) {
+					apiList.append(
+						a()
+						.text(methodName)
+						.attr({href: '#' + header + '/' + methodName})
+						.addClass('method')
+					)
+					.append(br());
+				}
 			}
-		}
-		
-		if (document.URL.indexOf('#') > 0) {
-			var hash = document.URL.substr(document.URL.indexOf('#') + 1)
-			showPage(hash)
-		}
+			
+			if (document.URL.indexOf('#') > 0) showPage();
+		});
 	});
 	
-	$("form input[type=submit]").click(function() {
-		$("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
-		$(this).attr("clicked", "true");
+	$('form input[type=submit]').click(function() {
+		$('input[type=submit]', $(this).parents('form')).removeAttr("clicked");
+		$(this).attr('clicked', 'true');
 	});
 	
 	$('form').submit(function(a) {
@@ -314,6 +158,8 @@
 					data = (new window.XMLSerializer()).serializeToString(data);
 				}
 				output.text(data)
+			}).fail(function(o, title, error) { 
+				output.text(error);
 			});
 		} else {
 			url += '?' + $.param(inputData);
@@ -323,32 +169,41 @@
 	    return false;
 	});
 	
-	function showPage(methodTitle) {
-		if (selectedMethod != methodTitle) {
-			if (methodTitle in apiMap) {
-				var method = apiMap[methodTitle]
-				description.text(method.description || '[Description needed]')
-				
-				// Clear out, ready to start again
-				inputs.empty();
-				if ('inputs' in method) {
-					var inputArray = method.inputs
-					for (var i in inputArray) {
-						var input = inputArray[i];
-						switch (input.type) {
-							case 'text':
-								inputs.append(createInputField(input.title, input.description));
-								break;
-							default:
-								console.log('todo')
-								break;
+	function showPage() {
+		var title = document.URL.substr(document.URL.indexOf('#') + 1);
+
+		if (selectedMethod != title) {
+			var split = title.split('/');
+			var groupName = split[0];
+			var methodName = split[1];
+			if (groupName in apiMap) {
+				var group = apiMap[groupName];
+				if (methodName in group) {
+					var method = group[methodName];
+					description.text(method.description || '[Description needed]');
+
+					// Clear out, ready to start again
+					inputs.empty();
+					if ('inputs' in method) {
+						var inputArray = method.inputs
+						for (var i in inputArray) {
+							var input = inputArray[i];
+							switch (input.type) {
+								case 'string':
+								case 'int':
+									inputs.append(createInputField(input.name, input.description));
+									break;
+								default:
+									console.log('todo')
+									break;
+							}
 						}
 					}
+					
+					output.text('')
+					$('#apiSpecifics').show()
+					selectedMethod = title;
 				}
-				
-				output.text('')
-				$('#apiSpecifics').show()
-				selectedMethod = methodTitle;
 			}
 		}
 	}

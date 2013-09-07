@@ -7,6 +7,12 @@ import json
 def raise404():
 	raise HTTPError(404, "Not found: " + repr(request.path))
 
+def get_type(key, type):
+	if type == 'int':
+		return get_int(key)
+	else:
+		return get_string(key)
+
 def get_int(key):
 	num = get_string(key) or ''
 	try:
@@ -21,7 +27,6 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 	if (out_format.lower() == 'xml'):
 		root = ET.Element(root_tag)
 		_convert_dict_to_xml_recurse(root, input, {})
-		#converted = "not implemented"
 		converted = prettify(root)
 		response.content_type = 'application/xml'
 	else:
@@ -43,8 +48,7 @@ def format_response(input, out_format, root_tag, pretty_print = False):
 
 def success_response():
 	return { 'status': 'success' } 
-		
-""" TODO move to helpers """
+
 def set_attribute(dictionary):
 	return dict(("@" + k, v) for k, v in dictionary.items())
 
@@ -52,8 +56,7 @@ def hide_attribute(dictionary):
 	return dict((k[1:] if k.startswith('@') else k, v) for k, v in dictionary.items())
 
 def prettify(elem):
-	"""Return a pretty-printed XML string for the Element.
-		"""
+	"""Return a pretty-printed XML string for the Element."""
 	rough_string = ET.tostring(elem, 'utf-8')
 	reparsed = minidom.parseString(rough_string)
 	return reparsed.toprettyxml(indent="  ")

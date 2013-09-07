@@ -9,25 +9,41 @@ class API(object):
 			method = ['GET', 'POST'],
 			callback = self.route_all)
 		self.callbacks = {}
-		self.add_route('api', self.output)
-		
-	def add_route(self, key, callback):
-		self.callbacks[key] = callback
+		self.allroutes = {}
+		self.add_route('api', {
+			'list': {
+				'fn': self.output
+			}
+		})
+
+	def add_route(self, key, funcs):
+		for v in funcs.values():
+			inputs = v.get('inputs', [])
+			if not type(inputs) is list:
+				inputs = [inputs]
+			v['inputs'] = inputs
+		self.allroutes[key] = funcs
 		
 	def route_all(self, out_format, ftype, func):
-		print request
-		if ftype in self.callbacks:
-			if (self.check_apikey()):
-				func = func.strip().lower()
-				resp = self.callbacks[ftype](func)
-			else:
-				resp = { 'error': 'key not valid' }
-			return bh.format_response(resp, out_format, ftype, self.config['pretty_print'])
-				
+		if ftype in self.allroutes:
+			funcs = self.allroutes[ftype]
+			funcName = func.strip().lower()
+			if funcName in funcs:
+				if self.check_apikey():
+					func = funcs[funcName]
+					args = self.get_inputs(func['inputs'])
+					resp = func['fn'](funcName, *args)
+				else:
+					resp = { 'error': 'key not valid' }
+				return bh.format_response(resp, out_format, ftype, self.config['pretty_print'])
 		bh.raise404()
+	
+	def get_inputs(self, args = []):
+		return [bh.get_type(input['name'], input['type']) for input in args]
 		
-	def output(self, ftype):
-		return [{'key': k} for k, v in self.callbacks.iteritems()]
+	def output(self, func):
+		return {k : { kk : {'description': vv['fn'].__doc__, 'inputs': vv['inputs'] } for kk,vv in v.iteritems() }
+			for k, v in self.allroutes.iteritems()}
 		
 	def check_apikey(self):
 		if not self.config['apikey']:

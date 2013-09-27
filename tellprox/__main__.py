@@ -60,7 +60,7 @@ def render_template(view):
 
 @app.route('/')
 def home_page():
-	redirect('devices')
+	return "<html><body><script>window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices')</script></body></html>"
 	
 @app.route('/devices')
 def devices():

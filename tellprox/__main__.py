@@ -13,7 +13,6 @@ from config import ConfigAPI
 from bottle import template, redirect
 from configobj import ConfigObj
 from validate import Validator
-#from werkzeug.security import check_password_hash TODO implement
 
 # Constants
 CONFIG_PATH = 'config.ini'
@@ -21,6 +20,7 @@ CONFIG_SPEC = 'configspec.ini'
   
 config = None
 bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
+root_app = bottle.Bottle()
 app = bottle.Bottle()
 
 def main():
@@ -37,7 +37,12 @@ def main():
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
 	
-	bottle.run(app,
+	if config['webroot']:
+		root_app.mount(config['webroot'], app)
+	else:
+		root_app.merge(app)
+	
+	bottle.run(root_app,
 		host = config['host'],
 		port = config['port'],
 		debug = config['debug'],
@@ -48,14 +53,6 @@ def main():
 	config.write()
 
 def render_template(view):
-	# TODO password authentication here
-	#if not self.config['apikey']:
-	#		return True
-	#	key = bh.get_string('key')
-	#	if not key:
-	#		return False
-	#		
-	#	return check_password_hash(self.config['apikey'], key)
 	vars = {
 		'apikey' : config['apikey'] or ''
 	}
@@ -63,8 +60,7 @@ def render_template(view):
 
 @app.route('/')
 def home_page():
-	webroot = config['webroot'] + '/' or ''
-	redirect(webroot + 'devices')
+	redirect('devices')
 	
 @app.route('/devices')
 def devices():

@@ -26,6 +26,8 @@ Download the source:
 
 --Linux users should install git and setuptools:
 
+--$sudo apt-get update
+
 --$sudo apt-get install python-setuptools git
 
 --$git clone git://github.com/p3tecracknell/tellprox.git

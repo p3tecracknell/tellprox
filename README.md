@@ -29,7 +29,7 @@ Download the source:
 
 --Windows users, click on 'Download Zip' and extract.
 
---Linux users should install git and setuptools:
+--Linux users should install git and setuptools, for example:
 
 --$sudo apt-get update
 

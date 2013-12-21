@@ -15,6 +15,11 @@ http://www.telldus.se/products/nativesoftware
 There are instructions online for installing telldus-core on Mac/Linux. For example, to install on Raspbian:
 http://elinux.org/R-Pi_Tellstick_core
 
+To install Telldus-core on OpenWRT, follow:
+http://blog.stfu.se/binary-openwrt-packages-for-telldus-core/
+
+Essentially: opkg install [url]
+
 Installation
 ============
 

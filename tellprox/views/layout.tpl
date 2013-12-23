@@ -13,9 +13,7 @@
 	<link href="static/css/site.css" rel="stylesheet">
 	<script>
 	function authData(data) {
-		if (!data) data = {};
-		data['key'] = '{{apikey}}';
-		return data;
+		return $.extend({ 'key': '{{apikey}}' }, data);
 	}
 	</script>
   </head>

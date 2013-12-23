@@ -37,7 +37,7 @@
 		<div class="span2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Debug mode enables bottle's debug mode as well as reloads the server on code change">
 				<dt><h4>Debug</h4></dt>
-				<dd class="switch">
+				<dd class="make-switch">
 					<input type="checkbox" checked="" name="debug" />
 				</dd>
 			</dl>
@@ -45,7 +45,7 @@
 		<div class="span2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h4>Editable</h4></dt>
-				<dd class="switch">
+				<dd class="make-switch">
 					<input type="checkbox" checked="" name="editable" />
 				</dd>
 			</dl>
@@ -53,7 +53,7 @@
 		<div class="span2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h4>Pretty Print</h4></dt>
-				<dd class="switch">
+				<dd class="make-switch">
 					<input type="checkbox" checked="" name="pretty_print" />
 				</dd>
 			</dl>
@@ -110,8 +110,7 @@
 						root.bootstrapSwitch('setState', val, true);
 						break;
 					case 'text':
-						if (name != 'password')
-							input.val(val);
+						if (name != 'password') input.val(val);
 						break;
 					}
 				}

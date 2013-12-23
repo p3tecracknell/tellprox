@@ -42,7 +42,7 @@ def dec_response(f):
 			return map_response(*resp)
 		return map_response(resp)
 	return call_f
-		
+
 class TellstickAPI(object):
 	""" Mimick Telldus Live """
 	config = None
@@ -194,7 +194,12 @@ class TellstickAPI(object):
 	def devices_list(self, func, supportedMethods):
 		"""Returns a list of all clients associated with the current user."""
 		self.load_devices()
-		return { 'device': [ self.device_to_dict(device, supportedMethods, False) for device in self.devices.values() ]}
+		return {
+			'device': [
+				self.device_to_dict(device, supportedMethods, False)
+					for device in self.devices.values()
+			]
+		}
 
 	@dec_response
 	def device_add(self, func, clientid, name, protocol, model):
@@ -261,7 +266,7 @@ class TellstickAPI(object):
 			elif (func == 'toggle') : self.toggle_device(device)
 		except Exception as e:
 			return e
-			
+
 		return TELLSTICK_SUCCESS
 	
 	def toggle_device(self, device):
@@ -371,8 +376,8 @@ class TellstickAPI(object):
 		}
 		
 		if info:
-			json['protocol'] = None # TODO
-			json['model']    = None # TODO
+			json['protocol'] = None
+			json['model']    = None
 		else:
 			json['client'] = self.client()
 			json['clientName'] = self.clientName()
@@ -424,6 +429,6 @@ class TellstickAPI(object):
 			'name'    : self.config['client_name'] or '',
 			'online'  : '1',
 			'editable': 1 if self.config['editable'] else 0,
-			'version' : '0.25',
+			'version' : '0.26',
 			'type'    : 'TellProx'
 		}

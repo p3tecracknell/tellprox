@@ -17,7 +17,7 @@ from validate import Validator
 # Constants
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
-  
+
 config = None
 bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
 root_app = bottle.Bottle()
@@ -32,7 +32,7 @@ def main():
 	if result is False:
 		print "Config file validation failed"
 		sys.exit(1)
-	
+
 	api = API(app, config)
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
@@ -41,7 +41,7 @@ def main():
 		root_app.mount(config['webroot'], app)
 	else:
 		root_app.merge(app)
-	
+
 	bottle.run(root_app,
 		host = config['host'],
 		port = config['port'],
@@ -60,7 +60,8 @@ def render_template(view):
 
 @app.route('/')
 def home_page():
-	return "<html><body><script>window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices')</script></body></html>"
+	return """<html><body><script>
+		window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices') </script></body></html>"""
 	
 @app.route('/devices')
 def devices():

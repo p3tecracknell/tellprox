@@ -5,7 +5,7 @@
     <title>TellProx{{' ' + title if title else ''}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="static/css/bootstrap.css" rel="stylesheet">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
 	<link href="static/css/bootstrap-switch.css" rel="stylesheet">
 	<link href="static/css/flat-ui.css" rel="stylesheet">
     <link href="static/css/bootstrap-responsive.css" rel="stylesheet">

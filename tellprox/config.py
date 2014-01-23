@@ -37,7 +37,7 @@ class ConfigAPI(object):
 		value = bh.get_string('value')
 		if item == 'password' and value:
 			value = generate_password_hash(value)
-		print item + " set to " + value
+
 		self.config[item] = value
 		result = self.config.validate(self.validator)
 		return bh.success_response()

@@ -41,6 +41,7 @@ Then open a command prompt in the source and type:
 
 $python setup.py install
 
+If you plan on using authentication, I highly recommend you change the validate_key value on line 30 of __main__.py
 Finally, run with:
 
 $python -m tellprox

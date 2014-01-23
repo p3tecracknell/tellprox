@@ -22,7 +22,7 @@ class API(object):
 			if not type(inputs) is list:
 				inputs = [inputs]
 			v['inputs'] = inputs
-		self.allroutes[key] = funcs
+		self.allroutes[key.lower()] = funcs
 		
 	def route_all(self, out_format, ftype, func):
 		if ftype in self.allroutes:

@@ -48,12 +48,30 @@ class TellstickAPI(object):
 	config = None
 	core = td.TelldusCore()
 	sensors = {}
+	jobs = {}
 
 	def __init__(self, api, config):
 		self.config = config
 		
 		self.load_devices()
 		self.load_sensors()
+		self.jobs['1'] = {
+			"id":"335108",
+			"deviceId":"2",
+			"method":"16",
+			"methodValue":"217",
+			"nextRunTime":0,
+			"type":"time",
+			"hour":"6",
+			"minute":"25",
+			"offset":0,
+			"randomInterval":0,
+			"retries":3,
+			"retryInterval":5,
+			"reps":1,
+			"active":"0",
+			"weekdays":"1,2,3,4,5"
+		}
 		
 		id = { 'name': 'id', 'type': 'int', 'description': 'The id of the device' }
 		
@@ -188,8 +206,6 @@ class TellstickAPI(object):
 				'inputs': { 'name': 'id', 'type': 'int', 'description': 'The id of the group' }
 			}
 		})
-
-		#api.add_route('scheduler', 'not implemented yet'
 
 	def devices_list(self, func, supportedMethods):
 		"""Returns a list of all clients associated with the current user."""
@@ -364,7 +380,7 @@ class TellstickAPI(object):
 	"""
 	def device_to_dict(self, device, methods_supported, info):
 		methods_supported = methods_supported or 0
-		json = {
+		dict = {
 			'id'        : device.id,
 			'name'      : device.name,
 			'state'     : device.last_sent_command(methods_supported),
@@ -376,14 +392,14 @@ class TellstickAPI(object):
 		}
 		
 		if info:
-			json['protocol'] = None
-			json['model']    = None
+			dict['protocol'] = None
+			dict['model']    = None
 		else:
-			json['client'] = self.client()
-			json['clientName'] = self.clientName()
-			json = bh.set_attribute(json)
+			dict['client'] = self.client()
+			dict['clientName'] = self.clientName()
+			dict = bh.set_attribute(dict)
 			
-		return json
+		return dict
 	
 	def sensor_to_dict(self, sensor, info):
 		# Set default value in case we get back nothing
@@ -400,7 +416,7 @@ class TellstickAPI(object):
 				lastUpdated = svalue.timestamp
 				sensor_data.append({'name': type['name'], 'value': svalue.value})
 		
-		json = {
+		base_dict = {
 			'id'         : sensor.raw.id,
 			'name'       : sensor.name,
 			'lastUpdated': lastUpdated,
@@ -411,16 +427,16 @@ class TellstickAPI(object):
 		}
 		
 		if info:
-			extra_json = {
+			extra_dict = {
 				'data'          : sensor_data,
 				'protocol'      : sensor.raw.protocol,
 				'sensorId'      : sensor.raw.id,
 				'timezoneoffset': 7200
 			}
-			json = dict(json.items() + extra_json.items())
+			base_dict = dict(base_dict.items() + extra_dict.items())
 		else:
-			json['clientName'] = self.clientName()
-		return json
+			base_dict['clientName'] = self.clientName()
+		return base_dict
 
 	def get_client_info(self):
 		return {

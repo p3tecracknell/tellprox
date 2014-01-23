@@ -40,6 +40,9 @@
 			%else:
 				<li><a href="api">API</a></li>
 			%end
+			%if password:
+				<li><a href="logout">Logout</a></li>
+			%end
 		  </ul>
 		</div>
 	  </div>

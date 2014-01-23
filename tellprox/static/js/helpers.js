@@ -10,11 +10,19 @@ var sort_by = function(field, reverse, primer) {
 function br()    { return $(document.createElement('br'));   }
 function div()   { return $(document.createElement('div'));   }
 function span()  { return $(document.createElement('span'));   }
-function h(i)    { return $(document.createElement('h'+i));   }
+function h(i)    { return $(document.createElement('h' + i));   }
 function label() { return $(document.createElement('label')); }
 function a()     { return $(document.createElement('a'));     }
 function radio() { return $(document.createElement('input')).attr({type: 'radio' }); }
-function input() { return $(document.createElement('input')).attr({type: 'text' }); }
+function inputtext() { return $(document.createElement('input')).attr({type: 'text' }); }
 function checkbx(checked) {
 	return $(document.createElement('input')).attr({type: 'checkbox' }).prop('checked', checked);
+}
+function dropdown(data) {
+	var s = $(document.createElement('select'));
+	$.each(data, function(key, val) {
+		var splits = val.split('|');
+		$('<option />', {value: splits[0], text: splits[1] || val}).appendTo(s);
+	});
+	return s;
 }

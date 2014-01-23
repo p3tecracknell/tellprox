@@ -53,55 +53,6 @@
 <script src="static/js/helpers.js"></script>
 <script>
 	var API_URL = 'json/api/list';
-
-	data =
-	[
-		{
-			title : 'Devices',
-			items : [
-				{
-					title: 'devices/list',
-					description: 'Returns a list of all devices associated with the current user.',
-					inputs: [
-						{ title: 'supportedMethods', description: 'The methods supported by the calling application', type: 'text' },
-						{ title: 'extras', description: '(optional) A comma-delimited list of extra information to fetch for each returned device. Currently supported fields are: coordinate, timezone and tzoffset.', type: 'text' }
-					]
-				}
-			]
-		},
-		{
-			title: 'Group',
-			items : [
-				{
-					title: 'group/remove',
-					inputs: [
-						{ title: 'id', description: 'The device id', type: 'text' }
-					]
-				}
-			]
-		},
-		{
-			title: 'Config',
-			items : [
-				{
-					title: 'config/set',
-					inputs: [
-						{ title: 'item', type: 'text' },
-						{ title: 'value', type: 'text' }
-					]
-				},
-				{
-					title: 'config/get',
-					inputs: [
-						{ title: 'item', type: 'text' }
-					]
-				},
-				{
-					title: 'config/getall'
-				},
-			]
-		}
-	]
 	
 	var apiMap = {};
 	var selectedMethod;
@@ -140,13 +91,14 @@
 	});
 	
 	$('form').submit(function(a) {
-		var inputData = authData();
+		var inputData = authData(), pre;
 		$.each($(this).serializeArray(), function(i, elem) {
-			if (elem.name != 'outputFormat')
-				inputData[elem.name] = elem.value
-			else
-				outputFormat = elem.value
-		});
+			pre = (inputData[elem.name]) ? inputData[elem.name] + ',' : '';
+			inputData[elem.name] = pre + elem.value
+		})
+		
+		outputFormat = inputData['outputFormat'];
+		delete inputData['outputFormat'];
 		
 		var url = outputFormat + '/' + selectedMethod;
 		var buttonPressed = $("input[type=submit][clicked=true]").val();
@@ -185,18 +137,27 @@
 					// Clear out, ready to start again
 					inputs.empty();
 					if ('inputs' in method) {
+						var newInput;
 						var inputArray = method.inputs
 						for (var i in inputArray) {
 							var input = inputArray[i];
 							switch (input.type) {
 								case 'string':
 								case 'int':
-									inputs.append(createInputField(input.name, input.description));
+									newInput = inputtext();
+									break;
+								case 'dropdown':
+									newInput = dropdown(input.options);
+									break;
+								case 'dropdown-multiple':
+									newInput = dropdown(input.options).attr('multiple','multiple');
 									break;
 								default:
-									console.log('todo')
+									console.log('todo');
+									newInput = null;
 									break;
 							}
+							if (newInput) inputs.append(createInput(input.name, input.description, newInput.attr({name: input.name, placeholder: input.name, 'class': 'span6'})));
 						}
 					}
 					
@@ -208,10 +169,10 @@
 		}
 	}
 	
-	function createInputField(title, description) {
+	function createInput(title, description, input) {
 		return div().addClass('palette palette-peter-river')
-			.append(input().attr({name: title, placeholder: title, 'class': 'span6'}))
-			.append(span().text(description))
+			.append(input)
+			.append(div().text(description))
 	}
 </script>
 %rebase layout title='API', name='api', **locals()

@@ -44,3 +44,5 @@ $python setup.py install
 Finally, run with:
 
 $python -m tellprox
+
+The default username and password is admin, admin

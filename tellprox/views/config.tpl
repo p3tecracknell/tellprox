@@ -62,19 +62,19 @@
 	<h2>Authentication</h2>
 	<div class="row-fluid">
 		<div class="span3">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Username for Web Authentication">
 				<dt><h4>Username</h4></dt>
 				<dd><input type="text" class="span3" name="username"></dd>
 			</dl>
 		</div>
 		<div class="span4">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Password for Web Authentication">
 				<dt><h4>Password</h4></dt>
-				<dd><input type="password" class="span4" value="notherealone" name="password" value=""></dd>
+				<dd><input type="password" class="span4" name="password" value=""></dd>
 			</dl>
 		</div>
 		<div class="span5">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Key used when accessing the API only">
 				<dt><h4>API Key</h4></dt>
 				<dd><input type="text" class="span5" name="apikey" value=""></dd>
 			</dl>
@@ -110,7 +110,11 @@
 						root.bootstrapSwitch('setState', val, true);
 						break;
 					case 'text':
-						if (name != 'password') input.val(val);
+						if (name == 'password') {
+							input.val(val.length > 0 ? 'notherealone' : '');
+						} else {
+							input.val(val);
+						}
 						break;
 					}
 				}

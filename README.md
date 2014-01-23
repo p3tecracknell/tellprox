@@ -41,9 +41,11 @@ Then open a command prompt in the source and type:
 
 $python setup.py install
 
-If you plan on using authentication, I highly recommend you change the validate_key value on line 30 of __main__.py
 Finally, run with:
 
 $python -m tellprox
 
-The default username and password is admin, admin
+Authentication is not set by default. To turn it on:
+
+1. Change the validate_key value on line 30 of __ main __.py
+2. Set the username and password in the config page

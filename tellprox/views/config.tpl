@@ -1,58 +1,58 @@
 <div id="rows">
 	<h2>Server</h2>
-	<div class="row-fluid">
-		<div class="span4">
+	<div class="row">
+		<div class="col-md-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Host that this server will run on">
-				<dt><h4>Host</h4></dt>
-				<dd><input type="text" class="span4" name="host"></dd>
+				<dt><h6>Host</h6></dt>
+				<dd><div class="form-group"><input type="text" class="form-control" name="host"></div></dd>
 			</dl>
 		</div>
-		<div class="span3">
+		<div class="col-md-3">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Port that this server will run on">
-				<dt><h4>Port</h4></dt>
-				<dd><input type="text" class="span3" name="port"></dd>
+				<dt><h6>Port</h6></dt>
+				<dd><input type="text" name="port"></dd>
 			</dl>
 		</div>
-		<div class="span5">
+		<div class="col-md-5">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Optional root value. Ideal if using Apache forwarding">
-				<dt><h4>Web Root</h4></dt>
-				<dd><input type="text" class="span5" name="webroot"></dd>
+				<dt><h6>Web Root</h6></dt>
+				<dd><input type="text" name="webroot"></dd>
 			</dl>
 		</div>
 	</div>
 	<h2>Client</h2>
-	<div class="row-fluid">
-		<div class="span4">
+	<div class="row">
+		<div class="col-md-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The name of this client when the Web Service publishes information">
-				<dt><h4>Client name</h4></dt>
-				<dd><input type="text" class="span4" name="client_name"></dd>
+				<dt><h6>Client name</h6></dt>
+				<dd><input type="text" name="client_name"></dd>
 			</dl>
 		</div>
-		<div class="span2">
+		<div class="col-md-2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The ID of this client when the Web Service publishes information">
-				<dt><h4>Client ID</h4></dt>
-				<dd><input type="text" class="span2" name="client_id"></dd>
+				<dt><h6>Client ID</h6></dt>
+				<dd><input type="text" name="client_id"></dd>
 			</dl>
 		</div>
-		<div class="span2">
+		<div class="col-md-2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Debug mode enables bottle's debug mode as well as reloads the server on code change">
-				<dt><h4>Debug</h4></dt>
+				<dt><h6>Debug</h6></dt>
 				<dd class="make-switch">
 					<input type="checkbox" checked="" name="debug" />
 				</dd>
 			</dl>
 		</div>
-		<div class="span2">
+		<div class="col-md-2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
-				<dt><h4>Editable</h4></dt>
+				<dt><h6>Editable</h6></dt>
 				<dd class="make-switch">
 					<input type="checkbox" checked="" name="editable" />
 				</dd>
 			</dl>
 		</div>
-		<div class="span2">
+		<div class="col-md-2">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
-				<dt><h4>Pretty Print</h4></dt>
+				<dt><h6>Pretty Print</h6></dt>
 				<dd class="make-switch">
 					<input type="checkbox" checked="" name="pretty_print" />
 				</dd>
@@ -60,23 +60,23 @@
 		</div>
 	</div>
 	<h2>Authentication</h2>
-	<div class="row-fluid">
-		<div class="span3">
+	<div class="row">
+		<div class="col-md-3">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Username for Web Authentication">
-				<dt><h4>Username</h4></dt>
-				<dd><input type="text" class="span3" name="username"></dd>
+				<dt><h6>Username</h6></dt>
+				<dd><input type="text" name="username"></dd>
 			</dl>
 		</div>
-		<div class="span4">
+		<div class="col-md-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Password for Web Authentication">
-				<dt><h4>Password</h4></dt>
-				<dd><input type="password" class="span4" name="password" value=""></dd>
+				<dt><h6>Password</h6></dt>
+				<dd><input type="password" name="password" value=""></dd>
 			</dl>
 		</div>
-		<div class="span5">
+		<div class="col-md-5">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Key used when accessing the API only">
-				<dt><h4>API Key</h4></dt>
-				<dd><input type="text" class="span5" name="apikey" value=""></dd>
+				<dt><h6>API Key</h6></dt>
+				<dd><input type="text" name="apikey" value=""></dd>
 			</dl>
 		</div>
 	</div>
@@ -93,6 +93,10 @@
 	var GETALL_URL = 'json/config/getall';
 	var SET_URL = 'json/config/set';
 	
+				
+			$('input').addClass('form-control');
+			$('dd').addClass('form-group');
+			
 	$(document).ready(function() {
 		$.post(GETALL_URL, authData(), function(configData) {
 			$('#rows dl').each(function(i, field) {

@@ -1,7 +1,7 @@
 <div id="rows">
-	<div class="row-fluid">
-		<div class="span2" id="apiList"></div>
-		<div class="span7">
+	<div class="row">
+		<div class="col-md-2" id="apiList"></div>
+		<div class="col-md-7">
 			<div id="description">
 			Welcome to the API Explorer. Here you can test live calls to the API-server.
 			</div>
@@ -38,7 +38,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="span3" id="itemList">
+		<div class="col-md-3" id="itemList">
 		<h4>Clients</h4>
 		399371 - newname
 		</div>
@@ -157,7 +157,7 @@
 									newInput = null;
 									break;
 							}
-							if (newInput) inputs.append(createInput(input.name, input.description, newInput.attr({name: input.name, placeholder: input.name, 'class': 'span6'})));
+							if (newInput) inputs.append(createInput(input.name, input.description, newInput.attr({name: input.name, placeholder: input.name, 'class': 'form-control'})));
 						}
 					}
 					

@@ -13,6 +13,8 @@ function span()  { return $(document.createElement('span'));   }
 function h(i)    { return $(document.createElement('h' + i));   }
 function label() { return $(document.createElement('label')); }
 function a()     { return $(document.createElement('a'));     }
+function ul()    { return $(document.createElement('ul'));     }
+function li()    { return $(document.createElement('li'));     }
 function radio() { return $(document.createElement('input')).attr({type: 'radio' }); }
 function inputtext() { return $(document.createElement('input')).attr({type: 'text' }); }
 function checkbx(checked) {

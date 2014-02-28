@@ -1,9 +1,15 @@
+body {
+	padding-top: 70px;
+}
+
 .palette {
 	text-transform: none;
 }
-.span4 , .span6{
-	margin-bottom: 15px;
+
+.pagination {
+	width: 100%;
 }
+
 #loading {
 	position:   absolute;
 	z-index:    1000;
@@ -16,6 +22,15 @@
 				50% 50% 
 				no-repeat;
 }
+
+.dev-box {
+	height: 120px;
+}
+
+.paletteContainer {
+	margin-bottom: 15px;
+}
+
 #logo {
 	margin-left: 11px;
 	margin-right: 11px;
@@ -28,10 +43,7 @@
 	-moz-border-radius: 0px;
 	border-radius: 0px;
 }
-.container {
-	top: 0; bottom: 0; left: 0; right: 0;
-	position: absolute;
-}
+
 .toggle.toggle-off .toggle-radio  {
 	color: #333;
 }

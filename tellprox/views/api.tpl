@@ -1,89 +1,119 @@
-<div id="rows">
-	<div class="row">
-		<div class="col-md-2" id="apiList"></div>
-		<div class="col-md-7">
-			<div id="description">
-			Welcome to the API Explorer. Here you can test live calls to the API-server.
-			</div>
-			<div id="apiSpecifics" style="display:none">
-			
-				<br/>
-				
-				<form>
-				<div id="inputs"></div>
-				
-				<br/>
-				
-				<div id="response">			  
-					<label class="radio checked">
-						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios1" value="json" data-toggle="radio" checked>
-						JSON
-					</label>
-					<label class="radio">
-						<span class="icons"><span class="first-icon fui-radio-unchecked"></span><span class="second-icon fui-radio-checked"></span></span><input type="radio" name="outputFormat" id="optionsRadios2" value="xml" data-toggle="radio">
-						XML
-					</label>
-					<br/>
-					<input type="submit" class="btn btn-large btn-primary" name="post" value="Post" id="post" />
-					<input type="submit" class="btn btn-large btn-primary" name="get" value="Get" id="get" />
-				</div>
-				</form>
-				
-				<br/>
-				
-				
-				<div class="palette palette-peter-river" style="overflow: auto; overflow-y: hidden;">
-					<code id="output" style="display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0">Output
-					</code>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3" id="itemList">
-		<h4>Clients</h4>
-		399371 - newname
-		</div>
+<div class="row">
+	<div class="col-md-3 col-xs-6">
+		<select id="groups" class="select-block"></select>
 	</div>
+	<div class="col-md-3 col-xs-6">
+		<select id="methods" class="select-block"></select>
+	</div>
+</div>
+
+<div id="description"></div>
+<form>
+<div id="inputs"></div>
+
+<br/>
+
+<div class="row">
+	<div class="col-md-3 col-xs-4">
+		<select name="outputFormat" class="select-block">
+			<optgroup label="Output Format">
+				<option value="json">JSON</option>
+				<option value="xml">XML</option>
+			</optgroup>
+		</select>
+	</div>
+	<div class="col-md-3 col-xs-4">
+		<input type="submit" class="btn btn-large btn-inverse btn-block" name="post" value="Post" id="post" />
+	</div>
+	<div class="col-md-3 col-xs-4">
+		<input type="submit" class="btn btn-large btn-inverse btn-block" name="get" value="Get" id="get" />
+	</div>
+</div>
+</form>
+
+<br/>
+
+<div class="palette palette-peter-river" style="overflow: auto; overflow-y: hidden;">
+	<code id="output" style="display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0">Output
+	</code>
+</div>
 
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="static/js/jquery-1.8.3.min.js"></script>
 <script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
 <script src="static/js/bootstrap.min.js"></script>
 <script src="static/js/bootstrap-switch.js"></script>
+<script src="static/js/bootstrap-select.min.js"></script>
 <script src="static/js/flatui-radio.js"></script>
 <script src="static/js/helpers.js"></script>
+<script type="text/x-template" class="inputTemplate">
+	<div class="palette palette-peter-river">
+		<div class="input"></div>
+		<div class="description"></div>
+	</div>
+</script>
 <script>
 	var API_URL = 'json/api/list';
 	
-	var apiMap = {};
-	var selectedMethod;
+	var apiMap,
+		selectedMethod,
+		getWindow,
+		description = $('#description'),
+		inputTemplate = $( $( "script.inputTemplate" ).html() ),
+		inputs = $('#inputs'),
+		output = $('#output'),
+		$groups = $('#groups'),
+		$methods = $('#methods');
 	
-	var apiList = $('#apiList');
-	var description = $('#description');
-	var inputs = $('#inputs');
-	var output = $('#output');
-	var getWindow;
-	
-	$(window).bind('hashchange', showPage);
 	$(document).ready(function() {
+		
 		$.post(API_URL, authData(), function(groups) {
 			apiMap = groups;
 			
-			for(var header in groups) {
-				apiList.append(h(4).text(header))
-				for (var methodName in groups[header]) {
-					apiList.append(
-						a()
-						.text(methodName)
-						.attr({href: '#' + header + '/' + methodName})
-						.addClass('method')
-					)
-					.append(br());
+			var buffer = mapSorted(apiMap, function(key) {
+				return option(key, key);
+			});
+			$groups.append(buffer);
+			
+			$(window).bind('hashchange', showPage);
+			$groups.change(onGroupChange);
+			$methods.change(onMethodChange);
+			$('select').selectpicker({style: 'btn-primary'});
+			
+			if (window.location.hash) {
+				var hash = getHash().split('/');
+				if (hash.length == 2) {
+					var group = hash[0],
+						method = hash[1];
+					setDropdownFromText($groups, group);
+					setDropdownFromText($methods, method);
+					showPage();
+					return;
 				}
 			}
-			
-			if (document.URL.indexOf('#') > 0) showPage();
+				
+			selectFirstDropdown($groups);
 		});
 	});
+	
+	function onGroupChange() {
+		var groupName = $(this).val(),
+			group = apiMap[groupName];
+
+		$methods.find('options').remove();
+
+		var buffer = mapSorted(group, function(key, value) {
+			return option(key, groupName + '/' + key);
+		});
+		$methods.append(buffer).selectpicker('render');
+		
+		selectFirstDropdown($methods);
+	}
+	
+	function onMethodChange() {
+		var method = $(this).val();
+		window.location.hash = method;
+	}
 	
 	$('form input[type=submit]').click(function() {
 		$('input[type=submit]', $(this).parents('form')).removeAttr("clicked");
@@ -97,10 +127,10 @@
 			inputData[elem.name] = pre + elem.value
 		})
 		
-		outputFormat = inputData['outputFormat'];
+		var outputFormat = inputData['outputFormat'];
 		delete inputData['outputFormat'];
 		
-		var url = outputFormat + '/' + selectedMethod;
+		var url = (outputFormat + '/' + selectedMethod).toLowerCase();
 		var buttonPressed = $("input[type=submit][clicked=true]").val();
 		if (buttonPressed == 'Post') {
 			$.post(url, inputData, function(data) {
@@ -122,12 +152,13 @@
 	});
 	
 	function showPage() {
-		var title = document.URL.substr(document.URL.indexOf('#') + 1);
+		var title = getHash();
 
 		if (selectedMethod != title) {
-			var split = title.split('/');
-			var groupName = split[0];
-			var methodName = split[1];
+			var split = title.split('/'),
+				groupName = split[0],
+				methodName = split[1];
+
 			if (groupName in apiMap) {
 				var group = apiMap[groupName];
 				if (methodName in group) {
@@ -138,9 +169,7 @@
 					inputs.empty();
 					if ('inputs' in method) {
 						var newInput;
-						var inputArray = method.inputs
-						for (var i in inputArray) {
-							var input = inputArray[i];
+						var buffer = $.map(method.inputs, function(input) {
 							switch (input.type) {
 								case 'string':
 								case 'int':
@@ -157,12 +186,14 @@
 									newInput = null;
 									break;
 							}
-							if (newInput) inputs.append(createInput(input.name, input.description, newInput.attr({name: input.name, placeholder: input.name, 'class': 'form-control'})));
-						}
+							if (newInput) {
+								return createInput(input.name, input.description, newInput)
+							}
+						});
+						inputs.append(buffer);
 					}
 					
-					output.text('')
-					$('#apiSpecifics').show()
+					output.text('');
 					selectedMethod = title;
 				}
 			}
@@ -170,9 +201,18 @@
 	}
 	
 	function createInput(title, description, input) {
-		return div().addClass('palette palette-peter-river')
-			.append(input)
-			.append(div().text(description))
+		input.attr({
+			name:			title,
+			placeholder:	title,
+			'class':		'form-control'
+		});
+		return inputTemplate.clone()
+			.find('.description')
+				.text(description)
+				.end()
+			.find('.input')
+				.replaceWith(input)
+				.end();
 	}
 </script>
 %rebase layout title='API', name='api', **locals()

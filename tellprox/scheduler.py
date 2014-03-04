@@ -12,25 +12,6 @@ class SchedulerAPI(object):
 		self.config = config
 		
 		self.jobs = config['jobs']
-		self.jobs['1'] = {
-			"id":"335108",
-			"deviceId":"2",
-			"method":"16",
-			"methodValue":"217",
-			"nextRunTime":0,
-			"type":"time",
-			"hour":"6",
-			"minute":"25",
-			"offset":0,
-			"randomInterval":0,
-			"retries":3,
-			"retryInterval":5,
-			"reps":1,
-			"active":"0",
-			"weekdays":"1,2,3,4,5"
-		}
-		
-		id = { 'name': 'id', 'type': 'int', 'description': 'The id of the device' }
 		
 		api.add_route('scheduler', {
 			'joblist': {
@@ -64,15 +45,15 @@ class SchedulerAPI(object):
 		]}
 	
 	def setjob(self, func, id, deviceId, method, methodValue, type, hour,
-	minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
+		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
 		
-		# If no ID is provided, find the next available
 		if id:
 			try:
-				int(number)
+				id = int(id)
 			except ValueError:
 				id = None
-		
+	
+		# If no ID is provided, find the next available
 		if id is None or len(id) == 0:
 			id = str(max([int(k) for k in self.config['jobs'].keys()]) + 1)
 

@@ -74,7 +74,7 @@
             if (this.options.size == 'auto') {
                 function getSize() {
                     var selectOffset_top_scroll = selectOffset_top - $(window).scrollTop();
-                    var windowHeight = window.innerHeight;
+                    var windowHeight = $(window).innerHeight();
                     var menuExtras = menuPadding + parseInt(menu.css('margin-top')) + parseInt(menu.css('margin-bottom')) + 2;
                     var selectOffset_bot = windowHeight - selectOffset_top_scroll - selectHeight - menuExtras;
                     menuHeight = selectOffset_bot;
@@ -86,7 +86,13 @@
                 getSize();
                 $(window).resize(getSize);
                 $(window).scroll(getSize);
-                this.$element.bind('DOMNodeInserted', getSize);
+                if (window.MutationObserver) {
+                    new MutationObserver(getSize).observe(this.$element.get(0), {
+                        childList: true
+                    });
+                } else {
+                    this.$element.bind('DOMNodeInserted', getSize);
+                }
             } else if (this.options.size && this.options.size != 'auto' && menu.find('li').length > this.options.size) {
                 var optIndex = menu.find("li > *").filter(':not(.divider)').slice(0,this.options.size).last().parent().index();
                 var divLength = menu.find("li").slice(0,optIndex + 1).find('.divider').length;
@@ -94,20 +100,26 @@
                 menu.css({'max-height' : menuHeight + 'px', 'overflow-y' : 'scroll'});
             }
 
-            //Listen for updates to the DOM and re render...
-            this.$element.bind('DOMNodeInserted', $.proxy(this.reloadLi, this));
+            // Listen for updates to the DOM and re render... (Use Mutation Observer when availiable)
+            if (window.MutationObserver) {
+                new MutationObserver($.proxy(this.reloadLi, this)).observe(this.$element.get(0), {
+                    childList: true
+                });
+            } else {
+                this.$element.bind('DOMNodeInserted', $.proxy(this.reloadLi, this));
+            }
 
             this.render();
         },
 
         createDropdown: function() {
             var drop =
-                "<div class='btn-group select'>" +
-                    "<i class='dropdown-arrow'></i>" +
+                "<div class='btn-group select'>" +                    
                     "<button class='btn dropdown-toggle clearfix' data-toggle='dropdown'>" +
                         "<span class='filter-option pull-left'></span>&nbsp;" +
                         "<span class='caret'></span>" +
                     "</button>" +
+                    "<span class='dropdown-arrow'></span>" +
                     "<ul class='dropdown-menu' role='menu'>" +
                     "</ul>" +
                 "</div>";
@@ -180,6 +192,8 @@
                     }
                 } else if ($(this).data('divider') == true) {
                     _liA.push('<div class="divider"></div>');
+                } else if ($(this).data('hidden') == true) {
+	                _liA.push('');
                 } else {
                     _liA.push( _this.createA(text, optionClass ) );
                 }

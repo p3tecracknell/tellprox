@@ -15,16 +15,45 @@ function label() { return $(document.createElement('label')); }
 function a()     { return $(document.createElement('a'));     }
 function ul()    { return $(document.createElement('ul'));     }
 function li()    { return $(document.createElement('li'));     }
+function select(){ return $(document.createElement('select'));     }
+function option(text, value){ return $(document.createElement('option')).attr({value: value}).text(text); }
 function radio() { return $(document.createElement('input')).attr({type: 'radio' }); }
 function inputtext() { return $(document.createElement('input')).attr({type: 'text' }); }
 function checkbx(checked) {
 	return $(document.createElement('input')).attr({type: 'checkbox' }).prop('checked', checked);
 }
 function dropdown(data) {
-	var s = $(document.createElement('select'));
-	$.each(data, function(key, val) {
+	var buffer = $.map(data, function(val) {
 		var splits = val.split('|');
-		$('<option />', {value: splits[0], text: splits[1] || val}).appendTo(s);
+		return option(splits[1] || val, splits[0]);
 	});
-	return s;
+	return select().append(buffer);
+}
+
+function mapSorted(map, worker) {
+    var keys = Object.keys(map).sort(),
+		key, i;
+
+	var map = [];
+    for (i = 0; i < keys.length; i++) {
+		key = keys[i];
+        map.push(worker(key, map[key]));
+    }
+	return map;
+}
+
+function selectFirstDropdown($select) {
+	$select.prop('selectedIndex',0).trigger('change');
+}
+
+function setDropdownFromText($select, lookFor) {
+	$select.children('option').each(function() {
+		if ($(this).text() == lookFor) {
+			$(this).attr('selected', 'selected').trigger('change');            
+		}
+	});
+}
+
+function getHash() {
+	return window.location.hash.substring(1);
 }

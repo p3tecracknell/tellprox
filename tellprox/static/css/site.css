@@ -55,3 +55,7 @@ pre {
  white-space: -o-pre-wrap;    /* Opera 7 */
  word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
+
+#postOutput {
+	display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0
+}

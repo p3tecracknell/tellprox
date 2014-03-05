@@ -1,19 +1,19 @@
 <div id="rows">
 	<h2>Server</h2>
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-sm-4 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Host that this server will run on">
 				<dt><h6>Host</h6></dt>
 				<dd><div class="form-group"><input type="text" class="form-control" name="host"></div></dd>
 			</dl>
 		</div>
-		<div class="col-md-3">
+		<div class="col-sm-3 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Port that this server will run on">
 				<dt><h6>Port</h6></dt>
 				<dd><input type="text" name="port"></dd>
 			</dl>
 		</div>
-		<div class="col-md-5">
+		<div class="col-sm-5 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Optional root value. Ideal if using Apache forwarding">
 				<dt><h6>Web Root</h6></dt>
 				<dd><input type="text" name="webroot"></dd>
@@ -22,19 +22,19 @@
 	</div>
 	<h2>Client</h2>
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-sm-4 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The name of this client when the Web Service publishes information">
 				<dt><h6>Client name</h6></dt>
 				<dd><input type="text" name="client_name"></dd>
 			</dl>
 		</div>
-		<div class="col-md-2">
+		<div class="col-sm-2 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The ID of this client when the Web Service publishes information">
 				<dt><h6>Client ID</h6></dt>
 				<dd><input type="text" name="client_id"></dd>
 			</dl>
 		</div>
-		<div class="col-md-2">
+		<div class="col-sm-2 col-xs-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Debug mode enables bottle's debug mode as well as reloads the server on code change">
 				<dt><h6>Debug</h6></dt>
 				<dd class="make-switch">
@@ -42,7 +42,7 @@
 				</dd>
 			</dl>
 		</div>
-		<div class="col-md-2">
+		<div class="col-sm-2 col-xs-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h6>Editable</h6></dt>
 				<dd class="make-switch">
@@ -50,7 +50,7 @@
 				</dd>
 			</dl>
 		</div>
-		<div class="col-md-2">
+		<div class="col-sm-2 col-xs-4">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="">
 				<dt><h6>Pretty Print</h6></dt>
 				<dd class="make-switch">
@@ -61,19 +61,19 @@
 	</div>
 	<h2>Authentication</h2>
 	<div class="row">
-		<div class="col-md-3">
+		<div class="col-sm-3 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Username for Web Authentication">
 				<dt><h6>Username</h6></dt>
 				<dd><input type="text" name="username"></dd>
 			</dl>
 		</div>
-		<div class="col-md-4">
+		<div class="col-sm-4 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Password for Web Authentication">
 				<dt><h6>Password</h6></dt>
 				<dd><input type="password" name="password" value=""></dd>
 			</dl>
 		</div>
-		<div class="col-md-5">
+		<div class="col-sm-5 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Key used when accessing the API only">
 				<dt><h6>API Key</h6></dt>
 				<dd><input type="text" name="apikey" value=""></dd>
@@ -81,24 +81,12 @@
 		</div>
 	</div>
 </div>
-
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="static/js/jquery-1.8.3.min.js"></script>
-<script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
-<script src="static/js/bootstrap-switch.js"></script>
-<script src="static/js/jquery.toast.min.js"></script>
-<script src="static/js/helpers.js"></script>
-<script>
-	var GETALL_URL = 'json/config/getall';
-	var SET_URL = 'json/config/set';
-	
-				
-			$('input').addClass('form-control');
-			$('dd').addClass('form-group');
+<script>				
+	$('input').addClass('form-control');
+	$('dd').addClass('form-group');
 			
 	$(document).ready(function() {
-		$.post(GETALL_URL, authData(), function(configData) {
+		api.config.getall(function(configData) {
 			$('#rows dl').each(function(i, field) {
 				var root = $(field);
 				var label = root.find('dt:first >:first-child');
@@ -124,9 +112,10 @@
 				}
 				
 				input.change(function() {
-					var item = input.attr('name');
-					var inputData = authData({ 'item': item, 'value': getValue(input) });
-					$.post(SET_URL, inputData, function(data) {
+					var item = input.attr('name'),
+						value = getValue(input);
+					
+					api.config.set(item, value, function(data) {
 						if ('status' in data && data['status'] == 'success') {
 							type = 'success';
 							message = '<i>' + input.attr('label') + '</i> set successfully';;
@@ -147,13 +136,6 @@
 			sticky: false,
 			type: type
 		});
-	}
-	
-	function getValue(input) {
-		if (input.attr('type') == 'checkbox')
-			return input.is(':checked');
-		else
-			return input.val();
 	}
 	$('[rel=tooltip]').tooltip({placement: 'bottom'})
 </script>

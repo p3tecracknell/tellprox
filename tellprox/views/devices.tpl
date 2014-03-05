@@ -1,129 +1,136 @@
-<div id="rows"></div>
+<div id="deviceContainer"></div>
 <div id="loading"></div>
 
-<script src="static/js/jquery-1.8.3.min.js"></script>
-<script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
-<script src="static/js/bootstrap-switch.js"></script>
-<script src="static/js/helpers.js"></script>
+<script type="text/x-template" class="itemCellTemplate">
+	<div class="col-xs-12 col-sm-6 col-md-4 paletteContainer">
+		<div class="palette palette-peter-river dev-box"><h4 class="header">[DEVICE]</h4></div>
+		<div class="palette palette-belize-hole">
+			<div class="pagination">
+				<ul class="content" style="width: 100%">[CONTENT]</ul>
+			</div>
+		</div>
+	</div>
+</script>
+<script type="text/x-template" class="actionButtonTemplate">
+	<li style="text-align: center; width: 50%">
+		<a href="#" class="evtBtn">[PCG]</a>
+	</li>
+</script>
 <script>
 	// URLs
-	var URL_BASE = 'json/';
-	var DEVICES_URL = URL_BASE + 'devices/list';
-	var DEVICE_DIM_URL = URL_BASE + 'device/dim';
-	var DEVICE_ON_URL = URL_BASE + 'device/turnOn';
-	var DEVICE_OFF_URL = URL_BASE + 'device/turnOff';
+	/*var URL_BASE = 'json/',
+		DEVICES_URL = URL_BASE + 'devices/list',
+		DEVICE_DIM_URL = URL_BASE + 'device/dim',
+		DEVICE_ON_URL = URL_BASE + 'device/turnOn',
+		DEVICE_OFF_URL = URL_BASE + 'device/turnOff';*/
 
 	// Constants
-	var SLIDER_ID_PREFIX = 'slider-';
-	var TOGGLE1_PREFIX = 'toggleOption1-';
-	var TOGGLE2_PREFIX = 'toggleOption2-';
-	var TOGGLE_PREFIX = 'toggleOption-';
-	var ON_OFF = 3;
-	var DIM = 16;
+	var ON_OFF = 3,
+		DIM = 16;
 		
-	var NUM_SLIDES = 6;
-	var SLIDE_WIDTH = 100 / NUM_SLIDES;
+	var NUM_SLIDES = 6,
+		SLIDE_WIDTH = 100 / NUM_SLIDES,
+		ITEMCELLTEMPLATE = $( $( "script.itemCellTemplate" ).html() ),
+		ACTIONBUTTONTEMPLATE = $( $( "script.actionButtonTemplate" ).html() );
+		
+	var $deviceContainer = $('#deviceContainer');
 
 	$(document).ready(function() {
-		$.ajax({
-			url: DEVICES_URL,
-			data: authData({ 'supportedMethods': ON_OFF + DIM}),
-			dataType: "jsonp",
-			crossDomain: true,
-			success: function(data) {
-				loadItems(data);
-			}
-		});
+		$('#rows')
+		api.devices.list(ON_OFF + DIM, loadItems);
 	});
-		
-	function createItemCell(name, itemId, startValue, dimmable, state) {
-		// Create elements
-		var cell = div().addClass('col-xs-12 col-sm-6 col-md-4 paletteContainer'),
-			header = div().addClass('palette palette-peter-river dev-box').append(h(4).text(name)),
-			contentPalette = div().addClass('palette palette-belize-hole'),
-			content = div().addClass('content pagination'),
-			slider = createSlider(itemId, startValue, dimmable, state)
-			
-		contentPalette.append(content);			
-		content.append(slider);
-		return cell.append(header).append(contentPalette);
+	
+	function createItemCell(itemId, name, slider) {
+		return ITEMCELLTEMPLATE.clone()
+			.find('.header')
+				.text(name)
+				.end()
+			.find('.content')
+				.empty()
+				.append(slider)
+				.data('id', itemId)
+				.end();
 	}
 	
-	function createSlider(itemId, startValue, dimmable, state) {
-		var ulEl = ul().width('100%').data('id', itemId);
-		if (dimmable) {
-			var currentVal = startValue / 255 * (NUM_SLIDES - 1);
-			for (var val = 0; val < NUM_SLIDES; val ++) {
-				var postVal = Math.round(255 * val / (NUM_SLIDES - 1));
-				postVal = (postVal == 0) ? 'off' : postVal;
-				var pcg = Math.round(100 * val / (NUM_SLIDES - 1));
-				var anchor = a().attr({href:'#'}).text(pcg + '%').addClass('evtBtn').data('val', postVal);
-				b = li().css({'text-align': 'center'}).width(SLIDE_WIDTH+'%').append(anchor);
-				if (val == currentVal) b.addClass('active');
-				ulEl.append(b);
-			}
-		} else {
-			var isOn = state == "1"
-			var anchor = a().text('Off').addClass('evtBtn').data('val', 'off');
-			bOff = li().css({'text-align': 'right'}).width('50%').append(anchor);
-			ulEl.append(bOff);
-			
-			var anchor = a().text('On').addClass('evtBtn').data('val', 'on');
-			bOn = li().css({'text-align': 'left'}).width('50%').append(anchor);
-			ulEl.append(bOn);
-			
-			if (isOn) {
-				bOn.addClass('active');
-			} else {
-				bOff.addClass('active');
-			}
+	function createSlideButtons(startValue) {
+		var buffer = [];
+		var currentVal = startValue / 255 * (NUM_SLIDES - 1);
+		for (var val = 0; val < NUM_SLIDES; val++) {
+			var dataValue =	(val == 0) ? 'off' :
+				Math.round(255 * val / (NUM_SLIDES - 1));
+
+			var textValue = Math.round(100 * val / (NUM_SLIDES - 1));
+			var anchor = ACTIONBUTTONTEMPLATE.clone()
+				.width(SLIDE_WIDTH + '%')
+				.find('a')
+					.text(textValue + '%')
+					.data('val', dataValue)
+					.end()
+			if (val == currentVal) anchor.addClass('active');
+			buffer.push(anchor);
 		}
+		return buffer;
+	}
+	
+	function createOnOffButton(align, text, data) {
+		return ACTIONBUTTONTEMPLATE.clone()
+				.css({'text-align': align})
+				.find('a')
+					.text(text)
+					.data('val', data)
+					.end();
+	}
+	
+	function createOnOffButtons(state) {
+		var offButton = createOnOffButton('right', 'Off', 'off'),
+			onButton = createOnOffButton('left', 'On', 'on'),
+			isOn = (state == '1');
+			
+		((isOn) ? onButton : offButton).addClass('active');
+		return [offButton, onButton];
+	}
+	
+	function onButtonClick(e) {
+		var $this = $(this),
+			container = $this.parent().parent(),
+			id = container.data('id'),
+			val = $this.data('val');
 		
-		return ulEl;
+		e.preventDefault();
+		switch(val) {
+			case 'on'	: api.device.turnon(id);	break;
+			case 'off'	: api.device.turnoff(id);	break;
+			default		: api.device.dim(id, val);	break;
+		}
+
+		container.children().removeClass('active');
+		$this.parent().addClass('active');
 	}
 
 	function loadItems(data) {
-		var rowContainer = $('#rows');
-		rowContainer.hide();
+		$deviceContainer.hide();
 		
 		if ('device' in data) {
 			var devices = data.device;
 			devices.sort(sort_by('name', true, function(a){ return a.toUpperCase() }));
 			
 			// Loop through all items
-			$.each(devices, function(i, v) {
+			var buffer = $.map(devices, function(device) {
 				// See if it supports dimming
-				var dimmable = ((v.methods & DIM) == DIM),
-					item = createItemCell(v.name, v.id, v.statevalue, dimmable, v.state);
+				var dimmable = ((device.methods & DIM) == DIM),
+					controls = (dimmable) ? createSlideButtons(device.statevalue) : createOnOffButtons(device.state);
 				
-				rowContainer.append(item);
+				return createItemCell(device.id, device.name, controls);
 			});
+			$deviceContainer.append(buffer);
 		} else {
-			rowContainer.text('Error: ' + data['error'] || 'Unknown error');
+			$deviceContainer.text('Error: ' + data['error'] || 'Unknown error');
 		}
 		
-		$('.evtBtn').click(function(e) {
-			e.preventDefault();
-			var $this = $(this);
-			var ul = $this.parent().parent();
-			var id = ul.data('id');
-			var val = $this.data('val');
-			if (val == 'on') {
-				url = DEVICE_ON_URL;
-			} else if (val == 'off') {
-				url = DEVICE_OFF_URL;
-			} else {
-				url = DEVICE_DIM_URL;
-			}
-			
-			ul.children().removeClass('active');
-			$this.parent().addClass('active');
-			$.post(url, authData({id: id, level: val}));
-		});
+		$('.evtBtn').click(onButtonClick);
 
 		$('#loading').hide()
-		rowContainer.show();
+		$deviceContainer.show();
 	}
 </script>
 %rebase layout title='Devices', name='devices', **locals()

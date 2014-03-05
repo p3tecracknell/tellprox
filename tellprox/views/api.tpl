@@ -8,66 +8,54 @@
 </div>
 
 <div id="description"></div>
+
 <form>
-<div id="inputs"></div>
-
-<br/>
-
-<div class="row">
-	<div class="col-md-3 col-xs-4">
-		<select name="outputFormat" class="select-block">
-			<optgroup label="Output Format">
-				<option value="json">JSON</option>
-				<option value="xml">XML</option>
-			</optgroup>
-		</select>
+	<div id="inputs"></div>
+	<br/>
+	<div class="row">
+		<div class="col-md-3 col-xs-4">
+			<select name="outputFormat" class="select-block">
+				<optgroup label="Output Format">
+					<option value="json" %if outputFormat == 'json':selected %end>JSON</option>
+					<option value="xml"  %if outputFormat == 'xml':selected %end>XML</option>
+				</optgroup>
+			</select>
+		</div>
+		<div class="col-md-3 col-xs-4">
+			<input type="submit" class="btn btn-large btn-inverse btn-block" name="post" value="Post" id="post" />
+		</div>
+		<div class="col-md-3 col-xs-4">
+			<input type="submit" class="btn btn-large btn-inverse btn-block" name="get" value="Get" id="get" />
+		</div>
 	</div>
-	<div class="col-md-3 col-xs-4">
-		<input type="submit" class="btn btn-large btn-inverse btn-block" name="post" value="Post" id="post" />
-	</div>
-	<div class="col-md-3 col-xs-4">
-		<input type="submit" class="btn btn-large btn-inverse btn-block" name="get" value="Get" id="get" />
-	</div>
-</div>
 </form>
 
 <br/>
 
 <div class="palette palette-peter-river" style="overflow: auto; overflow-y: hidden;">
-	<code id="output" style="display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0">Output
-	</code>
+	<code id="postOutput">Output</code>
 </div>
 
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="static/js/jquery-1.8.3.min.js"></script>
-<script src="static/js/jquery-ui-1.8.23.custom.min.js"></script>
-<script src="static/js/bootstrap.min.js"></script>
-<script src="static/js/bootstrap-switch.js"></script>
-<script src="static/js/bootstrap-select.min.js"></script>
-<script src="static/js/flatui-radio.js"></script>
-<script src="static/js/helpers.js"></script>
 <script type="text/x-template" class="inputTemplate">
 	<div class="palette palette-peter-river">
 		<div class="input"></div>
 		<div class="description"></div>
 	</div>
 </script>
-<script>
-	var API_URL = 'json/api/list';
-	
+<script>	
 	var apiMap,
 		selectedMethod,
 		getWindow,
 		description = $('#description'),
 		inputTemplate = $( $( "script.inputTemplate" ).html() ),
 		inputs = $('#inputs'),
-		output = $('#output'),
+		output = $('#postOutput'),
 		$groups = $('#groups'),
-		$methods = $('#methods');
+		$methods = $('#methods'),
+		$outputFormat = $('#outputFormat');
 	
 	$(document).ready(function() {
-		
-		$.post(API_URL, authData(), function(groups) {
+		api.api.list(function(groups) {
 			apiMap = groups;
 			
 			var buffer = mapSorted(apiMap, function(key) {
@@ -78,6 +66,8 @@
 			$(window).bind('hashchange', showPage);
 			$groups.change(onGroupChange);
 			$methods.change(onMethodChange);
+			$outputFormat.change(onOutputFormatChange);
+			
 			$('select').selectpicker({style: 'btn-primary'});
 			
 			if (window.location.hash) {
@@ -96,11 +86,24 @@
 		});
 	});
 	
+	function onOutputFormatChange() {
+		api.config.set(item, value, function(data) {
+			if ('status' in data && data['status'] == 'success') {
+				type = 'success';
+				message = '<i>' + input.attr('label') + '</i> set successfully';;
+			} else {
+				type = 'danger';
+				message = data['error'] || 'fail';
+			}
+			createToast(type, message);
+		});
+	}
+	
 	function onGroupChange() {
 		var groupName = $(this).val(),
 			group = apiMap[groupName];
 
-		$methods.find('options').remove();
+		$methods.find('option').remove();
 
 		var buffer = mapSorted(group, function(key, value) {
 			return option(key, groupName + '/' + key);
@@ -121,7 +124,9 @@
 	});
 	
 	$('form').submit(function(a) {
-		var inputData = authData(), pre;
+		var inputData = api.getAuthData(), pre;
+		
+		// Combine all the inputs. Comma seperate multiple selects
 		$.each($(this).serializeArray(), function(i, elem) {
 			pre = (inputData[elem.name]) ? inputData[elem.name] + ',' : '';
 			inputData[elem.name] = pre + elem.value
@@ -191,6 +196,7 @@
 							}
 						});
 						inputs.append(buffer);
+						//inputs.find('select').selectpicker({style: 'btn-primary'})
 					}
 					
 					output.text('');

@@ -6,6 +6,8 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 import json, bottle
+import os.path
+import httplib, urllib, sys
 
 from api import API
 from tellstick import TellstickAPI
@@ -20,6 +22,7 @@ from werkzeug.security import check_password_hash
 # Constants
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
+ALLJS = './tellprox/static/compiled.js'
 
 config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
@@ -30,19 +33,24 @@ session_opts = {
 	'session.validate_key': 'secret',
     'session.auto': True,
 }
+api = None
 
 def main():
+	global api
 	validator = Validator()
 	result = config.validate(validator, copy = True)
 
 	if result is False:
 		print "Config file validation failed"
 		sys.exit(1)
+	
+	if not os.path.isfile(ALLJS):
+		install()
 
 	api = API(app, config)
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
-	#SchedulerAPI(api, config)
+	SchedulerAPI(api, config)
 	
 	if config['webroot']:
 		root_app.mount(config['webroot'], app)
@@ -78,11 +86,14 @@ def authenticated(func):
 		return func(*args, **kwargs)
     return wrapped
 
-def render_template(view):
+def render_template(view, extra=None):
 	vars = {
-		'apikey' : config['apikey'] or '',
-		'password': config['password']
+		'apikey'	: config['apikey'] or '',
+		'password'	: config['password'],
+		'debug'		: config['debug'],
+		'jsAPI'		: api.generate_jsapi()
 	}
+	if extra: vars.update(extra)
 	return template(view, vars);
 
 @app.route('/')
@@ -129,12 +140,47 @@ def logout():
 @app.route('/api')
 @authenticated
 def api():
-	return render_template('api')
+	return render_template('api', {'outputFormat': config['outputFormat']})
 
 @app.route('/config')
 @authenticated
 def home_page():
 	return render_template('config')
+
+def readfile(path):
+	f = open(path, 'r')
+	contents = f.read()
+	f.close()
+	return contents
+
+@app.route('/install')
+@authenticated
+def install():
+	params = urllib.urlencode([
+		('js_code', readfile('./tellprox/static/js/jquery-2.1.0.min.js')),
+		('js_code', readfile('./tellprox/static/js/jquery.toast.min.js')),
+		('js_code', readfile('./tellprox/static/js/bootstrap.min.js')),
+		('js_code', readfile('./tellprox/static/js/bootstrap-switch.js')),
+		('js_code', readfile('./tellprox/static/js/bootstrap-select.min.js')),
+		('js_code', readfile('./tellprox/static/js/helpers.js')),
+		('js_code', api.generate_jsapi()),
+		('compilation_level', 'SIMPLE_OPTIMIZATIONS'),
+		('output_format', 'text'),
+		('output_info', 'compiled_code')
+	  ])
+
+	# Always use the following value for the Content-type header.
+	headers = { "Content-type": "application/x-www-form-urlencoded" }
+	conn = httplib.HTTPConnection('closure-compiler.appspot.com')
+	conn.request('POST', '/compile', params, headers)
+	response = conn.getresponse()
+	data = response.read()
+	conn.close()
+	f = open(ALLJS, 'w')
+	f.write(data)
+	f.close()
+	
+	return "OK"
 
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):

@@ -57,3 +57,10 @@ function setDropdownFromText($select, lookFor) {
 function getHash() {
 	return window.location.hash.substring(1);
 }
+
+function getValue(input) {
+	if (input.attr('type') == 'checkbox')
+		return input.is(':checked');
+	else
+		return input.val();
+}

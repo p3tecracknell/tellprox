@@ -42,6 +42,7 @@ class API(object):
 		return [bh.get_type(input['name'], input['type']) for input in args]
 		
 	def output(self, func):
+		"""A list of all API calls"""
 		return {k : { kk : {'description': vv['fn'].__doc__, 'inputs': vv['inputs'] } for kk,vv in v.iteritems() }
 			for k, v in self.allroutes.iteritems()}
 		
@@ -50,3 +51,24 @@ class API(object):
 			return True
 		key = bh.get_string('key')
 		return key == self.config['apikey']
+	
+	def generate_method(self, group, method, inputs):
+		if len(inputs) > 0:
+			argList = [arg + ": " + arg for arg in inputs]
+			data = "$.extend(auth, { " + ', '.join(argList) + " })"
+		else:
+			data = 'auth'
+		return "{ $.post('json/" + group + "/" + method + "', " + data + ", onComplete); }"
+
+	def generate_jsapi(self):
+		jsAPI = "function tellproxAPI(key) {auth = { 'key': key };this.getAuthData=function(){return auth};}"
+		for groupName, groupValue in self.allroutes.iteritems():
+			methods = []
+			for methodName, methodValue in groupValue.iteritems():
+				argumentNames = [arg['name'] for arg in methodValue['inputs']]
+				methodBody = self.generate_method(groupName, methodName, argumentNames)
+				argumentNames.append('onComplete')
+				args = (', ').join(argumentNames)
+				methods.append(methodName + ': function(' + args + ') ' + methodBody + '\n')
+			jsAPI += 'tellproxAPI.prototype.' + groupName + ' = {\n  ' + (', ').join(methods) + '};\n'
+		return jsAPI

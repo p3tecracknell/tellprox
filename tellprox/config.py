@@ -11,30 +11,34 @@ class ConfigAPI(object):
 				'fn': self.getall
 			},
 			'get': {
-				'fn': self.get
+				'fn': self.get,
+				'inputs': [
+					{ 'name': 'item', 'type': 'string', 'description': 'Config item name' }
+				]
 			},
 			'set': {
-				'fn': self.set
+				'fn': self.set,
+				'inputs': [
+					{ 'name': 'item', 'type': 'string', 'description': 'Item key' },
+					{ 'name': 'value', 'type': 'string', 'description': 'New value' },
+				]
 			}
 		})
 		
 	def getall(self, func):
 		return { k:v for k, v in self.config.iteritems() }
 	
-	def get(self, func):
-		item = bh.get_string('item')
+	def get(self, func, item):
 		if not item:
 			return { 'error' : 'Item not set' }
 		if item in self.config:
 			return self.config[item]
 	
-	def set(self, func):
-		item = bh.get_string('item')
+	def set(self, func, item, value):
 		if not item:
 			return { 'error' : 'Item not set' }
 		if not item in self.config:
 			return { 'error' : 'Item not found' }
-		value = bh.get_string('value')
 		if item == 'password' and value:
 			value = generate_password_hash(value)
 

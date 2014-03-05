@@ -17,6 +17,12 @@ class SchedulerAPI(object):
 			'joblist': {
 				'fn': self.joblist
 			},
+			'jobinfo': {
+				'fn': self.jobinfo,
+				'inputs': [
+					{ 'name': 'id', 'type': 'string', 'description': 'Jobs unique identifier' }
+				]
+			},
 			'setjob': {
 				'fn': self.setjob,
 				'inputs': [
@@ -44,6 +50,11 @@ class SchedulerAPI(object):
 			job for id, job in self.jobs.iteritems()
 		]}
 	
+	def jobinfo(self, func, id):
+		if id and id in self.jobs:
+			return self.jobs[id]
+		return { 'error' : 'The request job was not found' }
+		
 	def setjob(self, func, id, deviceId, method, methodValue, type, hour,
 		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
 		
@@ -54,25 +65,32 @@ class SchedulerAPI(object):
 				id = None
 	
 		# If no ID is provided, find the next available
-		if id is None or len(id) == 0:
-			id = str(max([int(k) for k in self.config['jobs'].keys()]) + 1)
+		if id is None == 0 or id == 0:
+			keys = self.jobs.keys()
+			if len(keys) == 0:
+				id = 1
+			else:
+				id = max([int(k) for k in keys]) + 1
+		id = str(id)
+			
+		nextRunTime = "1388318160" #TODO
 
-		self.config['jobs'][id] = {
+		self.jobs[id] = {
 			'id'             : id,
 			'deviceId'       : deviceId,
 			'method'         : method,
 			'methodValue'    : methodValue,
-			'nextRunTime'    : 'todo',
+			'nextRunTime'    : nextRunTime,
 			'type'           : type,
 			'hour'           : hour,
 			'minute'         : minute,
 			'offset'         : offset,
 			'randomInterval' : randomInterval,
-			'retries'        : retries,
-			'retryInterval'  : retryInterval,
-			'reps'           : reps,
-			'active'         : active,
+			'retries'        : retries or 3,
+			'retryInterval'  : retryInterval or 5,
+			'reps'           : reps or 1,
+			'active'         : active or 1,
 			'weekdays'       : weekdays
 		}
 		self.config.write()
-		return { 'id' : id, 'nextRunTime': 'todo', 'w': weekdays }
+		return { 'id' : id, 'nextRunTime': nextRunTime }

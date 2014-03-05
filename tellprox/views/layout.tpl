@@ -11,11 +11,6 @@
 	<link href="static/css/flat-ui.css" rel="stylesheet">
 	<link href="static/css/jquery.toast.min.css" rel="stylesheet">
 	<link href="static/css/site.css" rel="stylesheet">
-	<script>
-	function authData(data) {
-		return $.extend({ 'key': '{{apikey}}' }, data);
-	}
-	</script>
   </head>
 
   <body>
@@ -30,7 +25,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <img src="static/images/logo.png" id="logo" />
+          <img src="static/images/logo.png" id="logo" class="hidden-xs"/>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -59,6 +54,21 @@
         </div><!--/.nav-collapse -->
       </div>
     </div>
+	
+	%if debug:
+	<script src="static/js/jquery-2.1.0.min.js"></script>
+	<script src="static/js/jquery.toast.min.js"></script>
+	<script src="static/js/bootstrap.min.js"></script>
+	<script src="static/js/bootstrap-switch.js"></script>
+	<script src="static/js/bootstrap-select.min.js"></script>
+	<script src="static/js/helpers.js"></script>
+	<script>{{!jsAPI}}</script>
+	%else:
+	<script src="static/compiled.js"></script>
+	%end
+	<script>
+	var api = new tellproxAPI('{{apikey}}');
+	</script>
 
     <div class="container">
 	  %include

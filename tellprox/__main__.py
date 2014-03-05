@@ -44,9 +44,6 @@ def main():
 		print "Config file validation failed"
 		sys.exit(1)
 	
-	if not os.path.isfile(ALLJS):
-		install()
-
 	api = API(app, config)
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
@@ -87,6 +84,10 @@ def authenticated(func):
     return wrapped
 
 def render_template(view, extra=None):
+	if not config['debug'] and not os.path.isfile(ALLJS):
+		install()
+		return "Install complete, refresh the page"
+
 	vars = {
 		'apikey'	: config['apikey'] or '',
 		'password'	: config['password'],

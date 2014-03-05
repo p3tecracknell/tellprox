@@ -14,10 +14,18 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-3 col-xs-4">
-			<select name="outputFormat" class="select-block">
+			<select id="outputFormat" name="outputFormat" class="select-block">
 				<optgroup label="Output Format">
-					<option value="json" %if outputFormat == 'json':selected %end>JSON</option>
-					<option value="xml"  %if outputFormat == 'xml':selected %end>XML</option>
+					<option value="json"
+					%if outputFormat == 'json':
+						selected
+					%end
+					>JSON</option>
+					<option value="xml"
+					%if outputFormat == 'xml':
+						selected
+					%end
+					>XML</option>
 				</optgroup>
 			</select>
 		</div>
@@ -87,16 +95,7 @@
 	});
 	
 	function onOutputFormatChange() {
-		api.config.set(item, value, function(data) {
-			if ('status' in data && data['status'] == 'success') {
-				type = 'success';
-				message = '<i>' + input.attr('label') + '</i> set successfully';;
-			} else {
-				type = 'danger';
-				message = data['error'] || 'fail';
-			}
-			createToast(type, message);
-		});
+		api.config.set('outputFormat', $(this).val());
 	}
 	
 	function onGroupChange() {

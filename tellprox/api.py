@@ -1,5 +1,5 @@
 import bottle_helpers as bh
-from bottle import request
+from bottle import request, template
 
 class API(object):
 	def __init__(self, app, config):
@@ -61,7 +61,11 @@ class API(object):
 		return "{ $.post('json/" + group + "/" + method + "', " + data + ", onComplete); }"
 
 	def generate_jsapi(self):
-		jsAPI = "function tellproxAPI(key) {auth = { 'key': key };this.getAuthData=function(){return auth};}"
+		jsAPI = '''
+		function tellproxAPI(key) {
+			auth = { 'key': key };
+			this.getAuthData = function(){return auth};
+		}'''
 		for groupName, groupValue in self.allroutes.iteritems():
 			methods = []
 			for methodName, methodValue in groupValue.iteritems():

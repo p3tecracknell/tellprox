@@ -74,11 +74,11 @@
 	
 	function createOnOffButton(align, text, data) {
 		return ACTIONBUTTONTEMPLATE.clone()
-				.css({'text-align': align})
-				.find('a')
-					.text(text)
-					.data('val', data)
-					.end();
+			.css({'text-align': align})
+			.find('a')
+				.text(text)
+				.data('val', data)
+				.end();
 	}
 	
 	function createOnOffButtons(state) {

@@ -379,13 +379,12 @@ class TellstickAPI(object):
 		info is used to indicate whether it is used to output for info as per spec
 	"""
 	def device_to_dict(self, device, methods_supported, info):
-		methods_supported = methods_supported or 0
 		dict = {
 			'id'        : device.id,
 			'name'      : device.name,
 			'state'     : device.last_sent_command(methods_supported),
 			'statevalue': device.last_sent_value(),
-			'methods'   : device.methods(methods_supported),
+			'methods'   : device.methods(methods_supported or 0),
 			'type'      : self.device_type_to_string(device.type),
 			'online'    : 1,
 			'editable'  : self.editable()

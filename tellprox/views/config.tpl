@@ -20,7 +20,7 @@
 			</dl>
 		</div>
 	</div>
-	<h2>Client</h2>
+<h2>Client</h2>
 	<div class="row">
 		<div class="col-sm-4 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="The name of this client when the Web Service publishes information">
@@ -70,7 +70,7 @@
 		<div class="col-sm-4 col-xs-6">
 			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Password for Web Authentication">
 				<dt><h6>Password</h6></dt>
-				<dd><input type="password" name="password" value=""></dd>
+				<dd><input type="password" name="password" value=""><span id="removePassword" class="input-icon fui-cross"></span></dd>
 			</dl>
 		</div>
 		<div class="col-sm-5 col-xs-6">
@@ -84,6 +84,7 @@
 <script>				
 	$('input').addClass('form-control');
 	$('dd').addClass('form-group');
+	$removePassword = $('#removePassword');
 			
 	$(document).ready(function() {
 		api.config.getall(function(configData) {
@@ -102,12 +103,10 @@
 						root.bootstrapSwitch('setState', val, true);
 						break;
 					case 'text':
-						if (name == 'password') {
-							input.val(val.length > 0 ? 'notherealone' : '');
-						} else {
-							input.val(val);
-						}
+						input.val(val);
 						break;
+					case 'password':
+						input.val(val.length > 0 ? 'notherealone' : '');
 					}
 				}
 				
@@ -115,20 +114,31 @@
 					var item = input.attr('name'),
 						value = getValue(input);
 					
-					api.config.set(item, value, function(data) {
-						if ('status' in data && data['status'] == 'success') {
-							type = 'success';
-							message = '<i>' + input.attr('label') + '</i> set successfully';;
-						} else {
-							type = 'danger';
-							message = data['error'] || 'fail';
-						}
-						createToast(type, message);
-					});
+					setValue(item, value);
 				});
 			});
+			
+			$removePassword.click(onRemovePasswordClick);
 		});
 	});
+	
+	function setValue(item, value) {
+		api.config.set(item, value, function(data) {
+			if ('status' in data && data['status'] == 'success') {
+				type = 'success';
+				message = '<i>' + item + '</i> set successfully';
+			} else {
+				type = 'danger';
+				message = data['error'] || 'fail';
+			}
+			createToast(type, message);
+		});
+	}
+	
+	function onRemovePasswordClick() {
+		$('input[type=password]').val();
+		setValue('password', '');
+	}
 	
 	function createToast(type, message){
 		$.toast(message, {

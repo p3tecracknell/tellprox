@@ -6,8 +6,8 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 import json, bottle
-import os.path
 import httplib, urllib, sys
+import random, string
 
 from api import API
 from tellstick import TellstickAPI
@@ -22,17 +22,12 @@ from werkzeug.security import check_password_hash
 # Constants
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
-ALLJS = './tellprox/static/compiled.js'
+COMPILEDJS = './tellprox/static/compiled.js'
 
 config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
 root_app = bottle.Bottle()
 app = bottle.Bottle()
-session_opts = {
-    'session.type': 'cookie',
-	'session.validate_key': 'secret',
-    'session.auto': True,
-}
 api = None
 
 def main():
@@ -49,11 +44,20 @@ def main():
 	ConfigAPI(api, config, validator)
 	SchedulerAPI(api, config)
 	
+	if not config['installed']:
+		install()
+	
 	if config['webroot']:
 		root_app.mount(config['webroot'], app)
 	else:
 		root_app.merge(app)
 
+	session_opts = {
+		'session.type': 'cookie',
+		'session.validate_key': config['cookieKey'],
+		'session.auto': True,
+	}
+	
 	bottle.run(SessionMiddleware(root_app, session_opts),
 		host = config['host'],
 		port = config['port'],
@@ -66,14 +70,11 @@ def main():
 
 def authenticated(func):
     def wrapped(*args, **kwargs):
-		valid = False
-		if not config['password']:
-			valid = True
-		else:
+		if config['password']:
 			try:
 				beaker_session = request.environ['beaker.session']
 			except:
-				abort(401, "Failed beaker_session in slash")
+				redirect('/login')
 
 			if beaker_session.get('logged_in', 0):
 				valid = True
@@ -84,10 +85,6 @@ def authenticated(func):
     return wrapped
 
 def render_template(view, extra=None):
-	if not config['debug'] and not os.path.isfile(ALLJS):
-		install()
-		return "Install complete, refresh the page"
-
 	vars = {
 		'apikey'	: config['apikey'] or '',
 		'password'	: config['password'],
@@ -155,8 +152,13 @@ def readfile(path):
 	return contents
 
 @app.route('/install')
-@authenticated
 def install():
+	config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
+	generateCompiledJS()
+	config['installed'] = True
+	return "Done"
+
+def generateCompiledJS():
 	params = urllib.urlencode([
 		('js_code', readfile('./tellprox/static/js/jquery-2.1.0.min.js')),
 		('js_code', readfile('./tellprox/static/js/jquery.toast.min.js')),
@@ -177,7 +179,7 @@ def install():
 	response = conn.getresponse()
 	data = response.read()
 	conn.close()
-	f = open(ALLJS, 'w')
+	f = open(COMPILEDJS, 'w')
 	f.write(data)
 	f.close()
 	

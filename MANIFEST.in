@@ -1,0 +1,2 @@
+recursive-include tellprox/static *
+recursive-include tellprox/views *

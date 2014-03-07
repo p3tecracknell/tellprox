@@ -6,7 +6,7 @@ setup(
     author='Pete Cracknell',
     author_email='p3tecracknell@gmail.com',
     packages=['tellprox'],
-    package_data={'tellprox': ['static/css/*.css']},
+    include_package_data=True,
     install_requires=['cherrypy','tellcore-py','werkzeug','beaker'],
     url='https://github.com/p3tecracknell/tellprox',
     license='LICENSE.txt',

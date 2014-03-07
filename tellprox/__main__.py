@@ -6,6 +6,7 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 import json, bottle
+import os.path
 import httplib, urllib, sys
 import random, string
 
@@ -22,10 +23,13 @@ from werkzeug.security import check_password_hash
 # Constants
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
-COMPILEDJS = './tellprox/static/compiled.js'
 
+def full_path(sub_path):
+    return os.path.dirname(__file__) + sub_path
+
+compiledjs = full_path('/static/compiled.js')
 config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
-bottle.TEMPLATE_PATH.insert(0, './tellprox/views')
+bottle.TEMPLATE_PATH.insert(0, full_path('/views'))
 root_app = bottle.Bottle()
 app = bottle.Bottle()
 api = None
@@ -145,8 +149,8 @@ def api():
 def home_page():
 	return render_template('config')
 
-def readfile(path):
-	f = open(path, 'r')
+def readfile(sub_path):
+	f = open(full_path(sub_path), 'r')
 	contents = f.read()
 	f.close()
 	return contents
@@ -160,12 +164,12 @@ def install():
 
 def generateCompiledJS():
 	params = urllib.urlencode([
-		('js_code', readfile('./tellprox/static/js/jquery-2.1.0.min.js')),
-		('js_code', readfile('./tellprox/static/js/jquery.toast.min.js')),
-		('js_code', readfile('./tellprox/static/js/bootstrap.min.js')),
-		('js_code', readfile('./tellprox/static/js/bootstrap-switch.js')),
-		('js_code', readfile('./tellprox/static/js/bootstrap-select.min.js')),
-		('js_code', readfile('./tellprox/static/js/helpers.js')),
+		('js_code', readfile('/static/js/jquery-2.1.0.min.js')),
+		('js_code', readfile('/static/js/jquery.toast.min.js')),
+		('js_code', readfile('/static/js/bootstrap.min.js')),
+		('js_code', readfile('/static/js/bootstrap-switch.js')),
+		('js_code', readfile('/static/js/bootstrap-select.min.js')),
+		('js_code', readfile('/static/js/helpers.js')),
 		('js_code', api.generate_jsapi()),
 		('compilation_level', 'SIMPLE_OPTIMIZATIONS'),
 		('output_format', 'text'),
@@ -179,7 +183,7 @@ def generateCompiledJS():
 	response = conn.getresponse()
 	data = response.read()
 	conn.close()
-	f = open(COMPILEDJS, 'w')
+	f = open(compiledjs, 'w')
 	f.write(data)
 	f.close()
 	
@@ -187,7 +191,7 @@ def generateCompiledJS():
 
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
-	return bottle.static_file(filepath, root='./tellprox/static')
+	return bottle.static_file(filepath, root=full_path('/static'))
 
 if __name__ == "__main__":
 	main()

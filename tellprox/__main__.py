@@ -42,7 +42,7 @@ def main():
 	api = API(app, config)
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
-	SchedulerAPI(api, config)
+	#SchedulerAPI(api, config)
 	
 	if not config['installed']:
 		install()

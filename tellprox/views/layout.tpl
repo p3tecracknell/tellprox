@@ -14,7 +14,6 @@
   </head>
 
   <body>
-  
   <!-- Fixed navbar -->
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
@@ -29,22 +28,26 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li>
+			<li 
 			%if name == 'devices':
-				<li class="active"><a href="devices">Devices</a></li>
-			%else:
-				<li><a href="devices">Devices</a></li>
+				class="active"\\
 			%end
+			><a href="devices">Devices</a></li>
+			<li 
+			%if name == 'scheduler':
+				class="active"\\
+			%end
+			><a href="scheduler">Scheduler</a></li>
+			<li 
 			%if name == 'config':
-				<li class="active"><a href="config">Config</a></li>
-			%else:
-				<li><a href="config">Config</a></li>
+				class="active"\\
 			%end
+			><a href="config">Config</a></li>
+			<li 
 			%if name == 'api':
-				<li class="active"><a href="api">API</a></li>
-			%else:
-				<li><a href="api">API</a></li>
+				class="active"\\
 			%end
+			><a href="api">API</a></li>
 		  </ul>
 		  %if password:
           <ul class="nav navbar-nav navbar-right">

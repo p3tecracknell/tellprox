@@ -1,4 +1,4 @@
-<div id="deviceContainer"></div>
+<div id="deviceContainer" class="row"></div>
 <div id="loading"></div>
 
 <script type="text/x-template" class="itemCellTemplate">
@@ -17,13 +17,6 @@
 	</li>
 </script>
 <script>
-	// URLs
-	/*var URL_BASE = 'json/',
-		DEVICES_URL = URL_BASE + 'devices/list',
-		DEVICE_DIM_URL = URL_BASE + 'device/dim',
-		DEVICE_ON_URL = URL_BASE + 'device/turnOn',
-		DEVICE_OFF_URL = URL_BASE + 'device/turnOff';*/
-
 	// Constants
 	var ON_OFF = 3,
 		DIM = 16;
@@ -36,7 +29,6 @@
 	var $deviceContainer = $('#deviceContainer');
 
 	$(document).ready(function() {
-		$('#rows')
 		api.devices.list(ON_OFF + DIM, loadItems);
 	});
 	

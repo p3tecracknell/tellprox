@@ -13,7 +13,7 @@ from api import API
 from tellstick import TellstickAPI
 from config import ConfigAPI
 from scheduler import SchedulerAPI
-from bottle import template, redirect, request
+from bottle import template, request
 from configobj import ConfigObj
 from validate import Validator
 from beaker.middleware import SessionMiddleware
@@ -42,7 +42,7 @@ def main():
 	api = API(app, config)
 	TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
-	#SchedulerAPI(api, config)
+	SchedulerAPI(api, config)
 	
 	if not config['installed']:
 		install()
@@ -74,12 +74,12 @@ def authenticated(func):
 			try:
 				beaker_session = request.environ['beaker.session']
 			except:
-				redirect('/login')
+				redirectRelative('/login')
 
 			if beaker_session.get('logged_in', 0):
 				valid = True
 			else:
-				redirect('/login')
+				redirectRelative('/login')
 		
 		return func(*args, **kwargs)
     return wrapped
@@ -96,15 +96,24 @@ def render_template(view, extra=None):
 
 @app.route('/')
 def home_page():
+	""" Specific redirect as we cannot redirect relatively if the trailing slash is ommitted """
 	return """<html><body><script>
-		window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices') </script></body></html>"""
+	window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices')
+	</script></body></html>"""
+
 
 @app.route('/login')
 def login():
 	if config['password']:
-		return """<html><body><form method="post" action="postlogin"><input type="text" name="username"/><input type="text" name="password"/><input type="submit"></form></body></html>"""
+		return '''<html><body>
+		<form method="post" action="''' + 'postlogin' + '''">
+		<input type="text" name="username"/>
+		<input type="password" name="password"/>
+		<input type="submit">
+		</form>
+		</body></html>'''
 	else:
-		bottle.redirect('/')
+		redirectRelative('/')
 
 def post_get(name, default=''):
     return bottle.request.POST.get(name, default).strip()
@@ -119,10 +128,10 @@ def post_login():
 		if check_password_hash(config['password'], password):
 			s = bottle.request.environ.get('beaker.session')
 			s['logged_in'] = True
-			bottle.redirect('/devices')
+			redirectRelative('.')
 			return
 	
-	bottle.redirect('/login')
+	redirectRelative('/login')
 
 @app.route('/devices')
 @authenticated
@@ -133,7 +142,7 @@ def devices():
 def logout():
 	s = bottle.request.environ['beaker.session']
 	s['logged_in'] = False
-	bottle.redirect('/login')
+	redirectRelative('/login')
 
 @app.route('/api')
 @authenticated
@@ -144,6 +153,11 @@ def api():
 @authenticated
 def home_page():
 	return render_template('config')
+
+@app.route('/scheduler')
+@authenticated
+def scheduler():
+	return render_template('scheduler')
 
 def readfile(path):
 	f = open(path, 'r')
@@ -185,6 +199,20 @@ def generateCompiledJS():
 	
 	return "OK"
 
+def redirectRelative(url, code=None):
+    """ Aborts execution and causes a 303 or 302 redirect, depending on
+        the HTTP protocol version. """
+    if code is None:
+        code = 303 if request.get('SERVER_PROTOCOL') == "HTTP/1.1" else 302
+	if config['webroot']:
+		url = config['webroot'] + url
+	if len(url) > 1:
+		url = url.rstrip('/').lstrip('/')
+    res = bottle.HTTPResponse("", status=code, Location=url)
+    if bottle.response._cookies:
+        res._cookies = response._cookies
+    raise res
+	
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
 	return bottle.static_file(filepath, root='./tellprox/static')

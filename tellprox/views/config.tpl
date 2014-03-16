@@ -14,7 +14,7 @@
 			</dl>
 		</div>
 		<div class="col-sm-5 col-xs-6">
-			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Optional root value. Ideal if using Apache forwarding">
+			<dl class="palette palette-alizarin" rel="tooltip" data-original-title="Optional root value. Ideal if using Apache forwarding. Requires a restart">
 				<dt><h6>Web Root</h6></dt>
 				<dd><input type="text" name="webroot"></dd>
 			</dl>

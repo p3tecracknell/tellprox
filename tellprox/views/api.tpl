@@ -123,7 +123,9 @@
 	});
 	
 	$('form').submit(function(a) {
-		var inputData = api.getAuthData(), pre;
+		// Duplicate authdata as we do not want to modify it
+		var inputData = $.extend({}, api.getAuthData()),
+			pre;
 		
 		// Combine all the inputs. Comma seperate multiple selects
 		$.each($(this).serializeArray(), function(i, elem) {

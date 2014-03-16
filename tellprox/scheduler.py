@@ -1,8 +1,10 @@
 from bottle import *
+from operator import itemgetter
 import bottle_helpers as bh
 import tellcore.telldus as td
 import time
-
+import datetime as dt
+	
 class SchedulerAPI(object):
 	config = None
 	core = td.TelldusCore()
@@ -12,7 +14,9 @@ class SchedulerAPI(object):
 		self.config = config
 		
 		self.jobs = config['jobs']
-		
+
+		self.inspectJobs()
+
 		api.add_route('scheduler', {
 			'joblist': {
 				'fn': self.joblist
@@ -28,10 +32,10 @@ class SchedulerAPI(object):
 				'inputs': [
 				{ 'name': 'id', 'type': 'string', 'description': 'The job id, when updating an existing job' },
 				{ 'name': 'deviceId', 'type': 'string', 'description': 'The device id to schedule. Only valid when creating a new job' },
-				{ 'name': 'method', 'type': 'string', 'description': 'What to do when the schdule runs. This should be any of the method constants' },
+				{ 'name': 'method', 'type': 'string', 'description': 'What to do when the schedule runs. This should be any of the method constants' },
 				{ 'name': 'methodValue', 'type': 'string', 'description': 'Only required for methods that requires this.' },
 				{ 'name': 'type', 'type': 'dropdown', 'description': 'This can be \'time\', \'sunrise\' or \'sunset\'', 'options': ['time', 'sunrise', 'sunset'] },
-				{ 'name': 'hour', 'type': 'string', 'description': 'A value between 0-23', 'default': time.strftime("%H") },
+				{ 'name': 'hour', 'type': 'string', 'description': 'A value between 0-23'},#, 'default': time.strftime("%H") },
 				{ 'name': 'minute', 'type': 'string', 'description': 'A value between 0-59' },
 				{ 'name': 'offset', 'type': 'string', 'description': 'A value between -1439-1439. This is only used when type is either \'sunrise\' or \'sunset\'' },
 				{ 'name': 'randomInterval', 'type': 'string', 'description': 'Number of minutes after the specified time to randomize.' },
@@ -43,6 +47,11 @@ class SchedulerAPI(object):
 				]
 			}
 		})
+		
+	def inspectJobs(self):
+		for id, jobx in self.jobs.iteritems():
+			print "ID: " + id
+		#	Job(jobx)
 
 	def joblist(self, func):
 		"""Job list"""
@@ -54,7 +63,25 @@ class SchedulerAPI(object):
 		if id and id in self.jobs:
 			return self.jobs[id]
 		return { 'error' : 'The request job was not found' }
+	
+	def soonestRunTime(self, hour, minute, weekdays):
+		currentTime = dt.datetime.now().replace(second=0, microsecond=0)
 		
+		def calcRunTime(weekday):
+			newDate = currentTime.replace(hour = hour, minute = minute, second = 0) + timedelta(days=weekday)
+			if newDate < currentTime:
+				newDate += timedelta(days=7)
+			return newDate
+
+		# Convert days into 0 based integers
+		daysToRun = map(lambda d: int(d) - 1, weekdays.split(','))
+		allDays = [calcRunTime(day) for day in daysToRun]
+		allDays.sort() 
+		return allDays[0] if allDays else None
+	
+	def dateTimeToEpoch(self, timeObj):
+		return int(time.mktime(timeObj.timetuple()))
+	
 	def setjob(self, func, id, deviceId, method, methodValue, type, hour,
 		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
 		
@@ -73,7 +100,8 @@ class SchedulerAPI(object):
 				id = max([int(k) for k in keys]) + 1
 		id = str(id)
 			
-		nextRunTime = "1388318160" #TODO
+		nextRunTime = self.soonestRunTime(int(hour), int(minute), weekdays)
+		nextRunTime = self.dateTimeToEpoch(nextRunTime)
 
 		self.jobs[id] = {
 			'id'             : id,

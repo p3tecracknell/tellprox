@@ -158,14 +158,11 @@ def api():
 def home_page():
 	return render_template('config')
 
-<<<<<<< HEAD
 @app.route('/scheduler')
 @authenticated
 def scheduler():
 	return render_template('scheduler')
 
-=======
->>>>>>> c37e5c5277863fa87a83a48f958bbc6694c7259b
 def readfile(sub_path):
 	f = open(full_path(sub_path), 'r')
 	contents = f.read()

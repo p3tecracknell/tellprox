@@ -391,12 +391,18 @@ class TellstickAPI(object):
 	"""
 	def device_to_dict(self, device, methods_supported, info):
 		methods_supported = methods_supported or 0
+		
+		# We support toggle ourselves, so add it to the supported list
+		deviceMethods = device.methods(methods_supported)
+		if methods_supported & TELLSTICK_TOGGLE == TELLSTICK_TOGGLE:
+			deviceMethods |= TELLSTICK_TOGGLE
+		
 		dict = {
 			'id'        : device.id,
 			'name'      : device.name,
 			'state'     : device.last_sent_command(methods_supported),
 			'statevalue': device.last_sent_value(),
-			'methods'   : device.methods(methods_supported),
+			'methods'   : deviceMethods,
 			'type'      : self.device_type_to_string(device.type),
 			'online'    : 1,
 			'editable'  : self.editable()

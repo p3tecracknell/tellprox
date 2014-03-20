@@ -121,43 +121,43 @@ class TellstickAPI(object):
 				'fn': self.device_command,
 				'inputs': [
 					id,
-					{ 'name': 'method', 'type': 'int', 'description': '' },
-					{ 'name': 'value',  'type': 'int', 'description': '' }
+					{ 'name': 'value',  'type': 'int', 'description': '' },
+					{ 'name': 'method', 'type': 'int', 'description': '' }
 				]
 			},
 			'remove': {
 				'fn': self.device_remove, 'inputs': id
 			},
 			'dim': {
-				'fn': self.device_all_command,
+				'fn': self.device_command,
 				'inputs': [ id,{ 'name': 'level', 'type': 'int', 'description': '' } ]
 			},
 			'bell': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'down': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'learn': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'stop': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'turnon': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'turnoff': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'up': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'toggle': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			},
 			'execute': {
-				'fn': self.device_all_command, 'inputs': id
+				'fn': self.device_command, 'inputs': id
 			}
 		})
 		
@@ -205,8 +205,7 @@ class TellstickAPI(object):
 		
 		api.add_route('group', {
 			'remove': {
-				'fn'    : self.group_remove,
-				'inputs': { 'name': 'id', 'type': 'int', 'description': 'The id of the group' }
+				'fn': self.device_remove, 'inputs': id
 			}
 		})
 
@@ -279,43 +278,32 @@ class TellstickAPI(object):
 		return TELLSTICK_SUCCESS
 	
 	@dec_response
-	def device_command(self, func, id, method, value):
+	def device_command(self, func, id, value = '', method = ''):
 		device = self.get_device(id)
 		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
 
 		try:
-			if   (method == TELLSTICK_BELL)   : device.bell()
-			elif (method == TELLSTICK_DIM)    : device.dim(value)
-			elif (method == TELLSTICK_DOWN)   : device.down()
-			elif (method == TELLSTICK_LEARN)  : device.learn()
-			elif (method == TELLSTICK_STOP)   : device.stop()
-			elif (method == TELLSTICK_TURNON) : device.turn_on()
-			elif (method == TELLSTICK_TURNOFF): device.turn_off()
-			elif (method == TELLSTICK_UP)     : device.up()
-			elif (method == TELLSTICK_TOGGLE) : device.toggle()
-			elif (method == TELLSTICK_EXECUTE): device.execute()
+			if   (method == TELLSTICK_BELL		or func == 'bell')    : device.bell()
+			elif (method == TELLSTICK_DIM		or func == 'dim')     : device.dim(value)
+			elif (method == TELLSTICK_DOWN		or func == 'down')    : device.down()
+			elif (method == TELLSTICK_LEARN		or func == 'learn')   : device.learn()
+			elif (method == TELLSTICK_STOP		or func == 'stop')    : device.stop()
+			elif (method == TELLSTICK_TURNON	or func == 'turnon')  : device.turn_on()
+			elif (method == TELLSTICK_TURNOFF	or func == 'turnoff') : device.turn_off()
+			elif (method == TELLSTICK_UP		or func == 'up')      : device.up()
+			elif (method == TELLSTICK_TOGGLE	or func == 'toggle')  : self.toggle_device(device)
+			elif (method == TELLSTICK_EXECUTE	or func == 'execute') : device.execute()
 			else: return "Device " + str(id) + " does not support method " + str(method)
 		except Exception as e:
 			return e
 
 		return TELLSTICK_SUCCESS
-
-	def device_all_command(self, func, id, value = ''):
-		method = -1
-		if   (func == 'bell')   : method = TELLSTICK_BELL
-		elif (func == 'dim')    : method = TELLSTICK_DIM
-		elif (func == 'down')   : method = TELLSTICK_DOWN
-		elif (func == 'learn')  : method = TELLSTICK_LEARN
-		elif (func == 'stop')   : method = TELLSTICK_STOP
-		elif (func == 'turnon') : method = TELLSTICK_TURNON
-		elif (func == 'turnoff'): method = TELLSTICK_TURNOFF
-		elif (func == 'up')     : method = TELLSTICK_UP
-		elif (func == 'toggle') : method = TELLSTICK_TOGGLE
-		elif (func == 'execute'): method = TELLSTICK_EXECUTE
-		
-		if (method == -1):
-			bh.raise404()
-		return self.device_command(id, method, value)
+	
+	def toggle_device(self, device):
+		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == 1:
+			device.turn_off()
+		else:
+			device.turn_on()
 
 	def clients_list(self, func, extras):
 		return { 'client': [self.get_client_info()] }
@@ -362,9 +350,6 @@ class TellstickAPI(object):
 		sensor.name = name
 		return TELLSTICK_SUCCESS
 	
-	def group_remove(self, func, id):
-		return self.device_all_command('remove', id)
-
 	def load_devices(self):
 		""" Read in all devices using tellcore-py library and convert into
 			id keyed dictionary """

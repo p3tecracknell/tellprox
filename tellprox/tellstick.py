@@ -121,24 +121,24 @@ class TellstickAPI(object):
 				'fn': self.device_command,
 				'inputs': [
 					id,
-					{ 'name': 'method', 'type': 'string', 'description': '' },
-					{ 'name': 'value',  'type': 'int',    'description': '' }
+					{ 'name': 'method', 'type': 'int', 'description': '' },
+					{ 'name': 'value',  'type': 'int', 'description': '' }
 				]
 			},
-			'bell': {
-				'fn': self.device_all_command, 'inputs': id
+			'remove': {
+				'fn': self.device_remove, 'inputs': id
 			},
 			'dim': {
 				'fn': self.device_all_command,
 				'inputs': [ id,{ 'name': 'level', 'type': 'int', 'description': '' } ]
 			},
+			'bell': {
+				'fn': self.device_all_command, 'inputs': id
+			},
 			'down': {
 				'fn': self.device_all_command, 'inputs': id
 			},
 			'learn': {
-				'fn': self.device_all_command, 'inputs': id
-			},
-			'remove': {
 				'fn': self.device_all_command, 'inputs': id
 			},
 			'stop': {
@@ -154,6 +154,9 @@ class TellstickAPI(object):
 				'fn': self.device_all_command, 'inputs': id
 			},
 			'toggle': {
+				'fn': self.device_all_command, 'inputs': id
+			},
+			'execute': {
 				'fn': self.device_all_command, 'inputs': id
 			}
 		})
@@ -241,9 +244,11 @@ class TellstickAPI(object):
 		device = self.get_device(id)
 		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
 		
-		if not device.set_parameter(parameter, value):
-			return TELLSTICK_SUCCESS
-		return TELLSTICK_ERROR_NOT_FOUND
+		try:
+			device.set_parameter(parameter, value)
+		except Exception as e:
+			return e
+		return TELLSTICK_SUCCESS
 	
 	@dec_response
 	def device_set_attr(self, func, id, value):
@@ -261,36 +266,57 @@ class TellstickAPI(object):
 			return self.devices[id]
 		return None
 
-	def device_command(self, func, id, method, value):
-		return self.device_all_command(method, id, value)
-
 	@dec_response
-	def device_all_command(self, func, id, value = ''):
+	def device_remove(self, func, id):
 		device = self.get_device(id)
 		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
-		
+
 		try:
-			if   (func == 'bell')   : device.bell()
-			elif (func == 'dim')    : device.dim(value)
-			elif (func == 'down')   : device.down()
-			elif (func == 'learn')  : device.learn()
-			elif (func == 'remove') : device.remove()
-			elif (func == 'stop')   : device.stop()
-			elif (func == 'turnon') : device.turn_on()
-			elif (func == 'turnoff'): device.turn_off()
-			elif (func == 'up')     : device.up()
-			elif (func == 'toggle') : self.toggle_device(device)
+			device.remove()
 		except Exception as e:
 			return e
 
 		return TELLSTICK_SUCCESS
 	
-	def toggle_device(self, device):
-		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == 1:
-			device.turn_off()
-		else:
-			device.turn_on()
-				
+	@dec_response
+	def device_command(self, func, id, method, value):
+		device = self.get_device(id)
+		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
+
+		try:
+			if   (method == TELLSTICK_BELL)   : device.bell()
+			elif (method == TELLSTICK_DIM)    : device.dim(value)
+			elif (method == TELLSTICK_DOWN)   : device.down()
+			elif (method == TELLSTICK_LEARN)  : device.learn()
+			elif (method == TELLSTICK_STOP)   : device.stop()
+			elif (method == TELLSTICK_TURNON) : device.turn_on()
+			elif (method == TELLSTICK_TURNOFF): device.turn_off()
+			elif (method == TELLSTICK_UP)     : device.up()
+			elif (method == TELLSTICK_TOGGLE) : device.toggle()
+			elif (method == TELLSTICK_EXECUTE): device.execute()
+			else: return "Device " + str(id) + " does not support method " + str(method)
+		except Exception as e:
+			return e
+
+		return TELLSTICK_SUCCESS
+
+	def device_all_command(self, func, id, value = ''):
+		method = -1
+		if   (func == 'bell')   : method = TELLSTICK_BELL
+		elif (func == 'dim')    : method = TELLSTICK_DIM
+		elif (func == 'down')   : method = TELLSTICK_DOWN
+		elif (func == 'learn')  : method = TELLSTICK_LEARN
+		elif (func == 'stop')   : method = TELLSTICK_STOP
+		elif (func == 'turnon') : method = TELLSTICK_TURNON
+		elif (func == 'turnoff'): method = TELLSTICK_TURNOFF
+		elif (func == 'up')     : method = TELLSTICK_UP
+		elif (func == 'toggle') : method = TELLSTICK_TOGGLE
+		elif (func == 'execute'): method = TELLSTICK_EXECUTE
+		
+		if (method == -1):
+			bh.raise404()
+		return self.device_command(id, method, value)
+
 	def clients_list(self, func, extras):
 		return { 'client': [self.get_client_info()] }
 
@@ -390,10 +416,11 @@ class TellstickAPI(object):
 			'online'    : 1,
 			'editable'  : self.editable()
 		}
-		
+
 		if info:
 			dict['protocol'] = device.protocol
 			dict['model']    = device.model
+			dict['parameter'] = device.parameters()
 		else:
 			dict['client'] = self.client()
 			dict['clientName'] = self.clientName()
@@ -445,6 +472,6 @@ class TellstickAPI(object):
 			'name'    : self.config['client_name'] or '',
 			'online'  : '1',
 			'editable': 1 if self.config['editable'] else 0,
-			'version' : '0.26',
+			'version' : '0.27',
 			'type'    : 'TellProx'
 		}

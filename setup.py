@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='tellprox',
-    version='0.26',
+    version='0.27',
     author='Pete Cracknell',
     author_email='p3tecracknell@gmail.com',
     packages=['tellprox'],

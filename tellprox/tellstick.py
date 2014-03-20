@@ -392,8 +392,8 @@ class TellstickAPI(object):
 		}
 		
 		if info:
-			dict['protocol'] = None
-			dict['model']    = None
+			dict['protocol'] = device.protocol
+			dict['model']    = device.model
 		else:
 			dict['client'] = self.client()
 			dict['clientName'] = self.clientName()

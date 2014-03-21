@@ -41,13 +41,10 @@ Download the source:
 
 Then open a command prompt in the source and type:
 
-$python setup.py install
+$sudo python setup.py install
 
 Finally, run with:
 
 $python -m tellprox
 
-Authentication is not set by default. To turn it on:
-
-1. Change the validate_key value on line 30 of __ main __.py
-2. Set the username and password in the config page
+Authentication is not set by default. To turn it on set the username and password in the config page

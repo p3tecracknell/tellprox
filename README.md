@@ -7,8 +7,6 @@ Trello: https://trello.com/b/YAE4Zk9h
 
 All settings are contained within config.ini which will be created after the first time the process is stopped.
 
-Note that the setup.py is not ready yet.
-
 Requirements
 ============
 You will need telldus-core. On Windows it comes with TelldusCenter:

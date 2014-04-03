@@ -1,11 +1,9 @@
 tellprox
 ========
 
-A local server to use in place of Tellstick Live. Based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
+A local server to use in place of Tellstick Live. Initially based on remotestick-server (https://github.com/pakerfeldt/remotestick-server)
 
 Trello: https://trello.com/b/YAE4Zk9h
-
-All settings are contained within config.ini which will be created after the first time the process is stopped.
 
 Requirements
 ============

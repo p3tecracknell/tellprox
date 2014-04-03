@@ -211,6 +211,7 @@ class TellstickAPI(object):
 
 	def devices_list(self, func, supportedMethods):
 		"""Returns a list of all clients associated with the current user."""
+		# TODO is this necessary?
 		self.load_devices()
 		return {
 			'device': [
@@ -278,7 +279,7 @@ class TellstickAPI(object):
 		return TELLSTICK_SUCCESS
 	
 	@dec_response
-	def device_command(self, func, id, value = '', method = ''):
+	def device_command(self, func, id, value = 0, method = 0):
 		device = self.get_device(id)
 		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
 
@@ -300,7 +301,8 @@ class TellstickAPI(object):
 		return TELLSTICK_SUCCESS
 	
 	def toggle_device(self, device):
-		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == 1:
+		# TODO or last command was a dim with value > 0?
+		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == TELLSTICK_TURNON:
 			device.turn_off()
 		else:
 			device.turn_on()

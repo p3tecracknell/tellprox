@@ -2,6 +2,9 @@ from bottle import *
 import xml.etree.cElementTree as ET
 from xml.dom import minidom
 import json
+import datetime as dt
+
+_startup_cwd = os.getcwd()
 
 """ Bottle helper functions """
 def raise404():
@@ -82,3 +85,46 @@ def _convert_dict_to_xml_recurse(parent, dictitem, listnames):
 					_convert_dict_to_xml_recurse(elem, child, listnames)
 	elif not dictitem is None:
 		parent.text = unicode(dictitem)
+
+			
+def calcNextRunTime(job):
+	hour = int(job['hour'])
+	minute = int(job['minute'])
+	weekdays = job['weekdays']
+	
+	currentTime = dt.datetime.now().replace(second=59, microsecond=0)
+	currentWeekday = currentTime.weekday()
+	
+	def calcRunTime(weekday):
+		weekdayOffset = weekday - currentWeekday
+		newDate = currentTime.replace(hour = hour, minute = minute, second = 0) + dt.timedelta(days=weekdayOffset)
+		if newDate < currentTime:
+			newDate += dt.timedelta(days=7)
+		return newDate
+
+	# Convert days into 0 based integers
+	daysToRun = (int(d) - 1 for d in weekdays.split(','))
+	allDays = [calcRunTime(day) for day in daysToRun]
+	allDays.sort() 
+	if allDays:
+		nextRunTime = allDays[0]
+		nextRunTime = dateTimeToEpoch(nextRunTime)
+	else:
+		nextRunTime = None
+	job['nextRunTime'] = nextRunTime
+
+		
+def dateTimeToEpoch(timeObj):
+	return int(time.mktime(timeObj.timetuple()))
+	
+
+def restart():
+	args = sys.argv[:]
+	#self.log('Re-spawning %s' % ' '.join(args))
+
+	args.insert(0, sys.executable)
+	if sys.platform == 'win32':
+		args = ['"%s"' % arg for arg in args]
+
+	os.chdir(_startup_cwd)
+	os.execv(sys.executable, args)

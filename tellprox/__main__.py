@@ -9,11 +9,13 @@ import json, bottle
 import os.path
 import httplib, urllib, sys
 import random, string
+import sys, os
 
 from api import API
 from tellstick import TellstickAPI
 from config import ConfigAPI
-from scheduler import SchedulerAPI
+from scheduler import Scheduler
+from schedulerApi import SchedulerAPI
 from bottle import template, request
 from configobj import ConfigObj
 from validate import Validator
@@ -42,11 +44,15 @@ def main():
 	if result is False:
 		print "Config file validation failed"
 		sys.exit(1)
-	
+
 	api = API(app, config)
-	TellstickAPI(api, config)
+	tellstick = TellstickAPI(api, config)
 	ConfigAPI(api, config, validator)
-	#SchedulerAPI(api, config)
+	
+	# TODO enable/disable scheduler here?
+	scheduler = Scheduler(config, tellstick)
+	SchedulerAPI(api, config, scheduler)
+	
 	
 	if not config['installed']:
 		install()
@@ -61,13 +67,17 @@ def main():
 		'session.validate_key': config['cookieKey'],
 		'session.auto': True,
 	}
-	
+
 	bottle.run(SessionMiddleware(root_app, session_opts),
 		host = config['host'],
 		port = config['port'],
 		debug = config['debug'],
-		reloader = config['debug'],
+		reloader = False,
 		server = 'cherrypy')
+
+	if scheduler:
+		print "Killing scheduler"
+		scheduler.stop()
 
 	# Write out default values
 	config.write()

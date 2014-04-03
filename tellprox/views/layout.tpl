@@ -33,16 +33,16 @@
 				class="active"\\
 			%end
 			><a href="devices">Devices</a></li>
-			<!--li 
+			<li 
 			%if name == 'scheduler':
 				class="active"\\
 			%end
-			><a href="scheduler">Scheduler</a></li-->
+			><a href="scheduler">Scheduler</a></li>
 			<li 
 			%if name == 'config':
 				class="active"\\
 			%end
-			--><a href="config">Config</a></li>
+			><a href="config">Config</a></li>
 			<li 
 			%if name == 'api':
 				class="active"\\

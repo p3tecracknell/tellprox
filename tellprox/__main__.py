@@ -76,7 +76,6 @@ def main():
 		server = 'cherrypy')
 
 	if scheduler:
-		print "Killing scheduler"
 		scheduler.stop()
 
 	# Write out default values

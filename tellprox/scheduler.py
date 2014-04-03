@@ -52,8 +52,7 @@ class Scheduler(object):
 				if timeToNextJob <= 0:
 					print "FATAL ERROR: " + str(soonestTime) + " & " + str(nowInEpoch)
 					return
-				print "sleeping " + str(timeToNextJob)
-				print "next job " + str(datetime.datetime.fromtimestamp(soonestTime))
+				print "Next job scheduled for " + str(datetime.datetime.fromtimestamp(soonestTime))
 				self.timer = Timer(timeToNextJob, self.runCommand, ())
 				self.timer.start()
 				return

@@ -2,6 +2,59 @@ body {
 	padding-top: 70px;
 }
 
+.main-login {
+	color: #ffffff;
+	margin-bottom: 77px;
+	padding: 38px 38px 267px;
+	position: relative;
+	max-width: 600px;
+	margin:0 auto;
+}
+.main-login-screen {
+	background-color: #1abc9c;
+	padding: 20px;
+}
+.main-login-form:after {
+	content: '';
+	border-style: solid;
+	border-width: 12px 12px 12px 0;
+	border-color: transparent #edeff1 transparent transparent;
+	height: 0;
+	position: absolute;
+	left: 35px;
+	top: -16px;
+	width: 0;
+	-webkit-transform: rotate(90deg);
+}
+
+.main-login-form {
+  background-color: #edeff1;
+  padding: 24px 23px 20px;
+  position: relative;
+  border-radius: 6px;
+}
+
+.main-login-form .login-field {
+  border-color: transparent;
+  font-size: 17px;
+  text-indent: 3px;
+}
+.main-login-form .login-field:focus {
+  border-color: #1abc9c;
+}
+.main-login-form .login-field:focus + .login-field-icon {
+  color: #1abc9c;
+}
+.main-login-form .login-field-icon {
+  color: #bfc9ca;
+  font-size: 16px;
+  position: absolute;
+  right: 15px;
+  top: 3px;
+  -webkit-transition: 0.25s;
+  transition: 0.25s;
+}
+
 .palette {
 	text-transform: none;
 }

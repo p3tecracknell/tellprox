@@ -118,13 +118,7 @@ def home_page():
 @app.route('/login')
 def login():
 	if config['password']:
-		return '''<html><body>
-		<form method="post" action="''' + 'postlogin' + '''">
-		<input type="text" name="username"/>
-		<input type="password" name="password"/>
-		<input type="submit">
-		</form>
-		</body></html>'''
+		return render_template('login')
 	else:
 		redirectRelative('/')
 

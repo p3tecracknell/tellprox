@@ -11,6 +11,8 @@ setup(
 		'cherrypy',
 		'tellcore-py ==1.0.3',
 		'werkzeug',
+		'validate == 1.0.1',
+		'configobj ==4.7.2',
 		'beaker',
 		'bottle ==0.12.5'],
 	url='https://github.com/p3tecracknell/tellprox',

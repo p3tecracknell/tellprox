@@ -6,18 +6,18 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 import json, bottle
-import sys
-import random, string
 import sys, os
-import utilities
 import utilities
 import urllib
 
+# Child APIs
 from api import API
 from tellstick import TellstickAPI
 from config import ConfigAPI
 from scheduler import Scheduler
 from schedulerApi import SchedulerAPI
+
+# Resources
 from bottle import template, request
 from configobj import ConfigObj
 from validate import Validator
@@ -51,9 +51,8 @@ def main():
 	scheduler = Scheduler(config, tellstick)
 	SchedulerAPI(api, config, scheduler)
 	
-	
 	if not config['installed']:
-		install()
+		api.install()
 	
 	if config['webroot']:
 		root_app.mount(config['webroot'], app)
@@ -167,13 +166,6 @@ def home_page():
 @authenticated
 def scheduler():
 	return render_template('scheduler')
-
-@app.route('/install')
-def install():
-	config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
-	utilities.generateCompiledJS(api.generate_jsapi(), utilities.full_path('/static/compiled.js'))
-	config['installed'] = True
-	return "Done"
 
 def redirectRelative(url, code=None):
     """ Aborts execution and causes a 303 or 302 redirect, depending on

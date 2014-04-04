@@ -1,4 +1,6 @@
 import bottle_helpers as bh
+import random, string
+import utilities
 from bottle import request, template
 
 class API(object):
@@ -19,6 +21,9 @@ class API(object):
 			},
 			'shutdown': {
 				'fn': self.shutdown
+			},
+			'install': {
+				'fn': self.install
 			}
 		})
 
@@ -53,17 +58,25 @@ class API(object):
 			for k, v in self.allroutes.iteritems()}
 	
 	def restart(self, func):
+		self.config.write()
 		return bh.restart()
 	
 	def shutdown(self, func):
+		self.config.write()
 		return bh.shutdown()
+		
+	def install(self, func=''):
+		self.config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
+		utilities.generateCompiledJS(self.generate_jsapi(), utilities.full_path('/static/compiled.js'))
+		self.config['installed'] = True
+		return 'done'
 	
 	def check_apikey(self):
 		if not self.config['apikey']:
 			return True
 		key = bh.get_string('key')
 		return key == self.config['apikey']
-	
+
 	def generate_method(self, group, method, inputs):
 		if len(inputs) > 0:
 			argList = [arg + ": " + arg for arg in inputs]

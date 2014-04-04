@@ -6,10 +6,12 @@ if sys.version_info < (2, 5):
     sys.exit(1)
 
 import json, bottle
-import os.path
-import httplib, urllib, sys
+import sys
 import random, string
 import sys, os
+import utilities
+import utilities
+import urllib
 
 from api import API
 from tellstick import TellstickAPI
@@ -26,12 +28,8 @@ from werkzeug.security import check_password_hash
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
-def full_path(sub_path):
-    return os.path.dirname(__file__) + sub_path
-
-compiledjs = full_path('/static/compiled.js')
 config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
-bottle.TEMPLATE_PATH.insert(0, full_path('/views'))
+bottle.TEMPLATE_PATH.insert(0, utilities.full_path('/views'))
 root_app = bottle.Bottle()
 app = bottle.Bottle()
 api = None
@@ -97,14 +95,18 @@ def authenticated(func):
 		return func(*args, **kwargs)
     return wrapped
 
-def render_template(view, extra=None):
+def render_template(view, extra={}):
+	jsAPI = ''
+	if config['debug']:
+		jsAPI = api.generate_jsapi()
+
 	vars = {
 		'apikey'	: config['apikey'] or '',
 		'password'	: config['password'],
 		'debug'		: config['debug'],
-		'jsAPI'		: api.generate_jsapi()
+		'jsAPI'		: jsAPI
 	}
-	if extra: vars.update(extra)
+	vars.update(extra)
 	return template(view, vars);
 
 @app.route('/')
@@ -166,45 +168,12 @@ def home_page():
 def scheduler():
 	return render_template('scheduler')
 
-def readfile(sub_path):
-	f = open(full_path(sub_path), 'r')
-	contents = f.read()
-	f.close()
-	return contents
-
 @app.route('/install')
 def install():
 	config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
-	generateCompiledJS()
+	utilities.generateCompiledJS(api.generate_jsapi(), utilities.full_path('/static/compiled.js'))
 	config['installed'] = True
 	return "Done"
-
-def generateCompiledJS():
-	params = urllib.urlencode([
-		('js_code', readfile('/static/js/jquery-2.1.0.min.js')),
-		('js_code', readfile('/static/js/jquery.toast.min.js')),
-		('js_code', readfile('/static/js/bootstrap.min.js')),
-		('js_code', readfile('/static/js/bootstrap-switch.js')),
-		('js_code', readfile('/static/js/bootstrap-select.min.js')),
-		('js_code', readfile('/static/js/helpers.js')),
-		('js_code', api.generate_jsapi()),
-		('compilation_level', 'SIMPLE_OPTIMIZATIONS'),
-		('output_format', 'text'),
-		('output_info', 'compiled_code')
-	  ])
-
-	# Always use the following value for the Content-type header.
-	headers = { "Content-type": "application/x-www-form-urlencoded" }
-	conn = httplib.HTTPConnection('closure-compiler.appspot.com')
-	conn.request('POST', '/compile', params, headers)
-	response = conn.getresponse()
-	data = response.read()
-	conn.close()
-	f = open(compiledjs, 'w')
-	f.write(data)
-	f.close()
-	
-	return "OK"
 
 def redirectRelative(url, code=None):
     """ Aborts execution and causes a 303 or 302 redirect, depending on
@@ -222,7 +191,7 @@ def redirectRelative(url, code=None):
 	
 @app.route('/static/<filepath:path>')
 def server_static(filepath='index.html'):
-	return bottle.static_file(filepath, root=full_path('/static'))
+	return bottle.static_file(filepath, root=utilities.full_path('/static'))
 
 if __name__ == "__main__":
 	main()

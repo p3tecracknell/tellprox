@@ -149,4 +149,4 @@
 	}
 	$('[rel=tooltip]').tooltip({placement: 'bottom'})
 </script>
-%rebase layout title='Config', name='config', **locals()
+%rebase('layout', title='Config', name='config', **locals())

@@ -1,8 +1,9 @@
 from bottle import *
-import xml.etree.cElementTree as ET
 from xml.dom import minidom
+import xml.etree.cElementTree as ET
 import json
 import datetime as dt
+import sys
 
 _startup_cwd = os.getcwd()
 
@@ -117,10 +118,11 @@ def calcNextRunTime(job):
 def dateTimeToEpoch(timeObj):
 	return int(time.mktime(timeObj.timetuple()))
 	
-
+def shutdown():
+	return "not implemented"
+	
 def restart():
 	args = sys.argv[:]
-	#self.log('Re-spawning %s' % ' '.join(args))
 
 	args.insert(0, sys.executable)
 	if sys.platform == 'win32':

@@ -74,7 +74,7 @@
 	</script>
 
     <div class="container">
-	  %include
+	  {{!base}}
 	</div>
   </body>
 </html>

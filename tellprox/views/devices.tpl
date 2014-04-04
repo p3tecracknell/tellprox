@@ -125,4 +125,4 @@
 		$deviceContainer.show();
 	}
 </script>
-%rebase layout title='Devices', name='devices', **locals()
+%rebase('layout', title='Devices', name='devices', **locals())

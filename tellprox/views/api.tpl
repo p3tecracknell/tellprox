@@ -222,4 +222,4 @@
 				.end();
 	}
 </script>
-%rebase layout title='API', name='api', **locals()
+%rebase('layout', title='API', name='api', **locals())

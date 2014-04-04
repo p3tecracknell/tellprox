@@ -13,6 +13,12 @@ class API(object):
 		self.add_route('api', {
 			'list': {
 				'fn': self.output
+			},
+			'restart': {
+				'fn': self.restart
+			},
+			'shutdown': {
+				'fn': self.shutdown
 			}
 		})
 
@@ -45,7 +51,13 @@ class API(object):
 		"""A list of all API calls"""
 		return {k : { kk : {'description': vv['fn'].__doc__, 'inputs': vv['inputs'] } for kk,vv in v.iteritems() }
 			for k, v in self.allroutes.iteritems()}
-		
+	
+	def restart(self, func):
+		return bh.restart()
+	
+	def shutdown(self, func):
+		return bh.shutdown()
+	
 	def check_apikey(self):
 		if not self.config['apikey']:
 			return True

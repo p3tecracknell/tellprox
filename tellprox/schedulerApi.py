@@ -105,7 +105,7 @@ class SchedulerAPI(object):
 		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
 	
 		# If no ID is provided, find the next available
-		if id is None or id == 0:
+		if id == 0:
 			keys = self.jobs.keys()
 			if len(keys) == 0:
 				id = 1

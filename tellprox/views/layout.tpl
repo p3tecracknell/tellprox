@@ -24,7 +24,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <img src="static/images/logo.png" id="logo" class="hidden-xs"/>
+          <img src="static/images/logo.png" id="logo"/>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">

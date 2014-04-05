@@ -61,4 +61,4 @@
 		$jobsContainer.show();
 	}
 </script>
-%rebase layout title='Scheduler', name='scheduler', **locals()
+%rebase('layout', title='Scheduler', name='scheduler', **locals())

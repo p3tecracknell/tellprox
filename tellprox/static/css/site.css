@@ -99,6 +99,7 @@ body {
 
 .device-box h4 {
 	margin-top: 5px;
+	cursor: default;
 }
 
 .device-box:after {
@@ -112,7 +113,18 @@ body {
 	position: absolute;
 	right: 20px;
 	top: 17px;
+	cursor: pointer;
 	display: none;
+}
+
+.device-box:hover:after {
+	display: block;
+}
+
+@media(max-width:768px){
+	.device-box:after {
+		display: block !important;
+	}
 }
 
 .device-controls {

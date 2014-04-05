@@ -30,12 +30,12 @@ CONFIG_SPEC = 'configspec.ini'
 
 config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
 bottle.TEMPLATE_PATH.insert(0, utilities.full_path('/views'))
-root_app = bottle.Bottle()
 app = bottle.Bottle()
 api = None
 
 def main():
 	global api
+	root_app = bottle.Bottle()
 	validator = Validator()
 	result = config.validate(validator, copy = True)
 

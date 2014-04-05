@@ -76,13 +76,86 @@ body {
 				no-repeat;
 }
 
-.dev-box {
-	height: 120px;
+/* Devices */
+.device-container {
+	padding: 10px;
 }
 
-.paletteContainer {
+.device-box {
+	/*height: 84px;*/
+	padding-bottom: 1px;
+	padding-left: 3px;
+	padding-top: 1px;
+	padding-right: 30px;
+	color: #fff;
+	background-color: #3498db;
+}
+
+@media(min-width:768px){
+	.device-box {
+		height: 84px;
+	}
+}
+
+.device-box h4 {
+	margin-top: 5px;
+}
+
+.device-box:after {
+	content: '\e024';
+	-webkit-font-smoothing: antialiased;
+	font-family: 'Flat-UI-Icons';
+	box-sizing: border-box;
+	float: right;
+	font-size: 18px;
+	color: #fff;
+	position: absolute;
+	right: 20px;
+	top: 17px;
+	display: none;
+}
+
+.device-controls {
+	padding: 0px;
+	border: 4px solid #2980B9;
+}
+
+
+.device-controls .pagination ul {
+	background-color: #2980B9;
+}
+
+.device-controls .pagination ul li {
+	margin: 0px;
+	padding: 0px;
+}
+
+.device-controls .pagination ul li > a {
+	border: 0px solid #fff;
+	border-radius: 0px;
+	border-color: #2980B9;
+	color: #2980B9;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+}
+
+.device-controls .pagination ul li.active > a{
+	border-width: 0px !important;
+	color: #fff;
+	background-color: #2980B9;
+}
+
+.device-controls  .pagination ul li > a {
+	line-height: 36px;
+}
+
+.palette -container {
 	margin-bottom: 15px;
 }
+
+/* End of Devices */
+
 
 #logo {
 	margin-left: 11px;

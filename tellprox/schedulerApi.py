@@ -31,7 +31,7 @@ class SchedulerAPI(object):
 			'setjob': {
 				'fn': self.setjob,
 				'inputs': [
-				{ 'name': 'id', 'type': 'string', 'description': 'The job id, when updating an existing job' },
+				{ 'name': 'id', 'type': 'int', 'description': 'The job id, when updating an existing job' },
 				{ 'name': 'deviceId', 'type': 'string', 'description': 'The device id to schedule. Only valid when creating a new job' },
 				{ 'name': 'method', 'type': 'string', 'description': 'What to do when the schedule runs. This should be any of the method constants' },
 				{ 'name': 'methodValue', 'type': 'int', 'description': 'Only required for methods that requires this.' },
@@ -103,20 +103,15 @@ class SchedulerAPI(object):
 	
 	def setjob(self, func, id, deviceId, method, methodValue, type, hour,
 		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
-
-		if id:
-			try:
-				id = int(id)
-			except ValueError:
-				id = None
 	
 		# If no ID is provided, find the next available
-		if id is None == 0 or id == 0:
+		if id is None or id == 0:
 			keys = self.jobs.keys()
 			if len(keys) == 0:
 				id = 1
 			else:
 				id = max([int(k) for k in keys]) + 1
+
 		id = str(id)
 
 		newJob = {

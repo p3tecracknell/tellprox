@@ -1,10 +1,20 @@
 <div id="deviceContainer" class="row"></div>
 <div id="loading"></div>
 
-<script type="text/x-template" class="itemCellTemplate">
+<script type="text/x-template" class="itemCellTemplate2">
 	<div class="col-xs-12 col-sm-6 col-md-4 paletteContainer">
 		<div class="palette palette-peter-river dev-box"><h4 class="header">[DEVICE]</h4></div>
 		<div class="palette palette-belize-hole">
+			<div class="pagination">
+				<ul class="content" style="width: 100%">[CONTENT]</ul>
+			</div>
+		</div>
+	</div>
+</script>
+<script type="text/x-template" class="itemCellTemplate">
+	<div class="col-xs-12 col-sm-6 col-md-4 device-container">
+		<div class="device-box"><h4 class="header">[DEVICE]</h4></div>
+		<div class="device-controls">
 			<div class="pagination">
 				<ul class="content" style="width: 100%">[CONTENT]</ul>
 			</div>
@@ -64,9 +74,8 @@
 		return buffer;
 	}
 	
-	function createOnOffButton(align, text, data) {
+	function createOnOffButton(text, data) {
 		return ACTIONBUTTONTEMPLATE.clone()
-			.css({'text-align': align})
 			.find('a')
 				.text(text)
 				.data('val', data)
@@ -74,8 +83,8 @@
 	}
 	
 	function createOnOffButtons(state) {
-		var offButton = createOnOffButton('right', 'Off', 'off'),
-			onButton = createOnOffButton('left', 'On', 'on'),
+		var offButton = createOnOffButton('Off', 'off'),
+			onButton = createOnOffButton('On', 'on'),
 			isOn = (state == '1');
 			
 		((isOn) ? onButton : offButton).addClass('active');

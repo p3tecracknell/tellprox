@@ -22,7 +22,7 @@ def get_int(key):
 	try:
 		return int(num)
 	except ValueError:
-		return num
+		return 0
 
 def get_string(key):
 	return request.query.get(key) or request.forms.get(key)

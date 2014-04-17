@@ -7,16 +7,11 @@ import time
 import bottle_helpers as bh
 
 class SchedulerAPI(object):
-	config = None
 	core = td.TelldusCore()
-	jobs = {}
-	schedulerThread = None
 
-	def __init__(self, api, config, scheduler):
+	def __init__(self, api, config):
 		self.config = config
-		
 		self.jobs = config['jobs']
-		self.schedulerThread = scheduler
 
 		api.add_route('scheduler', {
 			'joblist': {
@@ -93,13 +88,8 @@ class SchedulerAPI(object):
 	def removejob(self, func, id):
 		if id in self.jobs:
 			del self.jobs[id]
-			self.restartSchedulerThread()
+		self.config.notifyKey('jobs')
 		return { "status" : "OK" }
-	
-	def restartSchedulerThread(self):
-		if self.schedulerThread:
-			self.schedulerThread.stop()
-		self.schedulerThread.start(self.config)
 	
 	def setjob(self, func, id, deviceId, method, methodValue, type, hour,
 		minute, offset, randomInterval, retries, retryInterval, reps, active, weekdays):
@@ -132,8 +122,7 @@ class SchedulerAPI(object):
 		}
 		
 		self.jobs[id] = newJob
-		bh.calcNextRunTime(newJob)
+		self.config.notifyKey('jobs')
+		nextRunTime = self.jobs[id]['nextRunTime']
 		
-		self.restartSchedulerThread()
-		self.config.write()
-		return { 'id' : id, 'nextRunTime': newJob['nextRunTime'] }
+		return { 'id' : id, 'nextRunTime': nextRunTime }

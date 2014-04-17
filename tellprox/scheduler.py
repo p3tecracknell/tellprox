@@ -1,26 +1,39 @@
 from threading import Timer
+from configObserver import ConfigObserver
 import time, datetime
 import bottle_helpers as bh
 
 class Scheduler(object):
-	jobs = {}
 	nextJob = []
 	timer = None
 	
 	def __init__(self, config, tellstick):
-		self.start(config)
+		self.config = config
+		self.jobs = config['jobs']
+		self.start()
 		self.tellstick = tellstick;
+		
+		# Subscribe to changes in configs
+		class JobsWatcher(object):
+			def notify(subself, observable, key):
+				print "scheduler key changed"
+				self.start()
+
+		watcher = JobsWatcher()
+		config.observeKey('scheduler', watcher)
+		config.observeKey('jobs', watcher)
 	
 	def stop(self):
 		if self.timer:
 			self.timer.cancel()
 			self.timer = None
 	
-	def start(self, config):
-		self.jobs = config['jobs']
+	def start(self):
 		self.stop()
 		
-		self.updateAndRunTimers()
+		self.calcAllRunTimes()
+		if self.config['scheduler']:
+			self.updateAndRunTimers()
 	
 	def calcSoonestRunTime(self):
 		activeJobs = [
@@ -41,7 +54,6 @@ class Scheduler(object):
 		
 	def updateAndRunTimers(self):
 		nowInEpoch = bh.dateTimeToEpoch(datetime.datetime.now())
-		self.calcAllRunTimes()
 
 		if len(self.jobs) > 0:
 			soonestTime = self.calcSoonestRunTime()
@@ -69,6 +81,7 @@ class Scheduler(object):
 			for job in self.nextJob:
 				self.runJob(job)
 		
+		self.calcAllRunTimes()
 		self.updateAndRunTimers()
 	
 	def calcAllRunTimes(self):

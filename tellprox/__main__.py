@@ -18,8 +18,9 @@ from scheduler import Scheduler
 from schedulerApi import SchedulerAPI
 
 # Resources
-from bottle import template, request
 from configobj import ConfigObj
+from bottle import template, request
+from configObserver import ConfigObserver
 from validate import Validator
 from beaker.middleware import SessionMiddleware
 from werkzeug.security import check_password_hash
@@ -28,15 +29,18 @@ from werkzeug.security import check_password_hash
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
-config = ConfigObj(CONFIG_PATH, configspec = CONFIG_SPEC)
+validator = Validator()
+config = ConfigObserver(CONFIG_PATH, configspec = CONFIG_SPEC)
+config.setValidator(validator)
+
 bottle.TEMPLATE_PATH.insert(0, utilities.full_path('/views'))
 app = bottle.Bottle()
 api = None
 
 def main():
 	global api
+	
 	root_app = bottle.Bottle()
-	validator = Validator()
 	result = config.validate(validator, copy = True)
 
 	if result is False:
@@ -44,12 +48,19 @@ def main():
 		sys.exit(1)
 
 	api = API(app, config)
+	ConfigAPI(api, config)
 	tellstick = TellstickAPI(api, config)
-	ConfigAPI(api, config, validator)
 	
-	# TODO enable/disable scheduler here?
 	scheduler = Scheduler(config, tellstick)
-	SchedulerAPI(api, config, scheduler)
+	SchedulerAPI(api, config)
+	
+	class ConfigWatcher(object):
+		def notify(self, observable, key):
+			print "writing"
+			config.write()
+
+	watcher = ConfigWatcher()
+	config.observe(watcher)
 	
 	if not config['installed']:
 		api.install()
@@ -74,8 +85,10 @@ def main():
 
 	if scheduler:
 		scheduler.stop()
-
-	# Write out default values
+	
+	# The goal was to have all changes to the config call the watcher
+	# method which writes to file. Unfortunately subsections wouldn't
+	# play along, so write to file once we've finished with the service
 	config.write()
 
 def authenticated(func):

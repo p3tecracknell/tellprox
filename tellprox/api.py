@@ -58,11 +58,9 @@ class API(object):
 			for k, v in self.allroutes.iteritems()}
 	
 	def restart(self, func):
-		self.config.write()
 		return bh.restart()
 	
 	def shutdown(self, func):
-		self.config.write()
 		return bh.shutdown()
 		
 	def install(self, func=''):

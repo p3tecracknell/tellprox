@@ -98,33 +98,27 @@ body {
 }
 
 .device-box h4 {
-	margin-top: 5px;
+	margin-left: 10px;
+	margin-top: 3px;
 	cursor: default;
 }
 
-.device-box:after {
-	content: '\e024';
+.device-config {
 	-webkit-font-smoothing: antialiased;
 	font-family: 'Flat-UI-Icons';
+	display: inline-block;
 	box-sizing: border-box;
-	float: right;
-	font-size: 18px;
 	color: #fff;
+	font-size: 18px;
+	float: right;
 	position: absolute;
-	right: 20px;
+	right: 17px;
 	top: 17px;
 	cursor: pointer;
-	display: none;
+	line-height: 1;
 }
-
-.device-box:hover:after {
-	display: block;
-}
-
-@media(max-width:768px){
-	.device-box:after {
-		display: block !important;
-	}
+.device-config:before {
+	content: '\e024';
 }
 
 .device-controls {
@@ -196,4 +190,22 @@ pre {
 
 #postOutput {
 	display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0
+}
+
+#lightbox {
+    position:fixed;
+    top:0; 
+    left:0; 
+    width:100%; 
+    height:100%; 
+    background: rgba(0,0,0,.7);
+    text-align:center;
+	display: none;
+}
+
+#deviceEditor {
+	width: 50%;
+    margin: 0 auto;
+	margin-top: 100px;
+	background-color: #FFF;
 }

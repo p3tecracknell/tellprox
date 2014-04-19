@@ -26,6 +26,7 @@ from beaker.middleware import SessionMiddleware
 from werkzeug.security import check_password_hash
 
 # Constants
+VERSION = '0.28'
 CONFIG_PATH = 'config.ini'
 CONFIG_SPEC = 'configspec.ini'
 
@@ -47,9 +48,9 @@ def main():
 		print "Config file validation failed"
 		sys.exit(1)
 
-	api = API(app, config)
+	api = API(app, config, VERSION)
 	ConfigAPI(api, config)
-	tellstick = TellstickAPI(api, config)
+	tellstick = TellstickAPI(api, config, VERSION)
 	
 	scheduler = Scheduler(config, tellstick)
 	SchedulerAPI(api, config)
@@ -62,7 +63,7 @@ def main():
 	watcher = ConfigWatcher()
 	config.observe(watcher)
 	
-	if not config['installed']:
+	if config['installed'] != VERSION:
 		api.install()
 	
 	if config['webroot']:

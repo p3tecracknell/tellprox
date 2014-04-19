@@ -50,8 +50,9 @@ class TellstickAPI(object):
 	sensors = {}
 	jobs = {}
 
-	def __init__(self, api, config):
+	def __init__(self, api, config, version):
 		self.config = config
+		self.version = version
 		
 		self.load_devices()
 		self.load_sensors()
@@ -465,6 +466,6 @@ class TellstickAPI(object):
 			'name'    : self.config['client_name'] or '',
 			'online'  : '1',
 			'editable': 1 if self.config['editable'] else 0,
-			'version' : '0.27',
+			'version' : version,
 			'type'    : 'TellProx'
 		}

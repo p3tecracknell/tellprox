@@ -4,9 +4,10 @@ import utilities
 from bottle import request, template
 
 class API(object):
-	def __init__(self, app, config):
+	def __init__(self, app, config, version):
 		self.app = app
 		self.config = config
+		self.version = version
 		app.route('/<out_format:re:(?i)(xml|json)>/<ftype:path>/<func:path>',
 			method = ['GET', 'POST'],
 			callback = self.route_all)
@@ -66,7 +67,7 @@ class API(object):
 	def install(self, func=''):
 		self.config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
 		utilities.generateCompiledJS(self.generate_jsapi(), utilities.full_path('/static/compiled.js'))
-		self.config['installed'] = True
+		self.config['installed'] = self.version
 		return 'done'
 	
 	def check_apikey(self):
@@ -81,7 +82,7 @@ class API(object):
 			data = "$.extend(auth, { " + ', '.join(argList) + " })"
 		else:
 			data = 'auth'
-		return "{ $.post('json/" + group + "/" + method + "', " + data + ", onComplete); }"
+		return "{ return $.post('json/" + group + "/" + method + "', " + data + ", onComplete); }"
 
 	def generate_jsapi(self):
 		jsAPI = '''

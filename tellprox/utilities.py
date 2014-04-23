@@ -17,6 +17,7 @@ def generateCompiledJS(jsApi, outputFile):
 		('js_code', readfile('/static/js/bootstrap.min.js')),
 		('js_code', readfile('/static/js/bootstrap-switch.js')),
 		('js_code', readfile('/static/js/bootstrap-select.min.js')),
+		('js_code', readfile('/static/js/knockout-3.1.0.js')),
 		('js_code', readfile('/static/js/helpers.js')),
 		('js_code', jsApi),
 		('compilation_level', 'SIMPLE_OPTIMIZATIONS'),

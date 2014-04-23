@@ -60,7 +60,7 @@
 	
 	%if debug:
 	<script src="static/js/jquery-2.1.0.min.js"></script>
-	<script src="static/js/knockout-3.1.0.debug.js"></script>
+	<script src="static/js/knockout-3.1.0.js"></script>
 	<script src="static/js/jquery.toast.min.js"></script>
 	<script src="static/js/bootstrap.min.js"></script>
 	<script src="static/js/bootstrap-switch.js"></script>

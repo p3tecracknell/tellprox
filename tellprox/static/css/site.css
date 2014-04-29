@@ -63,7 +63,7 @@ body {
 	width: 100%;
 }
 
-#loading {
+/*#loading {
 	position:   absolute;
 	z-index:    1000;
 	top:        0;
@@ -74,7 +74,7 @@ body {
 				url('../images/ajax-loader.gif') 
 				50% 50% 
 				no-repeat;
-}
+}*/
 
 /* Devices */
 .device-container {
@@ -132,7 +132,7 @@ body {
 }
 
 .device-controls .pagination ul li {
-	margin: 0px;
+	/*margin: 0px;*/
 	padding: 0px;
 }
 
@@ -192,7 +192,7 @@ pre {
 	display:block; white-space:pre; color: #000; background-color: #f7f7f9; border-width: 0
 }
 
-#lightbox {
+/*#lightbox {
     position:fixed;
     top:0; 
     left:0; 
@@ -201,7 +201,7 @@ pre {
     background: rgba(0,0,0,.7);
     text-align:center;
 	display: none;
-}
+}*/
 
 #deviceEditor {
 	width: 50%;

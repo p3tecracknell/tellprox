@@ -110,8 +110,8 @@ def authenticated(func):
 
 def render_template(view, extra={}):
 	jsAPI = ''
-	if config['debug']:
-		jsAPI = api.generate_jsapi()
+	#if config['debug']: TODO merge in with Durandal
+	jsAPI = api.generate_jsapi()
 
 	vars = {
 		'apikey'	: config['apikey'] or '',
@@ -124,10 +124,11 @@ def render_template(view, extra={}):
 
 @app.route('/')
 def home_page():
-	""" Specific redirect as we cannot redirect relatively if the trailing slash is ommitted """
-	return """<html><body><script>
-	window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices')
-	</script></body></html>"""
+	#""" Specific redirect as we cannot redirect relatively if the trailing slash is ommitted """
+	#return """<html><body><script>
+	#window.location.replace(window.location.href.replace(/\/?$/, '/') + 'devices')
+	#</script></body></html>"""
+	return render_template('index')
 
 
 @app.route('/login')
@@ -195,9 +196,12 @@ def redirectRelative(url, code=None):
         res._cookies = response._cookies
     raise res
 	
-@app.route('/static/<filepath:path>')
-def server_static(filepath='index.html'):
-	return bottle.static_file(filepath, root=utilities.full_path('/static'))
+@app.route('/<type:re:app|css|fonts|images|img|js|lib>/<filepath:path>')
+def server_static(type, filepath):
+	path = '/static/'
+	#if not config['debug']: path += 'build/'
+		
+	return bottle.static_file(filepath, root=utilities.full_path(path + type))
 
 if __name__ == "__main__":
 	main()

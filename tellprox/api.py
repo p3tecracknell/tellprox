@@ -66,7 +66,7 @@ class API(object):
 		
 	def install(self, func=''):
 		self.config['cookieKey'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(64))
-		utilities.generateCompiledJS(self.generate_jsapi(), utilities.full_path('/static/compiled.js'))
+		utilities.generateCompiledJS(self.generate_jsapi(), utilities.full_path('/compiled.js'))
 		self.config['installed'] = self.version
 		return 'done'
 	

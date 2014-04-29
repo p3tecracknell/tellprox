@@ -5,12 +5,12 @@
     <title>TellProx{{' ' + title if title else ''}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="static/css/bootstrap.min.css" rel="stylesheet">
-	<link href="static/css/bootstrap-switch.css" rel="stylesheet">
-	<link href="static/css/bootstrap-select.min.css" rel="stylesheet">
-	<link href="static/css/flat-ui.css" rel="stylesheet">
-	<link href="static/css/jquery.toast.min.css" rel="stylesheet">
-	<link href="static/css/site.css" rel="stylesheet">
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="lib/bootstrap/css/bootstrap-switch.css" rel="stylesheet">
+	<link href="lib/bootstrap/css/bootstrap-select.min.css" rel="stylesheet">
+	<link href="css/flat-ui.css" rel="stylesheet">
+	<link href="css/jquery.toast.min.css" rel="stylesheet">
+	<link href="css/site.css" rel="stylesheet">
   </head>
 
   <body>
@@ -24,7 +24,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <img src="static/images/logo.png" id="logo"/>
+          <img src="images/logo.png" id="logo"/>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -59,16 +59,16 @@
     </div>
 	
 	%if debug:
-	<script src="static/js/jquery-2.1.0.min.js"></script>
-	<script src="static/js/knockout-3.1.0.js"></script>
-	<script src="static/js/jquery.toast.min.js"></script>
-	<script src="static/js/bootstrap.min.js"></script>
-	<script src="static/js/bootstrap-switch.js"></script>
-	<script src="static/js/bootstrap-select.min.js"></script>
-	<script src="static/js/helpers.js"></script>
+	<script src="js/jquery-2.1.0.min.js"></script>
+	<script src="js/knockout-3.1.0.debug.js"></script>
+	<script src="js/jquery.toast.min.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="lib/bootstrap/js/bootstrap-switch.js"></script>
+	<script src="lib/bootstrap/js/bootstrap-select.min.js"></script>
+	<script src="js/helpers.js"></script>
 	<script>{{!jsAPI}}</script>
 	%else:
-	<script src="static/compiled.js"></script>
+	<script src="compiled.js"></script>
 	%end
 	<script>
 	var api = new tellproxAPI('{{apikey}}');

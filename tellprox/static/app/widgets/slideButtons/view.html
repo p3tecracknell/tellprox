@@ -1,0 +1,5 @@
+<ul class="content" style="width: 100%" data-bind="foreach: $data.buttons">
+	<li style="text-align: center" data-bind="css: {active: $parent.isActive($data)}, style: {width: $parent.buttonWidth}">
+		<a href="#" class="evtBtn" data-bind="text: text, click: $parent.setItem.bind($data, $parent)"></a>
+	</li>
+</ul>

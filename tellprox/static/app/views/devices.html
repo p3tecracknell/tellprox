@@ -1,0 +1,34 @@
+﻿<section>
+	<span data-bind="text: errorMessage"/>
+	<div id="deviceContainer" class="row" data-bind="foreach: { data: devices, beforeRemove: removeDeviceBox, afterRender: onDeviceRender }, applySelect: devices">
+		<div class="col-xs-12 col-sm-6 col-md-4 device-container">
+			<div class="device-box">
+				<h4 class="header" data-bind="text: name"></h4>
+				<!--a href="#" class="config" data-bind="click: $parent.selectDevice">
+					<span class="device-config"></span>
+				</a-->
+				<!--div class="device-config"-->
+<!--div class="dropdown">
+  <a id="dLabel" role="button" data-toggle="dropdown" data-target="#">
+    Dropdown <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+    <li>a</li>
+    <li>a</li>
+    <li>a</li>
+  </ul>
+</div-->
+			</div>
+			<div class="device-controls">
+				<div class="pagination">
+					<!-- ko if: dimmable -->
+						<!-- ko widget: {kind: 'slideButtons', selectedValue: statevalue, numItems: numSlideButtons} --><!-- /ko -->
+					<!-- /ko -->
+					<!-- ko ifnot: dimmable -->
+						<!-- ko widget: {kind: 'slideButtons', selectedValue: state, numItems: 2} --><!-- /ko -->
+					<!-- /ko -->
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

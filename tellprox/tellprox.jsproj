@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>14ae7897-b44e-45fd-8130-cd625ab391c8</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0'">
+    <VisualStudioVersion>12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).Default.props" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).props" />
+  <PropertyGroup>
+    <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <RequiredPlatformVersion>8.1</RequiredPlatformVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <PackageCertificateKeyFile>tellprox_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="api.py" />
+    <Content Include="bottle_helpers.py" />
+    <Content Include="config.py" />
+    <Content Include="configObserver.py" />
+    <Content Include="msensor.py" />
+    <Content Include="scheduler.py" />
+    <Content Include="schedulerApi.py" />
+    <Content Include="static\compiled.js" />
+    <Content Include="static\css\bootstrap-select.min.css" />
+    <Content Include="static\css\bootstrap-switch.css" />
+    <Content Include="static\css\bootstrap.min.css" />
+    <Content Include="static\css\flat-ui.css" />
+    <Content Include="static\css\jquery.toast.min.css" />
+    <Content Include="static\css\site.css" />
+    <Content Include="static\fonts\9k-RPmcnxYEPm8CNFsH2gg.woff" />
+    <Content Include="static\fonts\BVtM30trf7q_jfqYeHfjtA.woff" />
+    <Content Include="static\fonts\Flat-UI-Icons.dev.svg" />
+    <Content Include="static\fonts\Flat-UI-Icons.eot" />
+    <Content Include="static\fonts\Flat-UI-Icons.svg" />
+    <Content Include="static\fonts\Flat-UI-Icons.ttf" />
+    <Content Include="static\fonts\Flat-UI-Icons.woff" />
+    <Content Include="static\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="static\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="static\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="static\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="static\fonts\KT3KS9Aol4WfR6Vas8kNcg.woff" />
+    <Content Include="static\fonts\lato\lato-black-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-black-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-black-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-black-webfont.woff" />
+    <Content Include="static\fonts\lato\lato-bold-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-bold-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-bold-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-bold-webfont.woff" />
+    <Content Include="static\fonts\lato\lato-bolditalic-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-bolditalic-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-bolditalic-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-bolditalic-webfont.woff" />
+    <Content Include="static\fonts\lato\lato-italic-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-italic-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-italic-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-italic-webfont.woff" />
+    <Content Include="static\fonts\lato\lato-light-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-light-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-light-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-light-webfont.woff" />
+    <Content Include="static\fonts\lato\lato-regular-webfont.eot" />
+    <Content Include="static\fonts\lato\lato-regular-webfont.svg" />
+    <Content Include="static\fonts\lato\lato-regular-webfont.ttf" />
+    <Content Include="static\fonts\lato\lato-regular-webfont.woff" />
+    <Content Include="static\fonts\wkfQbvfT_02e2IWO3yYueQ.woff" />
+    <Content Include="static\images\ajax-loader.gif" />
+    <Content Include="static\images\devices\anslut_sl.png" />
+    <Content Include="static\images\devices\arctech_cs.png" />
+    <Content Include="static\images\devices\arctech_sl.png" />
+    <Content Include="static\images\devices\bell.png" />
+    <Content Include="static\images\devices\brennenstuhl_cs.png" />
+    <Content Include="static\images\devices\byebye.png" />
+    <Content Include="static\images\devices\conrad-rsl888.png" />
+    <Content Include="static\images\devices\ecosavers.png" />
+    <Content Include="static\images\devices\elro-ab600.png" />
+    <Content Include="static\images\devices\elro.png" />
+    <Content Include="static\images\devices\fr004r.png" />
+    <Content Include="static\images\devices\gao_cs.png" />
+    <Content Include="static\images\devices\gao_sl.png" />
+    <Content Include="static\images\devices\goobay.png" />
+    <Content Include="static\images\devices\hasta.png" />
+    <Content Include="static\images\devices\hq_cs.png" />
+    <Content Include="static\images\devices\koppla.png" />
+    <Content Include="static\images\devices\kp100.png" />
+    <Content Include="static\images\devices\otio.png" />
+    <Content Include="static\images\devices\projectorscreen.png" />
+    <Content Include="static\images\devices\risingsun_cs.png" />
+    <Content Include="static\images\devices\sartano.png" />
+    <Content Include="static\images\devices\upm_sl.png" />
+    <Content Include="static\images\devices\waveman_cs.png" />
+    <Content Include="static\images\devices\x10.png" />
+    <Content Include="static\images\devices\zke-2603.png" />
+    <Content Include="static\images\logo.png" />
+    <Content Include="static\images\switch\mask-square.png" />
+    <Content Include="static\images\switch\mask.png" />
+    <Content Include="static\images\vendors\anslut.png" />
+    <Content Include="static\images\vendors\brennenstuhl.png" />
+    <Content Include="static\images\vendors\byebyelogo.png" />
+    <Content Include="static\images\vendors\chacon.png" />
+    <Content Include="static\images\vendors\coco.png" />
+    <Content Include="static\images\vendors\conrad.png" />
+    <Content Include="static\images\vendors\ecosavers.png" />
+    <Content Include="static\images\vendors\elro.png" />
+    <Content Include="static\images\vendors\gao.png" />
+    <Content Include="static\images\vendors\goobay.png" />
+    <Content Include="static\images\vendors\hasta.png" />
+    <Content Include="static\images\vendors\homeeasy.png" />
+    <Content Include="static\images\vendors\hq.png" />
+    <Content Include="static\images\vendors\ikea.png" />
+    <Content Include="static\images\vendors\intertechno.png" />
+    <Content Include="static\images\vendors\kappa.png" />
+    <Content Include="static\images\vendors\kingpin.png" />
+    <Content Include="static\images\vendors\kjelloco.png" />
+    <Content Include="static\images\vendors\klikaanklikuit.png" />
+    <Content Include="static\images\vendors\mandolyn.png" />
+    <Content Include="static\images\vendors\nexa.png" />
+    <Content Include="static\images\vendors\otio.png" />
+    <Content Include="static\images\vendors\proove.png" />
+    <Content Include="static\images\vendors\rollertrol.png" />
+    <Content Include="static\images\vendors\roxcore.png" />
+    <Content Include="static\images\vendors\rusta.png" />
+    <Content Include="static\images\vendors\sartano.png" />
+    <Content Include="static\images\vendors\upm.png" />
+    <Content Include="static\images\vendors\waveman.png" />
+    <Content Include="static\images\vendors\x10.png" />
+    <Content Include="static\img\glyphicons-halflings-white.png" />
+    <Content Include="static\img\glyphicons-halflings.png" />
+    <Content Include="static\js\bootstrap-select.min.js" />
+    <Content Include="static\js\bootstrap-switch.js" />
+    <Content Include="static\js\bootstrap.min.js" />
+    <Content Include="static\js\helpers.js" />
+    <Content Include="static\js\jquery-2.1.0.min.js" />
+    <Content Include="static\js\jquery.toast.min.js" />
+    <Content Include="static\js\knockout-3.1.0.js" />
+    <Content Include="tasensor.py" />
+    <Content Include="tellstick.py" />
+    <Content Include="utilities.py" />
+    <Content Include="views\api.tpl" />
+    <Content Include="views\config.tpl" />
+    <Content Include="views\devices.tpl" />
+    <Content Include="views\layout.tpl" />
+    <Content Include="views\login.tpl" />
+    <Content Include="views\scheduler.tpl" />
+    <Content Include="__init__.py" />
+    <Content Include="__main__.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).targets" />
+  <!-- To modify your build process, add your task inside one of the targets below then uncomment
+       that target and the DisableFastUpToDateCheck PropertyGroup. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
+  -->
+</Project>

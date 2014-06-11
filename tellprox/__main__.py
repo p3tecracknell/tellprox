@@ -122,6 +122,12 @@ def render_template(view, extra={}):
 	vars.update(extra)
 	return template(view, vars);
 
+@app.route('/api.js')
+def appjs():
+	return template('apijs', {
+	  'test': 'test'
+	})
+
 @app.route('/')
 def home_page():
 	#""" Specific redirect as we cannot redirect relatively if the trailing slash is ommitted """

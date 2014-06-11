@@ -17,7 +17,7 @@
     }
 });
 
-define(['durandal/system', 'durandal/app', 'durandal/viewLocator', 'knockout'],  function (system, app, viewLocator, ko) {
+define(['durandal/system', 'durandal/app', 'durandal/viewLocator', 'knockout', 'services/api'],  function (system, app, viewLocator, ko, api) {
 	var debug = true;
 	
     //>>excludeStart("build", true);
@@ -53,15 +53,16 @@ define(['durandal/system', 'durandal/app', 'durandal/viewLocator', 'knockout'], 
     app.configurePlugins({
         router: true,
         dialog: true,
-        widget: true
+        widget: true,
+        dialog: true
     });
 
     app.start().then(function() {
-        //Replace 'viewmodels' in the moduleId with 'views' to locate the view.
-        //Look for partial views in a 'views' folder in the root.
+        // Replace 'viewmodels' in the moduleId with 'views' to locate the view.
+        // Look for partial views in a 'views' folder in the root.
         viewLocator.useConvention();
 
-        //Show the app by setting the root view model for our application with a transition.
-        app.setRoot('viewmodels/shell', 'entrance');
+        // Show the app by setting the root view model for our application with a transition.
+        app.setRoot('viewmodels/shell', 'blank');
     });
 });

@@ -35,8 +35,7 @@
             }
         </script>
 		<script>
-		{{!jsAPI}}
-		var api = new tellproxAPI('{{apikey}}');
+		var apiKey = '{{apikey}}';
 		</script>
     </head>
     <body>
@@ -51,7 +50,7 @@
 		%if debug:
         <script src="lib/require/require.js" data-main="app/main"></script>
 		%else:
-		<script src="lib/require/require.js" data-main="app/main-built"></script>
+		<script type="text/javascript" src="app/main-built.js"></script>
 		%end
     </body>
 </html>

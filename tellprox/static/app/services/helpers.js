@@ -9,7 +9,7 @@ define(function() {
 			};
 		},
 
-		br:function(){ return $(document.createElement('br'));},
+		/*br:function(){ return $(document.createElement('br'));},
 		div:function(){ return $(document.createElement('div'));},
 		span:function(){ return $(document.createElement('span'));},
 		h:function(i){ return $(document.createElement('h' + i));},
@@ -30,7 +30,7 @@ define(function() {
 				return option(splits[1] || val, splits[0]);
 			});
 			return select().append(buffer);
-		},
+		},*/
 
 		mapSorted: function(map, worker) {
 			var keys = Object.keys(map).sort(),

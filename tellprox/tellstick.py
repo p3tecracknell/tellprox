@@ -283,30 +283,38 @@ class TellstickAPI(object):
 	def device_command(self, func, id, value = 0, method = 0):
 		device = self.get_device(id)
 		if not device: return [TELLSTICK_ERROR_DEVICE_NOT_FOUND, id]
+		
+		lastCommand = device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF)
 
 		try:
-			if   (method == TELLSTICK_BELL		or func == 'bell')    : device.bell()
-			elif (method == TELLSTICK_DIM		or func == 'dim')     : device.dim(value)
-			elif (method == TELLSTICK_DOWN		or func == 'down')    : device.down()
-			elif (method == TELLSTICK_LEARN		or func == 'learn')   : device.learn()
-			elif (method == TELLSTICK_STOP		or func == 'stop')    : device.stop()
-			elif (method == TELLSTICK_TURNON	or func == 'turnon')  : device.turn_on()
-			elif (method == TELLSTICK_TURNOFF	or func == 'turnoff') : device.turn_off()
-			elif (method == TELLSTICK_UP		or func == 'up')      : device.up()
-			elif (method == TELLSTICK_TOGGLE	or func == 'toggle')  : self.toggle_device(device)
-			elif (method == TELLSTICK_EXECUTE	or func == 'execute') : device.execute()
-			else: return "Device " + str(id) + " does not support method " + str(method)
+			for i in range(self.config['retries']):
+				result = self.foo(device, func, value, method, lastCommand)
+				if not result:
+					return result
 		except Exception as e:
 			return e
 
 		return TELLSTICK_SUCCESS
 	
-	def toggle_device(self, device):
-		# TODO or last command was a dim with value > 0?
-		if device.last_sent_command(TELLSTICK_TURNON + TELLSTICK_TURNOFF) == TELLSTICK_TURNON:
-			device.turn_off()
-		else:
-			device.turn_on()
+	def foo(self, device, func, value, method, lastCommand):
+		print "FOO"
+		if   (method == TELLSTICK_BELL		or func == 'bell')    : device.bell()
+		elif (method == TELLSTICK_DIM		or func == 'dim')     : device.dim(value)
+		elif (method == TELLSTICK_DOWN		or func == 'down')    : device.down()
+		elif (method == TELLSTICK_LEARN		or func == 'learn')   : device.learn()
+		elif (method == TELLSTICK_STOP		or func == 'stop')    : device.stop()
+		elif (method == TELLSTICK_TURNON	or func == 'turnon')  : device.turn_on()
+		elif (method == TELLSTICK_TURNOFF	or func == 'turnoff') : device.turn_off()
+		elif (method == TELLSTICK_UP		or func == 'up')      : device.up()
+		elif (method == TELLSTICK_TOGGLE	or func == 'toggle')  :
+			# TODO or last command was a dim with value > 0?
+			if lastCommand == TELLSTICK_TURNON:
+				device.turn_off()
+			else:
+				device.turn_on()
+		elif (method == TELLSTICK_EXECUTE	or func == 'execute') : device.execute()
+		else: return "Device " + str(id) + " does not support method " + str(method)
+		return True
 
 	def clients_list(self, func, extras):
 		return { 'client': [self.get_client_info()] }

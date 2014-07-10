@@ -288,7 +288,7 @@ class TellstickAPI(object):
 
 		try:
 			for i in range(self.config['retries']):
-				result = self.foo(device, func, value, method, lastCommand)
+				result = self.run_command(device, func, value, method, lastCommand)
 				if not result:
 					return result
 		except Exception as e:
@@ -296,8 +296,7 @@ class TellstickAPI(object):
 
 		return TELLSTICK_SUCCESS
 	
-	def foo(self, device, func, value, method, lastCommand):
-		print "FOO"
+	def run_command(self, device, func, value, method, lastCommand):
 		if   (method == TELLSTICK_BELL		or func == 'bell')    : device.bell()
 		elif (method == TELLSTICK_DIM		or func == 'dim')     : device.dim(value)
 		elif (method == TELLSTICK_DOWN		or func == 'down')    : device.down()
